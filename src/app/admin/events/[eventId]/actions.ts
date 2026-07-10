@@ -5,9 +5,39 @@ import { revalidatePath } from 'next/cache';
 import { getEnv } from '@/lib/env';
 import { requireHostSession } from '@/lib/host-session';
 import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
-import { setEventHeroImage } from '@/modules/events/event-service';
+import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
 import { addGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
+
+function parseDateTimeLocalInput(value: FormDataEntryValue | null) {
+  const normalizedValue = String(value ?? '').trim();
+
+  if (normalizedValue === '') {
+    return null;
+  }
+
+  const startsAt = new Date(normalizedValue);
+
+  if (Number.isNaN(startsAt.getTime())) {
+    throw new Error('Invalid start time');
+  }
+
+  return startsAt;
+}
+
+export async function updateEventAction(eventId: string, formData: FormData) {
+  await requireHostSession();
+
+  await updateEvent(eventId, {
+    title: String(formData.get('title') ?? ''),
+    hostName: String(formData.get('hostName') ?? ''),
+    location: String(formData.get('location') ?? ''),
+    startsAt: parseDateTimeLocalInput(formData.get('startsAt')),
+    description: String(formData.get('description') ?? ''),
+  });
+
+  revalidatePath(`/admin/events/${eventId}`);
+}
 
 export async function addGuestAction(eventId: string, formData: FormData) {
   await requireHostSession();

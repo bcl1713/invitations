@@ -3,9 +3,29 @@ import Link from 'next/link';
 import { requireHostSession } from '@/lib/host-session';
 import { getEventDashboard } from '@/modules/events/event-service';
 
-import { addGuestAction, sendInviteAction, uploadHeroAction } from './actions';
+import { addGuestAction, sendInviteAction, updateEventAction, uploadHeroAction } from './actions';
 
 export const dynamic = 'force-dynamic';
+
+function formatDateTimeLocalValue(value: Date | string | null) {
+  if (!value) {
+    return '';
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 export default async function EventDashboardPage({
   params,
@@ -55,6 +75,34 @@ export default async function EventDashboardPage({
         <div className="two-column wide-split">
           <div className="stack panel">
             <h2>Event details</h2>
+            <form action={updateEventAction.bind(null, event.id)} className="stack form-grid">
+              <label>
+                Title
+                <input name="title" required defaultValue={event.title} />
+              </label>
+              <label>
+                Host name
+                <input name="hostName" required defaultValue={event.hostName} />
+              </label>
+              <label>
+                Location
+                <input name="location" defaultValue={event.location} />
+              </label>
+              <label>
+                Start time
+                <input
+                  name="startsAt"
+                  type="datetime-local"
+                  defaultValue={formatDateTimeLocalValue(event.startsAt)}
+                />
+              </label>
+              <label>
+                Description
+                <textarea name="description" rows={5} defaultValue={event.description} />
+              </label>
+              <button type="submit">Save event details</button>
+            </form>
+
             <p className="pre-wrap">{event.description || 'No description yet.'}</p>
             <form action={uploadHeroAction.bind(null, event.id)} className="stack form-grid">
               <label>
