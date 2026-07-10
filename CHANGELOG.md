@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/bcl1713/invitations/compare/v1.0.2...v1.1.0) (2026-07-10)
+
+
+### Features
+
+* clarify host invite workflow in dashboard ([2e95584](https://github.com/bcl1713/invitations/commit/2e95584bfc804b2fad06095684abca995b1f08d4))
+* clarify invitation status summary ([d915470](https://github.com/bcl1713/invitations/commit/d9154704608c46e9dbc695b995da5b9e8d295a85))
+* support add-and-send guest flow ([fdc5e26](https://github.com/bcl1713/invitations/commit/fdc5e2625844b2c97cd011a686d83877b1403cd8))
+
 ## [1.0.2](https://github.com/bcl1713/invitations/compare/v1.0.1...v1.0.2) (2026-07-10)
 
 
