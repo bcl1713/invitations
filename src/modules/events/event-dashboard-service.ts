@@ -9,7 +9,6 @@ export function summarizeGuestStatuses(guests: GuestStatusSummaryInput[]) {
       summary.totalGuests += 1;
       if (guest.invitationSent) {
         summary.sentInvites += 1;
-        summary.invitesSent += 1;
       } else {
         summary.draftInvites += 1;
       }
@@ -31,7 +30,6 @@ export function summarizeGuestStatuses(guests: GuestStatusSummaryInput[]) {
       totalGuests: 0,
       draftInvites: 0,
       sentInvites: 0,
-      invitesSent: 0,
       respondedCount: 0,
       goingCount: 0,
       maybeCount: 0,

@@ -13,7 +13,6 @@ describe('summarizeGuestStatuses', () => {
       totalGuests: 4,
       draftInvites: 1,
       sentInvites: 3,
-      invitesSent: 3,
       respondedCount: 3,
       goingCount: 1,
       maybeCount: 1,
