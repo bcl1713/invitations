@@ -42,9 +42,9 @@ export default async function EventDashboardPage({
           </div>
           <div className="stats-grid compact">
             <div><strong>{summary.totalGuests}</strong><span>Guests</span></div>
-            <div><strong>{summary.invitesSent}</strong><span>Invites sent</span></div>
-            <div><strong>{summary.goingCount}</strong><span>Going</span></div>
-            <div><strong>{summary.noResponseCount}</strong><span>No response</span></div>
+            <div><strong>{summary.draftInvites}</strong><span>Draft invites</span></div>
+            <div><strong>{summary.sentInvites}</strong><span>Invites sent</span></div>
+            <div><strong>{summary.respondedCount}</strong><span>Responded</span></div>
           </div>
         </div>
 
@@ -83,12 +83,18 @@ export default async function EventDashboardPage({
               <input name="canBringPlusOne" type="checkbox" />
               Allow plus-one
             </label>
+            <label className="checkbox-row">
+              <input name="sendNow" type="checkbox" />
+              Send invite now
+            </label>
+            <p className="muted">Otherwise the guest stays in Draft until you click Send invite.</p>
             <button type="submit">Add guest</button>
           </form>
         </div>
 
         <section className="stack panel">
           <h2>Guests</h2>
+          <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
           <div className="table-scroll">
             <table>
               <thead>
