@@ -1,3 +1,15 @@
+# 1.0.0 (2026-07-10)
+
+
+### Bug Fixes
+
+* isolate playwright smoke test from vitest ([2a935c7](https://github.com/bcl1713/invitations/commit/2a935c77cfc40eacbe6e0d9c2caaec5c5b0c4ad8))
+
+
+### Features
+
+* bootstrap invitations platform mvp ([df1fd27](https://github.com/bcl1713/invitations/commit/df1fd2709fc23f818cfd3cccd07c4cff303cdfe3))
+
 # Changelog
 
 All notable changes to this project will be documented here once semantic-release begins doing its civilizing work.
