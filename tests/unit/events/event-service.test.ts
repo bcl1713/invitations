@@ -43,13 +43,45 @@ describe('updateEvent', () => {
     });
   });
 
-  it('persists blank startsAt as null', async () => {
+  it('persists blank or null startsAt as null', async () => {
     await updateEvent('event-1', {
       title: 'Event title',
       hostName: 'Host name',
       location: 'Event hall',
       description: 'Description',
       startsAt: '   ',
+    });
+
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: expect.objectContaining({
+        startsAt: null,
+      }),
+    });
+
+    await updateEvent('event-1', {
+      title: 'Event title',
+      hostName: 'Host name',
+      location: 'Event hall',
+      description: 'Description',
+      startsAt: null,
+    });
+
+    expect(updateMock).toHaveBeenLastCalledWith({
+      where: { id: 'event-1' },
+      data: expect.objectContaining({
+        startsAt: null,
+      }),
+    });
+  });
+
+  it('coerces invalid date strings to null', async () => {
+    await updateEvent('event-1', {
+      title: 'Event title',
+      hostName: 'Host name',
+      location: 'Event hall',
+      description: 'Description',
+      startsAt: 'not-a-date',
     });
 
     expect(updateMock).toHaveBeenCalledWith({

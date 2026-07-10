@@ -28,10 +28,15 @@ function normalizeStartsAt(value: Date | string | null | undefined) {
   }
 
   if (typeof value === 'string') {
-    return value.trim() === '' ? null : new Date(value);
+    if (value.trim() === '') {
+      return null;
+    }
+
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 
-  return value;
+  return Number.isNaN(value.getTime()) ? null : value;
 }
 
 export async function createEvent(input: CreateEventInput) {
