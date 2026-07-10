@@ -11,14 +11,19 @@ import { issueInvitation } from '@/modules/invitations/invitation-service';
 
 export async function addGuestAction(eventId: string, formData: FormData) {
   await requireHostSession();
+  const env = getEnv();
 
-  await addGuest({
+  const guest = await addGuest({
     eventId,
     name: String(formData.get('name') ?? ''),
     email: String(formData.get('email') ?? ''),
     note: String(formData.get('note') ?? ''),
     canBringPlusOne: formData.get('canBringPlusOne') === 'on',
   });
+
+  if (formData.get('sendNow') === 'on') {
+    await issueInvitation(eventId, guest.id, env.APP_URL, env.APP_SECRET);
+  }
 
   revalidatePath(`/admin/events/${eventId}`);
 }
