@@ -10,18 +10,55 @@ export interface CreateEventInput {
   startsAt?: Date | null;
 }
 
+export interface UpdateEventInput {
+  title: string;
+  description: string;
+  location: string;
+  hostName: string;
+  startsAt?: Date | string | null;
+}
+
+function normalizeEventString(value: string) {
+  return value.trim();
+}
+
+function normalizeStartsAt(value: Date | string | null | undefined) {
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value === 'string') {
+    return value.trim() === '' ? null : new Date(value);
+  }
+
+  return value;
+}
+
 export async function createEvent(input: CreateEventInput) {
   const slugBase = slugifyEventTitle(input.title);
   const slug = `${slugBase}-${Date.now().toString().slice(-6)}`;
 
   return prisma.event.create({
     data: {
-      title: input.title.trim(),
+      title: normalizeEventString(input.title),
       slug,
-      description: input.description.trim(),
-      location: input.location.trim(),
-      hostName: input.hostName.trim(),
-      startsAt: input.startsAt ?? null,
+      description: normalizeEventString(input.description),
+      location: normalizeEventString(input.location),
+      hostName: normalizeEventString(input.hostName),
+      startsAt: normalizeStartsAt(input.startsAt),
+    },
+  });
+}
+
+export async function updateEvent(eventId: string, input: UpdateEventInput) {
+  return prisma.event.update({
+    where: { id: eventId },
+    data: {
+      title: normalizeEventString(input.title),
+      description: normalizeEventString(input.description),
+      location: normalizeEventString(input.location),
+      hostName: normalizeEventString(input.hostName),
+      startsAt: normalizeStartsAt(input.startsAt),
     },
   });
 }
