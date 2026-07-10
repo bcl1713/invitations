@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/bcl1713/invitations/compare/v1.1.0...v1.2.0) (2026-07-10)
+
+
+### Features
+
+* add event update service ([04f581e](https://github.com/bcl1713/invitations/commit/04f581ee9bdf7c7af4eab079ec6b9f183dfb00c6))
+* allow editing event details ([94b3d5c](https://github.com/bcl1713/invitations/commit/94b3d5ce3253743967137b19ab1c078cb91e4807))
+* harden hero image handling ([765cb23](https://github.com/bcl1713/invitations/commit/765cb23fb64294e04d5e28b75d5c206d12dfec0e))
+* improve invitation presentation ([36249c1](https://github.com/bcl1713/invitations/commit/36249c10ef1f1cda0932e54e99e49c68f61ce670))
+
 # [1.1.0](https://github.com/bcl1713/invitations/compare/v1.0.2...v1.1.0) (2026-07-10)
 
 
