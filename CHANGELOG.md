@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/bcl1713/invitations/compare/v1.0.0...v1.0.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* grant semantic release issue permissions ([3137f27](https://github.com/bcl1713/invitations/commit/3137f274ea7c5f69dd1af7911b768126e2f0e77a))
+
 # 1.0.0 (2026-07-10)
 
 
