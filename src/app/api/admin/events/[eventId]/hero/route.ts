@@ -1,5 +1,3 @@
-import { NextResponse } from 'next/server';
-
 import { getHostSession } from '@/lib/host-session';
 import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage } from '@/modules/events/event-service';
@@ -11,7 +9,12 @@ export async function POST(
   const session = await getHostSession();
 
   if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url), 303);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: '/login',
+      },
+    });
   }
 
   const { eventId } = await params;
@@ -23,5 +26,10 @@ export async function POST(
     await setEventHeroImage(eventId, storedFileName);
   }
 
-  return NextResponse.redirect(new URL(`/admin/events/${eventId}`, request.url), 303);
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: `/admin/events/${eventId}`,
+    },
+  });
 }

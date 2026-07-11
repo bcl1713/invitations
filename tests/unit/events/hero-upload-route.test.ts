@@ -55,6 +55,6 @@ describe('hero upload route', () => {
     expect(saveUploadedImageMock.mock.calls[0]?.[0]).toBeInstanceOf(File);
     expect(setEventHeroImageMock).toHaveBeenCalledWith('event-123', 'stored-image.jpg');
     expect(response.status).toBe(303);
-    expect(response.headers.get('location')).toBe('http://localhost/admin/events/event-123');
+    expect(response.headers.get('location')).toBe('/admin/events/event-123');
   });
 });
