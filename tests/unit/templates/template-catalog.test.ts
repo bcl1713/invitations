@@ -20,8 +20,8 @@ describe('getInvitationTemplateTheme', () => {
   it('returns the expected presentation metadata for each starter template', () => {
     expect(getInvitationTemplateTheme('classic')).toMatchObject({
       pageClassName: 'invitation-theme-classic',
-      detailsPanelClassName: 'panel stack compact-info',
-      rsvpPanelClassName: 'stack form-grid panel soft-panel',
+      detailsPanelClassName: 'panel stack compact-info invitation-panel-classic',
+      rsvpPanelClassName: 'stack form-grid panel soft-panel invitation-panel-classic',
     });
 
     expect(getInvitationTemplateTheme('modern')).toMatchObject({
