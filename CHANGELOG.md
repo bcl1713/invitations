@@ -1,3 +1,10 @@
+## [1.5.8](https://github.com/bcl1713/invitations/compare/v1.5.7...v1.5.8) (2026-07-11)
+
+
+### Bug Fixes
+
+* rebalance ceremonial invitation title ([c4bce01](https://github.com/bcl1713/invitations/commit/c4bce01399818eb3766c445469a4956bbe5a11da))
+
 ## [1.5.7](https://github.com/bcl1713/invitations/compare/v1.5.6...v1.5.7) (2026-07-11)
 
 
