@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/bcl1713/invitations/compare/v1.2.2...v1.2.3) (2026-07-11)
+
+
+### Bug Fixes
+
+* use relative redirects for hero uploads ([18ed8c0](https://github.com/bcl1713/invitations/commit/18ed8c0ba9e33879a626fc768dd86ec2c275953e))
+
 ## [1.2.2](https://github.com/bcl1713/invitations/compare/v1.2.1...v1.2.2) (2026-07-11)
 
 
