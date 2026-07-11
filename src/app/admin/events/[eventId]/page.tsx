@@ -61,11 +61,16 @@ export default async function EventDashboardPage({
             <p>{event.location || 'Location TBD'}</p>
             <p>{event.startsAt ? new Date(event.startsAt).toLocaleString() : 'Time TBD'}</p>
           </div>
-          <div className="stats-grid compact">
-            <div><strong>{summary.totalGuests}</strong><span>Guests</span></div>
-            <div><strong>{summary.draftInvites}</strong><span>Draft invites</span></div>
-            <div><strong>{summary.sentInvites}</strong><span>Invites sent</span></div>
-            <div><strong>{summary.respondedCount}</strong><span>Responded</span></div>
+          <div className="stack" style={{ alignItems: 'flex-end' }}>
+            <a className="button-link" href={`/api/admin/events/${event.id}/export`}>
+              Export guest CSV
+            </a>
+            <div className="stats-grid compact">
+              <div><strong>{summary.totalGuests}</strong><span>Guests</span></div>
+              <div><strong>{summary.draftInvites}</strong><span>Draft invites</span></div>
+              <div><strong>{summary.sentInvites}</strong><span>Invites sent</span></div>
+              <div><strong>{summary.respondedCount}</strong><span>Responded</span></div>
+            </div>
           </div>
         </div>
 
