@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { requireHostSession } from '@/lib/host-session';
 import { getEventDashboard } from '@/modules/events/event-service';
+import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
 import { addGuestAction, sendInviteAction, updateEventAction } from './actions';
 
@@ -100,6 +101,20 @@ export default async function EventDashboardPage({
                 Description
                 <textarea name="description" rows={5} defaultValue={event.description} />
               </label>
+              <label>
+                Invitation style
+                <select name="templateKey" defaultValue={event.templateKey}>
+                  {TEMPLATE_OPTIONS.map((template) => (
+                    <option key={template.key} value={template.key}>
+                      {template.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="muted">
+                {TEMPLATE_OPTIONS.find((template) => template.key === event.templateKey)?.description ??
+                  'Choose the base invitation presentation.'}
+              </p>
               <button type="submit">Save event details</button>
             </form>
 

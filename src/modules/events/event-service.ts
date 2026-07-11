@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { summarizeGuestStatuses } from '@/modules/events/event-dashboard-service';
 import { slugifyEventTitle } from '@/modules/events/slugify';
+import { DEFAULT_TEMPLATE_KEY, normalizeTemplateKey } from '@/modules/templates/template-catalog';
 
 export interface CreateEventInput {
   title: string;
@@ -16,6 +17,7 @@ export interface UpdateEventInput {
   location: string;
   hostName: string;
   startsAt?: Date | string | null;
+  templateKey?: string | null;
 }
 
 function normalizeEventString(value: string) {
@@ -51,6 +53,7 @@ export async function createEvent(input: CreateEventInput) {
       location: normalizeEventString(input.location),
       hostName: normalizeEventString(input.hostName),
       startsAt: normalizeStartsAt(input.startsAt),
+      templateKey: DEFAULT_TEMPLATE_KEY,
     },
   });
 }
@@ -64,6 +67,7 @@ export async function updateEvent(eventId: string, input: UpdateEventInput) {
       location: normalizeEventString(input.location),
       hostName: normalizeEventString(input.hostName),
       startsAt: normalizeStartsAt(input.startsAt),
+      templateKey: normalizeTemplateKey(input.templateKey),
     },
   });
 }

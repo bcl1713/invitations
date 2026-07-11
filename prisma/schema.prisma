@@ -22,6 +22,7 @@ model Event {
   hostName      String       @default("")
   startsAt      DateTime?
   heroImagePath String?
+  templateKey   String       @default("classic")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   guests        Guest[]

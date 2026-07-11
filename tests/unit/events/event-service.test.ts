@@ -3,15 +3,43 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/db', () => ({
   prisma: {
     event: {
+      create: vi.fn(),
       update: vi.fn(),
     },
   },
 }));
 
 import { prisma } from '@/lib/db';
-import { updateEvent } from '@/modules/events/event-service';
+import { createEvent, updateEvent } from '@/modules/events/event-service';
 
+const createMock = vi.mocked(prisma.event.create);
 const updateMock = vi.mocked(prisma.event.update);
+
+describe('createEvent', () => {
+  beforeEach(() => {
+    createMock.mockReset();
+    createMock.mockResolvedValue({
+      id: 'event-1',
+      templateKey: 'classic',
+    } as never);
+  });
+
+  it('assigns the default template to new events', async () => {
+    await createEvent({
+      title: '  Summer Party  ',
+      hostName: '  Alex Host  ',
+      location: '  Garden Patio  ',
+      description: '  Bring snacks.  ',
+      startsAt: new Date('2026-08-20T18:30:00.000Z'),
+    });
+
+    expect(createMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        templateKey: 'classic',
+      }),
+    });
+  });
+});
 
 describe('updateEvent', () => {
   beforeEach(() => {
@@ -39,6 +67,7 @@ describe('updateEvent', () => {
         location: 'Garden Patio',
         description: 'Bring snacks.',
         startsAt: new Date('2026-08-20T18:30:00.000Z'),
+        templateKey: 'classic',
       },
     });
   });
@@ -92,19 +121,38 @@ describe('updateEvent', () => {
     });
   });
 
-  it('leaves the existing slug unchanged on edit', async () => {
+  it('updates the selected template when given a supported key', async () => {
     await updateEvent('event-1', {
       title: 'Updated title',
       hostName: 'Host name',
       location: 'Event hall',
       description: 'Description',
       startsAt: null,
+      templateKey: 'modern',
     });
 
     expect(updateMock).toHaveBeenCalledWith({
       where: { id: 'event-1' },
-      data: expect.not.objectContaining({
-        slug: expect.anything(),
+      data: expect.objectContaining({
+        templateKey: 'modern',
+      }),
+    });
+  });
+
+  it('falls back to the default template when given an unsupported key', async () => {
+    await updateEvent('event-1', {
+      title: 'Updated title',
+      hostName: 'Host name',
+      location: 'Event hall',
+      description: 'Description',
+      startsAt: null,
+      templateKey: 'ballroom-chaos',
+    });
+
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: expect.objectContaining({
+        templateKey: 'classic',
       }),
     });
   });

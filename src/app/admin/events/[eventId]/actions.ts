@@ -8,6 +8,7 @@ import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
 import { addGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
+import { normalizeTemplateKey } from '@/modules/templates/template-catalog';
 
 function parseDateTimeLocalInput(value: FormDataEntryValue | null) {
   const normalizedValue = String(value ?? '').trim();
@@ -34,6 +35,7 @@ export async function updateEventAction(eventId: string, formData: FormData) {
     location: String(formData.get('location') ?? ''),
     startsAt: parseDateTimeLocalInput(formData.get('startsAt')),
     description: String(formData.get('description') ?? ''),
+    templateKey: normalizeTemplateKey(String(formData.get('templateKey') ?? '')),
   });
 
   revalidatePath(`/admin/events/${eventId}`);
