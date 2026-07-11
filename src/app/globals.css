@@ -450,6 +450,11 @@ td {
   text-wrap: balance;
 }
 
+.invitation-title-line {
+  display: block;
+  white-space: nowrap;
+}
+
 .invitation-theme-photo .invitation-heading-block h1,
 .invitation-theme-photo .invitation-about-panel h2,
 .invitation-theme-photo .invitation-about-panel h3,
@@ -892,7 +897,7 @@ td {
   max-width: 14ch;
   margin-inline: auto;
   font-size: clamp(2.4rem, 4.2vw, 3.8rem);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
@@ -1105,10 +1110,11 @@ td {
   }
 
   .invitation-theme-ceremonial .invitation-heading-block h1 {
-    max-width: none;
-    width: 100%;
-    font-size: clamp(2rem, 8vw, 3rem);
-    line-height: 1.02;
+    max-width: 22ch;
+    width: min(100%, 22ch);
+    font-size: clamp(1.38rem, 5.7vw, 1.95rem);
+    line-height: 0.98;
+    letter-spacing: 0.025em;
   }
 
   .invitation-card-frame::before {

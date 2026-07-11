@@ -60,8 +60,31 @@ function formatEventDate(startsAt: string | Date | null) {
   return eventDateFormatter.format(date);
 }
 
+function buildTitleLines(title: string, templateKey: string) {
+  const trimmed = title.trim();
+  if (templateKey !== 'ceremonial') {
+    return [trimmed];
+  }
+
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length < 4) {
+    return [trimmed];
+  }
+
+  const midpoint = Math.ceil(words.length / 2);
+  const firstLine = words.slice(0, midpoint).join(' ');
+  const secondLine = words.slice(midpoint).join(' ');
+
+  if (!firstLine || !secondLine) {
+    return [trimmed];
+  }
+
+  return [firstLine, secondLine];
+}
+
 export function buildInvitationPresentation(input: InvitationPresentationInput) {
   const theme = getInvitationTemplateTheme(input.event.templateKey);
+  const title = input.event.title.trim();
   const hostName = input.event.hostName.trim() || 'Your host';
   const whereText = input.event.location.trim() || 'Location details will be shared soon.';
   const description =
@@ -69,7 +92,8 @@ export function buildInvitationPresentation(input: InvitationPresentationInput) 
 
   return {
     theme,
-    title: input.event.title.trim(),
+    title,
+    titleLines: buildTitleLines(title, input.event.templateKey),
     hostName,
     guestName: input.guest.name.trim(),
     description,

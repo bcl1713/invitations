@@ -158,7 +158,7 @@ export function InvitationPreview({
                 {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
                 <p className="eyebrow">{presentation.eyebrow}</p>
                 <p className="invitation-kicker">{presentation.introTitle}</p>
-                <h1>{presentation.title}</h1>
+                <h1>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
                 <p className="invitation-host-line">Hosted by <strong>{presentation.hostName}</strong></p>
                 <p className="invitation-guest-line">Reserved for {presentation.guestName}</p>
               </div>
