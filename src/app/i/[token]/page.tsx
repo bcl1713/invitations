@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { getInvitationView } from '@/modules/invitations/invitation-service';
+import { getInvitationTemplateTheme } from '@/modules/templates/invitation-template-theme';
 
 import { submitRsvpAction } from './actions';
 
@@ -44,26 +45,28 @@ export default async function InvitationPage({
   const hostName = invitation.event.hostName || 'Your host';
   const location = invitation.event.location || 'Location details will be shared soon.';
   const description = invitation.event.description || 'We would love to celebrate with you. More event details are on the way.';
+  const theme = getInvitationTemplateTheme(invitation.event.templateKey);
 
   return (
-    <main className="page wide-page">
+    <main className={`page wide-page ${theme.pageClassName}`}>
       <section className="card stack wide-card">
         {invitation.event.heroImagePath ? (
-          <img className="hero-image" src={`/media/${invitation.event.heroImagePath}`} alt={`${invitation.event.title} hero`} />
+          <img className={theme.heroClassName} src={`/media/${invitation.event.heroImagePath}`} alt={`${invitation.event.title} hero`} />
         ) : null}
 
-        <div className="two-column wide-split">
+        <div className={theme.contentClassName}>
           <section className="stack" aria-label="Invitation details">
             <div className="stack compact-info">
-              <p className="eyebrow">You&apos;re invited</p>
+              <p className="eyebrow">{theme.eyebrow}</p>
               <h1>{invitation.event.title}</h1>
               <p>
                 Hosted by <strong>{hostName}</strong>
               </p>
               <p>Hello {invitation.guest.name},</p>
+              <p className="muted">{theme.introTitle}</p>
             </div>
 
-            <div className="panel stack compact-info">
+            <div className={theme.detailsPanelClassName}>
               <div>
                 <p className="eyebrow">When</p>
                 <p>{formatEventDate(invitation.event.startsAt)}</p>
@@ -82,11 +85,11 @@ export default async function InvitationPage({
 
           <section className="stack" aria-labelledby="rsvp-heading">
             <div className="stack compact-info">
-              <h2 id="rsvp-heading">RSVP</h2>
+              <h2 id="rsvp-heading">{theme.rsvpTitle}</h2>
               <p>Please let {hostName} know if you can make it.</p>
             </div>
             {query.saved ? <p className="success">Your RSVP has been saved.</p> : null}
-            <form action={submitRsvpAction.bind(null, token)} className="stack form-grid panel soft-panel">
+            <form action={submitRsvpAction.bind(null, token)} className={theme.rsvpPanelClassName}>
               <label>
                 RSVP status
                 <select name="status" defaultValue={invitation.guest.rsvp?.status ?? 'GOING'}>
