@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/bcl1713/invitations/compare/v1.5.5...v1.5.6) (2026-07-11)
+
+
+### Bug Fixes
+
+* widen ceremonial invitation layout on mobile ([9f80c61](https://github.com/bcl1713/invitations/commit/9f80c610d8eab611bd03f71a862caf813c1507ce))
+
 ## [1.5.5](https://github.com/bcl1713/invitations/compare/v1.5.4...v1.5.5) (2026-07-11)
 
 
