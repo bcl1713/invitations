@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { requireHostSession } from '@/lib/host-session';
 import { getEventDashboard } from '@/modules/events/event-service';
 
-import { addGuestAction, sendInviteAction, updateEventAction, uploadHeroAction } from './actions';
+import { addGuestAction, sendInviteAction, updateEventAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +104,7 @@ export default async function EventDashboardPage({
             </form>
 
             <p className="pre-wrap">{event.description || 'No description yet.'}</p>
-            <form action={uploadHeroAction.bind(null, event.id)} className="stack form-grid">
+            <form action={`/api/admin/events/${event.id}/hero`} method="post" encType="multipart/form-data" className="stack form-grid">
               <label>
                 Upload hero image
                 <input name="heroImage" type="file" accept="image/png,image/jpeg,image/webp" />
