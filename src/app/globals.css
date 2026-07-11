@@ -912,6 +912,30 @@ td {
   letter-spacing: 0.05em;
 }
 
+.invitation-theme-ceremonial .invitation-detail-block .eyebrow,
+.invitation-theme-ceremonial .invitation-about-panel h2,
+.invitation-theme-ceremonial .invitation-about-panel h3 {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.invitation-theme-ceremonial .invitation-detail-block .eyebrow {
+  font-size: 0.8rem;
+}
+
+.invitation-theme-ceremonial .invitation-detail-block p,
+.invitation-theme-ceremonial .invitation-about-panel p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.03rem;
+  line-height: 1.42;
+}
+
+.invitation-theme-ceremonial .invitation-about-panel h2,
+.invitation-theme-ceremonial .invitation-about-panel h3 {
+  font-size: clamp(1.2rem, 4.6vw, 1.55rem);
+  line-height: 1.06;
+}
+
 .invitation-theme-ceremonial .invitation-detail-block,
 .invitation-theme-ceremonial .invitation-about-panel,
 .invitation-theme-ceremonial .invitation-rsvp-copy,
@@ -1029,11 +1053,11 @@ td {
   }
 
   .invitation-main-card {
-    padding: 1.2rem 0.65rem 1.1rem;
+    padding: 1rem 0.42rem 0.95rem;
   }
 
   .invitation-response-card {
-    padding: 1.05rem 0.75rem 0.95rem;
+    padding: 0.95rem 0.62rem 0.88rem;
   }
 
   .invitation-copy-panel {
@@ -1045,7 +1069,31 @@ td {
   .invitation-rsvp-copy-shell,
   .invitation-rsvp-form-shell {
     width: 100%;
-    padding-inline: 0.3rem;
+    padding-inline: 0.12rem;
+  }
+
+  .invitation-main-card .panel.invitation-panel-classic,
+  .invitation-main-card .panel.invitation-panel-modern,
+  .invitation-main-card .panel.invitation-panel-photo,
+  .invitation-main-card .panel.invitation-panel-ceremonial {
+    padding: 0.8rem 0.12rem 0.38rem;
+    gap: 0.62rem;
+  }
+
+  .invitation-main-card .invitation-about-panel {
+    padding: 0.8rem 0.12rem 0.28rem;
+    gap: 0.34rem;
+  }
+
+  .invitation-theme-ceremonial .invitation-detail-block p,
+  .invitation-theme-ceremonial .invitation-about-panel p {
+    font-size: 0.98rem;
+    line-height: 1.34;
+  }
+
+  .invitation-theme-ceremonial .invitation-about-panel h2,
+  .invitation-theme-ceremonial .invitation-about-panel h3 {
+    font-size: clamp(1.1rem, 4.4vw, 1.4rem);
   }
 
   .invitation-main-card .panel.invitation-panel-classic,
