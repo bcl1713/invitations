@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/bcl1713/invitations/compare/v1.5.2...v1.5.3) (2026-07-11)
+
+
+### Bug Fixes
+
+* strengthen invitation border treatment ([e5bae06](https://github.com/bcl1713/invitations/commit/e5bae0686473625d24d7dd2e30286959f4f0927c))
+
 ## [1.5.2](https://github.com/bcl1713/invitations/compare/v1.5.1...v1.5.2) (2026-07-11)
 
 
