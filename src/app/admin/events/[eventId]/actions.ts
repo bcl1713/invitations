@@ -6,7 +6,7 @@ import { getEnv } from '@/lib/env';
 import { requireHostSession } from '@/lib/host-session';
 import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
-import { addGuest } from '@/modules/guests/guest-service';
+import { addGuest, updateGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
 import { normalizeTemplateKey } from '@/modules/templates/template-catalog';
 
@@ -64,6 +64,19 @@ export async function sendInviteAction(eventId: string, guestId: string) {
   await requireHostSession();
   const env = getEnv();
   await issueInvitation(eventId, guestId, env.APP_URL, env.APP_SECRET);
+  revalidatePath(`/admin/events/${eventId}`);
+}
+
+export async function updateGuestAction(eventId: string, guestId: string, formData: FormData) {
+  await requireHostSession();
+
+  await updateGuest(guestId, {
+    name: String(formData.get('name') ?? ''),
+    email: String(formData.get('email') ?? ''),
+    note: String(formData.get('note') ?? ''),
+    canBringPlusOne: formData.get('canBringPlusOne') === 'on',
+  });
+
   revalidatePath(`/admin/events/${eventId}`);
 }
 

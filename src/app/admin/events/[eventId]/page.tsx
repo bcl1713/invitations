@@ -4,7 +4,7 @@ import { requireHostSession } from '@/lib/host-session';
 import { getEventDashboard } from '@/modules/events/event-service';
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
-import { addGuestAction, sendInviteAction, updateEventAction } from './actions';
+import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,13 +28,34 @@ function formatDateTimeLocalValue(value: Date | string | null) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+type EventDashboardData = NonNullable<Awaited<ReturnType<typeof getEventDashboard>>>;
+type EventGuest = EventDashboardData['event']['guests'][number];
+
+function filterGuests(guests: EventGuest[], guestFilter: string) {
+  switch (guestFilter) {
+    case 'draft':
+      return guests.filter((guest: EventGuest) => !guest.invitation?.sentAt);
+    case 'sent':
+      return guests.filter((guest: EventGuest) => Boolean(guest.invitation?.sentAt));
+    case 'responded':
+      return guests.filter((guest: EventGuest) => Boolean(guest.rsvp));
+    case 'no-response':
+      return guests.filter((guest: EventGuest) => !guest.rsvp);
+    default:
+      return guests;
+  }
+}
+
 export default async function EventDashboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ guestFilter?: string }>;
 }) {
   await requireHostSession();
   const { eventId } = await params;
+  const { guestFilter = 'all' } = await searchParams;
   const data = await getEventDashboard(eventId);
 
   if (!data) {
@@ -49,6 +70,7 @@ export default async function EventDashboardPage({
   }
 
   const { event, summary } = data;
+  const filteredGuests = filterGuests(event.guests, guestFilter);
 
   return (
     <main className="page wide-page">
@@ -161,8 +183,19 @@ export default async function EventDashboardPage({
         </div>
 
         <section className="stack panel">
-          <h2>Guests</h2>
-          <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
+          <div className="row between wrap">
+            <div>
+              <h2>Guests</h2>
+              <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
+            </div>
+            <div className="row wrap" style={{ gap: '0.5rem' }}>
+              <Link href={`/admin/events/${event.id}`}>All</Link>
+              <Link href={`/admin/events/${event.id}?guestFilter=draft`}>Draft</Link>
+              <Link href={`/admin/events/${event.id}?guestFilter=sent`}>Sent</Link>
+              <Link href={`/admin/events/${event.id}?guestFilter=responded`}>Responded</Link>
+              <Link href={`/admin/events/${event.id}?guestFilter=no-response`}>No response</Link>
+            </div>
+          </div>
           <div className="table-scroll">
             <table>
               <thead>
@@ -176,17 +209,44 @@ export default async function EventDashboardPage({
                 </tr>
               </thead>
               <tbody>
-                {event.guests.map((guest) => (
+                {filteredGuests.map((guest) => (
                   <tr key={guest.id}>
-                    <td>{guest.name}</td>
+                    <td>
+                      <strong>{guest.name}</strong>
+                      {guest.note ? <div className="muted">{guest.note}</div> : null}
+                    </td>
                     <td>{guest.email}</td>
                     <td>{guest.invitation?.sentAt ? 'Sent' : 'Draft'}</td>
                     <td>{guest.rsvp?.status ?? 'No response'}</td>
                     <td>{guest.rsvp?.headcount ?? '—'}</td>
                     <td>
-                      <form action={sendInviteAction.bind(null, event.id, guest.id)}>
-                        <button type="submit">Send invite</button>
-                      </form>
+                      <div className="stack">
+                        <form action={sendInviteAction.bind(null, event.id, guest.id)}>
+                          <button type="submit">Send invite</button>
+                        </form>
+                        <details>
+                          <summary>Edit guest</summary>
+                          <form action={updateGuestAction.bind(null, event.id, guest.id)} className="stack form-grid">
+                            <label>
+                              Name
+                              <input name="name" required defaultValue={guest.name} />
+                            </label>
+                            <label>
+                              Email
+                              <input name="email" type="email" required defaultValue={guest.email} />
+                            </label>
+                            <label>
+                              Note
+                              <textarea name="note" rows={2} defaultValue={guest.note} />
+                            </label>
+                            <label className="checkbox-row">
+                              <input name="canBringPlusOne" type="checkbox" defaultChecked={guest.canBringPlusOne} />
+                              Allow plus-one
+                            </label>
+                            <button type="submit">Save guest</button>
+                          </form>
+                        </details>
+                      </div>
                     </td>
                   </tr>
                 ))}
