@@ -1,3 +1,10 @@
+## [1.5.9](https://github.com/bcl1713/invitations/compare/v1.5.8...v1.5.9) (2026-07-11)
+
+
+### Bug Fixes
+
+* remove ceremonial title clipping ([0b4ef0e](https://github.com/bcl1713/invitations/commit/0b4ef0e7365b934c9858900d751ed5cd83c10371))
+
 ## [1.5.8](https://github.com/bcl1713/invitations/compare/v1.5.7...v1.5.8) (2026-07-11)
 
 
