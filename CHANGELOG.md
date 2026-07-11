@@ -1,3 +1,13 @@
+# [1.3.0](https://github.com/bcl1713/invitations/compare/v1.2.3...v1.3.0) (2026-07-11)
+
+
+### Features
+
+* add event template selection ([2db6c2d](https://github.com/bcl1713/invitations/commit/2db6c2d8e8f0f4ee47d30a855db20fd3bbb7e812))
+* add guest csv export ([6f25f3d](https://github.com/bcl1713/invitations/commit/6f25f3d268284c49d53a18209b21732d4950d891))
+* add invitation presentation themes ([715dc2a](https://github.com/bcl1713/invitations/commit/715dc2a912134b56a1f4c787c64715c6353102dc))
+* improve guest roster management ([229ad7c](https://github.com/bcl1713/invitations/commit/229ad7c67023b505ad5f2b81e0d06381da09875c))
+
 ## [1.2.3](https://github.com/bcl1713/invitations/compare/v1.2.2...v1.2.3) (2026-07-11)
 
 
