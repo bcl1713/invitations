@@ -362,42 +362,43 @@ td {
   background:
     linear-gradient(180deg, rgba(255, 252, 246, 0.97), rgba(246, 239, 227, 0.96)),
     radial-gradient(circle at top, rgba(255, 255, 255, 0.5), transparent 55%);
-  border: 1px solid rgba(74, 88, 58, 0.72);
+  border: 10px solid rgba(74, 88, 58, 0.94);
   box-shadow:
-    0 18px 34px rgba(37, 45, 31, 0.12),
-    0 34px 78px rgba(17, 24, 39, 0.15);
-  border-radius: 0.4rem;
+    inset 0 0 0 1px rgba(244, 237, 222, 0.55),
+    0 20px 34px rgba(37, 45, 31, 0.13),
+    0 36px 82px rgba(17, 24, 39, 0.16);
+  border-radius: 0.34rem;
 }
 
 .invitation-card-frame::before {
   content: '';
   position: absolute;
-  inset: 1rem;
-  border: 1px solid rgba(74, 88, 58, 0.48);
-  border-radius: 0.25rem;
+  inset: 0.85rem;
+  border: 2px solid rgba(83, 98, 64, 0.72);
+  border-radius: 0.18rem;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) left 1rem top 1rem / 1.45rem 2px no-repeat,
-    linear-gradient(180deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) left 1rem top 1rem / 2px 1.45rem no-repeat,
-    linear-gradient(90deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) right 1rem top 1rem / 1.45rem 2px no-repeat,
-    linear-gradient(180deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) right 1rem top 1rem / 2px 1.45rem no-repeat,
-    linear-gradient(90deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) left 1rem bottom 1rem / 1.15rem 2px no-repeat,
-    linear-gradient(180deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) left 1rem bottom 1rem / 2px 1.15rem no-repeat,
-    linear-gradient(90deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) right 1rem bottom 1rem / 1.15rem 2px no-repeat,
-    linear-gradient(180deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) right 1rem bottom 1rem / 2px 1.15rem no-repeat;
+    linear-gradient(90deg, rgba(214, 183, 110, 0.98), rgba(183, 149, 74, 0.92)) left 0.95rem top 0.95rem / 2.3rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.98), rgba(183, 149, 74, 0.92)) left 0.95rem top 0.95rem / 4px 2.3rem no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.98), rgba(183, 149, 74, 0.92)) right 0.95rem top 0.95rem / 2.3rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.98), rgba(183, 149, 74, 0.92)) right 0.95rem top 0.95rem / 4px 2.3rem no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.88), rgba(183, 149, 74, 0.82)) left 0.95rem bottom 0.95rem / 1.85rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.88), rgba(183, 149, 74, 0.82)) left 0.95rem bottom 0.95rem / 4px 1.85rem no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.88), rgba(183, 149, 74, 0.82)) right 0.95rem bottom 0.95rem / 1.85rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.88), rgba(183, 149, 74, 0.82)) right 0.95rem bottom 0.95rem / 4px 1.85rem no-repeat;
 }
 
 .invitation-card-frame::after {
   content: '';
   position: absolute;
-  inset: 1.55rem;
-  border: 1px solid rgba(89, 102, 70, 0.3);
+  inset: 1.45rem;
+  border: 2px solid rgba(89, 102, 70, 0.34);
   border-radius: 0.2rem;
   pointer-events: none;
 }
 
 .invitation-response-card::before {
-  inset: 0.95rem;
+  inset: 0.8rem;
   background: none;
 }
 
@@ -558,21 +559,21 @@ td {
 .invitation-main-card .invitation-about-panel::before {
   content: '';
   position: absolute;
-  left: 0.2rem;
-  right: 0.2rem;
+  left: 0.05rem;
+  right: 0.05rem;
   top: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(86, 99, 68, 0.72) 10%, rgba(196, 165, 96, 0.94) 50%, rgba(86, 99, 68, 0.72) 90%, transparent);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(86, 99, 68, 0.88) 8%, rgba(214, 183, 110, 0.98) 50%, rgba(86, 99, 68, 0.88) 92%, transparent);
 }
 
 .invitation-main-card .invitation-about-panel::after {
   content: '';
   position: absolute;
-  left: 0.2rem;
-  right: 0.2rem;
+  left: 0.05rem;
+  right: 0.05rem;
   bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(196, 165, 96, 0.32) 15%, rgba(86, 99, 68, 0.38) 50%, rgba(196, 165, 96, 0.32) 85%, transparent);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(214, 183, 110, 0.56) 15%, rgba(86, 99, 68, 0.62) 50%, rgba(214, 183, 110, 0.56) 85%, transparent);
 }
 
 .invitation-main-card .invitation-detail-block,
@@ -605,7 +606,7 @@ td {
 .invitation-rsvp-copy-shell {
   width: min(100%, 30rem);
   margin-inline: auto;
-  padding: 1rem 0.8rem;
+  padding: 1.05rem 0.8rem;
 }
 
 .invitation-about-panel {
@@ -620,8 +621,8 @@ td {
 
 .invitation-rsvp-copy-shell {
   gap: 0.45rem;
-  padding-top: 1.3rem;
-  padding-bottom: 1.2rem;
+  padding-top: 1.15rem;
+  padding-bottom: 0.95rem;
 }
 
 .invitation-rsvp-copy-shell p {
@@ -645,7 +646,7 @@ td {
 .invitation-rsvp-form-shell {
   width: min(100%, 30rem);
   margin-inline: auto;
-  padding: 1.1rem 1rem 0.95rem;
+  padding: 1rem 0.9rem 0.92rem;
 }
 
 .invitation-rsvp-form button,
@@ -715,8 +716,48 @@ td {
 .invitation-theme-classic .invitation-about-panel,
 .invitation-theme-classic .soft-panel,
 .invitation-theme-classic .panel {
-  background: rgba(251, 247, 239, 0.78);
-  border: 1px solid rgba(133, 126, 84, 0.26);
+  background: rgba(251, 247, 239, 0.8);
+  border: none;
+  box-shadow: none;
+}
+
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-copy-shell,
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-form {
+  position: relative;
+  background: transparent;
+}
+
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-copy-shell::before,
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-form::before,
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-form::after {
+  content: '';
+  position: absolute;
+  left: 0.05rem;
+  right: 0.05rem;
+  pointer-events: none;
+}
+
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-copy-shell::before,
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-form::before {
+  top: 0;
+  height: 2.45rem;
+  background:
+    linear-gradient(90deg, transparent, rgba(86, 99, 68, 0.88) 8%, rgba(214, 183, 110, 0.98) 50%, rgba(86, 99, 68, 0.88) 92%, transparent) top center / 100% 3px no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.92), rgba(183, 149, 74, 0.88)) left 0.32rem top 0.32rem / 1.55rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.92), rgba(183, 149, 74, 0.88)) left 0.32rem top 0.32rem / 4px 1.55rem no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.92), rgba(183, 149, 74, 0.88)) right 0.32rem top 0.32rem / 1.55rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.92), rgba(183, 149, 74, 0.88)) right 0.32rem top 0.32rem / 4px 1.55rem no-repeat;
+}
+
+.invitation-theme-classic .invitation-response-card .invitation-rsvp-form::after {
+  bottom: 0;
+  height: 2.1rem;
+  background:
+    linear-gradient(90deg, transparent, rgba(214, 183, 110, 0.56) 15%, rgba(86, 99, 68, 0.62) 50%, rgba(214, 183, 110, 0.56) 85%, transparent) bottom center / 100% 3px no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.84), rgba(183, 149, 74, 0.8)) left 0.32rem bottom 0.32rem / 1.25rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.84), rgba(183, 149, 74, 0.8)) left 0.32rem bottom 0.32rem / 4px 1.25rem no-repeat,
+    linear-gradient(90deg, rgba(214, 183, 110, 0.84), rgba(183, 149, 74, 0.8)) right 0.32rem bottom 0.32rem / 1.25rem 4px no-repeat,
+    linear-gradient(180deg, rgba(214, 183, 110, 0.84), rgba(183, 149, 74, 0.8)) right 0.32rem bottom 0.32rem / 4px 1.25rem no-repeat;
 }
 
 .invitation-theme-classic .invitation-rsvp-form input,
@@ -997,15 +1038,15 @@ td {
   }
 
   .invitation-card-frame::before {
-    inset: 0.7rem;
+    inset: 0.62rem;
   }
 
   .invitation-card-frame::after {
-    inset: 1.1rem;
+    inset: 1.02rem;
   }
 
   .invitation-response-card::before {
-    inset: 0.8rem;
+    inset: 0.64rem;
   }
 
   .invitation-response-card::after {
