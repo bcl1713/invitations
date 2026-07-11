@@ -452,7 +452,6 @@ td {
 
 .invitation-title-line {
   display: block;
-  white-space: nowrap;
 }
 
 .invitation-theme-photo .invitation-heading-block h1,
@@ -1110,11 +1109,11 @@ td {
   }
 
   .invitation-theme-ceremonial .invitation-heading-block h1 {
-    max-width: 22ch;
-    width: min(100%, 22ch);
-    font-size: clamp(1.38rem, 5.7vw, 1.95rem);
-    line-height: 0.98;
-    letter-spacing: 0.025em;
+    max-width: none;
+    width: 100%;
+    font-size: clamp(1.16rem, 4.95vw, 1.72rem);
+    line-height: 1.02;
+    letter-spacing: 0.015em;
   }
 
   .invitation-card-frame::before {
