@@ -362,8 +362,10 @@ td {
   background:
     linear-gradient(180deg, rgba(255, 252, 246, 0.97), rgba(246, 239, 227, 0.96)),
     radial-gradient(circle at top, rgba(255, 255, 255, 0.5), transparent 55%);
-  border: 1px solid rgba(75, 90, 63, 0.42);
-  box-shadow: 0 28px 70px rgba(31, 41, 55, 0.16);
+  border: 1px solid rgba(74, 88, 58, 0.72);
+  box-shadow:
+    0 18px 34px rgba(37, 45, 31, 0.12),
+    0 34px 78px rgba(17, 24, 39, 0.15);
   border-radius: 0.4rem;
 }
 
@@ -371,25 +373,25 @@ td {
   content: '';
   position: absolute;
   inset: 1rem;
-  border: 1px solid rgba(75, 90, 63, 0.34);
+  border: 1px solid rgba(74, 88, 58, 0.48);
   border-radius: 0.25rem;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) left 1rem top 1rem / 1rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) left 1rem top 1rem / 1px 1rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) right 1rem top 1rem / 1rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) right 1rem top 1rem / 1px 1rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) left 1rem bottom 1rem / 0.85rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) left 1rem bottom 1rem / 1px 0.85rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) right 1rem bottom 1rem / 0.85rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) right 1rem bottom 1rem / 1px 0.85rem no-repeat;
+    linear-gradient(90deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) left 1rem top 1rem / 1.45rem 2px no-repeat,
+    linear-gradient(180deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) left 1rem top 1rem / 2px 1.45rem no-repeat,
+    linear-gradient(90deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) right 1rem top 1rem / 1.45rem 2px no-repeat,
+    linear-gradient(180deg, rgba(196, 165, 96, 0.92), rgba(173, 141, 72, 0.82)) right 1rem top 1rem / 2px 1.45rem no-repeat,
+    linear-gradient(90deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) left 1rem bottom 1rem / 1.15rem 2px no-repeat,
+    linear-gradient(180deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) left 1rem bottom 1rem / 2px 1.15rem no-repeat,
+    linear-gradient(90deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) right 1rem bottom 1rem / 1.15rem 2px no-repeat,
+    linear-gradient(180deg, rgba(196, 165, 96, 0.78), rgba(173, 141, 72, 0.68)) right 1rem bottom 1rem / 2px 1.15rem no-repeat;
 }
 
 .invitation-card-frame::after {
   content: '';
   position: absolute;
   inset: 1.55rem;
-  border: 1px solid rgba(75, 90, 63, 0.26);
+  border: 1px solid rgba(89, 102, 70, 0.3);
   border-radius: 0.2rem;
   pointer-events: none;
 }
@@ -527,7 +529,7 @@ td {
 .invitation-main-card .panel.invitation-panel-photo,
 .invitation-main-card .panel.invitation-panel-ceremonial,
 .invitation-main-card .invitation-about-panel {
-  width: min(100%, 30rem);
+  width: min(100%, 31.75rem);
   margin-inline: auto;
   background: transparent;
   border: none;
@@ -539,14 +541,14 @@ td {
 .invitation-main-card .panel.invitation-panel-modern,
 .invitation-main-card .panel.invitation-panel-photo,
 .invitation-main-card .panel.invitation-panel-ceremonial {
-  padding: 1rem 0.75rem 0.65rem;
-  gap: 1rem;
+  padding: 0.95rem 0.35rem 0.5rem;
+  gap: 0.85rem;
 }
 
 .invitation-main-card .invitation-about-panel {
-  padding: 1rem 0.75rem 0.55rem;
-  gap: 0.55rem;
-  margin-bottom: 0.2rem;
+  padding: 0.95rem 0.35rem 0.4rem;
+  gap: 0.45rem;
+  margin-bottom: 0.1rem;
 }
 
 .invitation-main-card .panel.invitation-panel-classic::before,
@@ -556,21 +558,21 @@ td {
 .invitation-main-card .invitation-about-panel::before {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 0.2rem;
+  right: 0.2rem;
   top: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(75, 90, 63, 0.58) 12%, rgba(181, 153, 92, 0.72) 50%, rgba(75, 90, 63, 0.58) 88%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(86, 99, 68, 0.72) 10%, rgba(196, 165, 96, 0.94) 50%, rgba(86, 99, 68, 0.72) 90%, transparent);
 }
 
 .invitation-main-card .invitation-about-panel::after {
   content: '';
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
+  left: 0.2rem;
+  right: 0.2rem;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(90deg, rgba(75, 90, 63, 0.14), rgba(181, 153, 92, 0.4), rgba(75, 90, 63, 0.14));
+  background: linear-gradient(90deg, transparent, rgba(196, 165, 96, 0.32) 15%, rgba(86, 99, 68, 0.38) 50%, rgba(196, 165, 96, 0.32) 85%, transparent);
 }
 
 .invitation-main-card .invitation-detail-block,
@@ -603,12 +605,12 @@ td {
 .invitation-rsvp-copy-shell {
   width: min(100%, 30rem);
   margin-inline: auto;
-  padding: 1.15rem 1rem;
+  padding: 1rem 0.8rem;
 }
 
 .invitation-about-panel {
-  gap: 0.55rem;
-  margin-bottom: 0.45rem;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 
 .invitation-about-panel p,
@@ -784,7 +786,7 @@ td {
 
 .invitation-theme-photo .invitation-card-frame {
   background: linear-gradient(180deg, rgba(255, 250, 243, 0.98), rgba(239, 230, 212, 0.98));
-  border-color: rgba(75, 90, 63, 0.48);
+  border-color: rgba(74, 88, 58, 0.72);
 }
 
 .invitation-theme-photo .eyebrow,
@@ -817,14 +819,14 @@ td {
 
 .invitation-theme-ceremonial .card {
   background: linear-gradient(180deg, rgba(248, 243, 231, 0.99) 0%, rgba(243, 234, 216, 0.99) 100%);
-  border: 10px solid #4b5a3f;
-  box-shadow: inset 0 0 0 2px #b69a64, 0 20px 45px rgba(31, 41, 55, 0.16);
+  border: 11px solid #4b5a3f;
+  box-shadow: inset 0 0 0 3px rgba(196, 165, 96, 0.92), 0 18px 34px rgba(37, 45, 31, 0.12), 0 32px 70px rgba(17, 24, 39, 0.14);
   border-radius: 0.32rem;
 }
 
 .invitation-theme-ceremonial .invitation-card-frame {
   background: linear-gradient(180deg, rgba(248, 243, 231, 0.99), rgba(242, 232, 211, 0.98));
-  border-color: rgba(75, 90, 63, 0.5);
+  border-color: rgba(74, 88, 58, 0.76);
 }
 
 .invitation-theme-ceremonial h1,
@@ -877,8 +879,8 @@ td {
 .invitation-theme-ceremonial .invitation-rsvp-copy-shell,
 .invitation-theme-ceremonial .invitation-about-panel,
 .invitation-theme-ceremonial .invitation-rsvp-form {
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(139, 125, 82, 0.5);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(139, 125, 82, 0.34);
 }
 
 .invitation-theme-ceremonial .invitation-rsvp-form input,
