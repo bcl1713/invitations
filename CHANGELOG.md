@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/bcl1713/invitations/compare/v1.3.0...v1.4.0) (2026-07-11)
+
+
+### Features
+
+* add invitation live preview and themed email ([5f59d2c](https://github.com/bcl1713/invitations/commit/5f59d2ccbab0497f41322cd1f2bbfc6a7882a065))
+
 # [1.3.0](https://github.com/bcl1713/invitations/compare/v1.2.3...v1.3.0) (2026-07-11)
 
 
