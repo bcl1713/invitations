@@ -54,6 +54,11 @@ button.secondary {
   color: #111827;
 }
 
+.subtle-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
 .page {
   min-height: 100vh;
   display: grid;
@@ -235,6 +240,51 @@ td {
   font-weight: 600;
 }
 
+.asset-upload-grid {
+  gap: 0.75rem;
+}
+
+.invitation-preview-panel {
+  align-self: start;
+}
+
+.invitation-preview-surface {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.invitation-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.invitation-main-copy,
+.invitation-heading-block {
+  position: relative;
+  z-index: 1;
+}
+
+.invitation-emblem {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  align-self: center;
+}
+
+.invitation-watermark {
+  position: absolute;
+  inset: 6rem auto auto 50%;
+  width: min(65%, 24rem);
+  transform: translateX(-50%);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.invitation-hero-ceremonial {
+  max-height: 18rem;
+}
+
 .invitation-theme-classic .card {
   background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
 }
@@ -257,6 +307,35 @@ td {
 
 .invitation-theme-photo .card {
   background: linear-gradient(180deg, #fff7ed 0%, #ffffff 45%);
+}
+
+.invitation-theme-ceremonial .card {
+  background:
+    linear-gradient(180deg, rgba(248, 243, 231, 0.98) 0%, rgba(244, 236, 218, 0.98) 100%);
+  border: 10px solid #4b5a3f;
+  box-shadow: inset 0 0 0 2px #b69a64, 0 20px 45px rgba(31, 41, 55, 0.16);
+}
+
+.invitation-theme-ceremonial h1,
+.invitation-theme-ceremonial h2,
+.invitation-theme-ceremonial h3,
+.invitation-theme-ceremonial .eyebrow {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.invitation-theme-ceremonial .eyebrow,
+.invitation-theme-ceremonial a,
+.invitation-theme-ceremonial .button-link {
+  color: #4b5a3f;
+}
+
+.invitation-panel-ceremonial {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(139, 125, 82, 0.5);
+}
+
+.invitation-preview-ceremonial {
+  border-width: 6px !important;
 }
 
 .invitation-panel-photo {

@@ -1,9 +1,15 @@
 import Link from 'next/link';
 
+import { getEnv } from '@/lib/env';
 import { requireHostSession } from '@/lib/host-session';
+import {
+  buildGuestFilterLinks,
+  filterGuests,
+} from '@/modules/events/event-dashboard-filters';
 import { getEventDashboard } from '@/modules/events/event-service';
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
+import { InvitationPreview } from './InvitationPreview';
 import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -28,23 +34,6 @@ function formatDateTimeLocalValue(value: Date | string | null) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-type EventDashboardData = NonNullable<Awaited<ReturnType<typeof getEventDashboard>>>;
-type EventGuest = EventDashboardData['event']['guests'][number];
-
-function filterGuests(guests: EventGuest[], guestFilter: string) {
-  switch (guestFilter) {
-    case 'draft':
-      return guests.filter((guest: EventGuest) => !guest.invitation?.sentAt);
-    case 'sent':
-      return guests.filter((guest: EventGuest) => Boolean(guest.invitation?.sentAt));
-    case 'responded':
-      return guests.filter((guest: EventGuest) => Boolean(guest.rsvp));
-    case 'no-response':
-      return guests.filter((guest: EventGuest) => !guest.rsvp);
-    default:
-      return guests;
-  }
-}
 
 export default async function EventDashboardPage({
   params,
@@ -69,8 +58,10 @@ export default async function EventDashboardPage({
     );
   }
 
+  const env = getEnv();
   const { event, summary } = data;
   const filteredGuests = filterGuests(event.guests, guestFilter);
+  const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter);
 
   return (
     <main className="page wide-page">
@@ -103,7 +94,7 @@ export default async function EventDashboardPage({
         <div className="two-column wide-split">
           <div className="stack panel">
             <h2>Event details</h2>
-            <form action={updateEventAction.bind(null, event.id)} className="stack form-grid">
+            <form id="event-details-form" action={updateEventAction.bind(null, event.id)} className="stack form-grid">
               <label>
                 Title
                 <input name="title" required defaultValue={event.title} />
@@ -146,14 +137,45 @@ export default async function EventDashboardPage({
             </form>
 
             <p className="pre-wrap">{event.description || 'No description yet.'}</p>
-            <form action={`/api/admin/events/${event.id}/hero`} method="post" encType="multipart/form-data" className="stack form-grid">
-              <label>
-                Upload hero image
-                <input name="heroImage" type="file" accept="image/png,image/jpeg,image/webp" />
-              </label>
-              <button type="submit">Upload image</button>
-            </form>
+            <div className="stack asset-upload-grid">
+              <form action={`/api/admin/events/${event.id}/hero`} method="post" encType="multipart/form-data" className="stack form-grid panel subtle-panel">
+                <label>
+                  Upload hero image
+                  <input id="hero-image-input" name="heroImage" type="file" accept="image/png,image/jpeg,image/webp" />
+                </label>
+                <button type="submit">Upload hero image</button>
+              </form>
+              <form action={`/api/admin/events/${event.id}/emblem`} method="post" encType="multipart/form-data" className="stack form-grid panel subtle-panel">
+                <label>
+                  Upload event emblem
+                  <input id="emblem-image-input" name="emblemImage" type="file" accept="image/png,image/jpeg,image/webp" />
+                </label>
+                <button type="submit">Upload event emblem</button>
+              </form>
+              <form action={`/api/admin/events/${event.id}/watermark`} method="post" encType="multipart/form-data" className="stack form-grid panel subtle-panel">
+                <label>
+                  Upload custom watermark
+                  <input id="watermark-image-input" name="watermarkImage" type="file" accept="image/png,image/jpeg,image/webp" />
+                </label>
+                <button type="submit">Upload watermark</button>
+              </form>
+            </div>
           </div>
+
+          <InvitationPreview
+            appUrl={env.APP_URL}
+            initialEvent={{
+              title: event.title,
+              hostName: event.hostName,
+              location: event.location,
+              description: event.description,
+              startsAt: event.startsAt ? new Date(event.startsAt).toISOString() : null,
+              templateKey: event.templateKey,
+              heroUrl: event.heroImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.heroImagePath}` : null,
+              emblemUrl: event.emblemImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.emblemImagePath}` : null,
+              watermarkUrl: event.watermarkImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.watermarkImagePath}` : null,
+            }}
+          />
 
           <form action={addGuestAction.bind(null, event.id)} className="stack form-grid panel">
             <h2>Add guest</h2>
@@ -189,11 +211,15 @@ export default async function EventDashboardPage({
               <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
             </div>
             <div className="row wrap" style={{ gap: '0.5rem' }}>
-              <Link href={`/admin/events/${event.id}`}>All</Link>
-              <Link href={`/admin/events/${event.id}?guestFilter=draft`}>Draft</Link>
-              <Link href={`/admin/events/${event.id}?guestFilter=sent`}>Sent</Link>
-              <Link href={`/admin/events/${event.id}?guestFilter=responded`}>Responded</Link>
-              <Link href={`/admin/events/${event.id}?guestFilter=no-response`}>No response</Link>
+              {guestFilterLinks.map((filter) => (
+                <Link
+                  key={filter.key}
+                  href={filter.href}
+                  aria-current={filter.isActive ? 'page' : undefined}
+                >
+                  {filter.label}
+                </Link>
+              ))}
             </div>
           </div>
           <div className="table-scroll">

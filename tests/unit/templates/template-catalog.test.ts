@@ -12,6 +12,7 @@ describe('template catalog', () => {
   it('preserves supported template keys', () => {
     expect(normalizeTemplateKey('modern')).toBe('modern');
     expect(normalizeTemplateKey('photo')).toBe('photo');
+    expect(normalizeTemplateKey('ceremonial')).toBe('ceremonial');
   });
 });
 
@@ -33,6 +34,12 @@ describe('getInvitationTemplateTheme', () => {
       pageClassName: 'invitation-theme-photo',
       heroClassName: 'hero-image invitation-hero-tall',
       contentClassName: 'two-column wide-split invitation-photo-layout',
+    });
+
+    expect(getInvitationTemplateTheme('ceremonial')).toMatchObject({
+      pageClassName: 'invitation-theme-ceremonial',
+      rsvpPanelClassName: 'stack form-grid panel invitation-panel-ceremonial',
+      eyebrow: 'You are cordially invited',
     });
   });
 });

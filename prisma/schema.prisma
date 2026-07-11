@@ -14,20 +14,22 @@ enum RsvpStatus {
 }
 
 model Event {
-  id            String       @id @default(cuid())
-  title         String
-  slug          String       @unique
-  description   String       @default("")
-  location      String       @default("")
-  hostName      String       @default("")
-  startsAt      DateTime?
-  heroImagePath String?
-  templateKey   String       @default("classic")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  guests        Guest[]
-  invitations   Invitation[]
-  rsvps         Rsvp[]
+  id                 String       @id @default(cuid())
+  title              String
+  slug               String       @unique
+  description        String       @default("")
+  location           String       @default("")
+  hostName           String       @default("")
+  startsAt           DateTime?
+  heroImagePath      String?
+  emblemImagePath    String?
+  watermarkImagePath String?
+  templateKey        String       @default("classic")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  guests             Guest[]
+  invitations        Invitation[]
+  rsvps              Rsvp[]
 }
 
 model Guest {

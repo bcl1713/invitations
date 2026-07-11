@@ -3,6 +3,8 @@ import { summarizeGuestStatuses } from '@/modules/events/event-dashboard-service
 import { slugifyEventTitle } from '@/modules/events/slugify';
 import { DEFAULT_TEMPLATE_KEY, normalizeTemplateKey } from '@/modules/templates/template-catalog';
 
+export type EventAssetField = 'heroImagePath' | 'emblemImagePath' | 'watermarkImagePath';
+
 export interface CreateEventInput {
   title: string;
   description: string;
@@ -113,9 +115,21 @@ export async function getEventDashboard(eventId: string) {
   return { event, summary };
 }
 
-export async function setEventHeroImage(eventId: string, heroImagePath: string) {
+export async function setEventAssetImage(eventId: string, field: EventAssetField, assetPath: string) {
   return prisma.event.update({
     where: { id: eventId },
-    data: { heroImagePath },
+    data: { [field]: assetPath },
   });
+}
+
+export async function setEventHeroImage(eventId: string, heroImagePath: string) {
+  return setEventAssetImage(eventId, 'heroImagePath', heroImagePath);
+}
+
+export async function setEventEmblemImage(eventId: string, emblemImagePath: string) {
+  return setEventAssetImage(eventId, 'emblemImagePath', emblemImagePath);
+}
+
+export async function setEventWatermarkImage(eventId: string, watermarkImagePath: string) {
+  return setEventAssetImage(eventId, 'watermarkImagePath', watermarkImagePath);
 }

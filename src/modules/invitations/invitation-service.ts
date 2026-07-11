@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
 import { prisma } from '@/lib/db';
+import { buildInvitationEmailHtml, buildInvitationEmailText } from '@/modules/invitations/invitation-email-template';
+import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { createInvitationToken } from '@/modules/invitations/invitation-token-service';
 import { createEmailClient } from '@/modules/notifications/email-client';
 
@@ -37,21 +39,33 @@ export async function issueInvitation(eventId: string, guestId: string, appUrl: 
   });
 
   const inviteUrl = `${appUrl.replace(/\/$/, '')}/i/${encodeURIComponent(token)}`;
+  const presentation = buildInvitationPresentation({
+    appUrl,
+    inviteUrl,
+    event: {
+      title: guest.event.title,
+      hostName: guest.event.hostName,
+      location: guest.event.location,
+      description: guest.event.description,
+      startsAt: guest.event.startsAt,
+      templateKey: guest.event.templateKey,
+      heroImagePath: guest.event.heroImagePath,
+      emblemImagePath: guest.event.emblemImagePath,
+      watermarkImagePath: guest.event.watermarkImagePath,
+    },
+    guest: {
+      name: guest.name,
+      canBringPlusOne: guest.canBringPlusOne,
+    },
+  });
   const transport = createEmailClient();
 
   await transport.sendMail({
     from: process.env.EMAIL_FROM,
     to: guest.email,
-    subject: `You're invited: ${guest.event.title}`,
-    text: [
-      `Hello ${guest.name},`,
-      '',
-      `You're invited to ${guest.event.title}.`,
-      guest.event.location ? `Location: ${guest.event.location}` : '',
-      guest.event.startsAt ? `When: ${guest.event.startsAt.toISOString()}` : '',
-      '',
-      `RSVP here: ${inviteUrl}`,
-    ].filter(Boolean).join('\n'),
+    subject: `You are invited: ${guest.event.title}`,
+    text: buildInvitationEmailText(presentation),
+    html: buildInvitationEmailHtml(presentation),
   });
 
   return { invitation, inviteUrl };

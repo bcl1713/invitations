@@ -1,0 +1,35 @@
+import { getHostSession } from '@/lib/host-session';
+import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
+import { setEventEmblemImage } from '@/modules/events/event-service';
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ eventId: string }> },
+) {
+  const session = await getHostSession();
+
+  if (!session) {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: '/login',
+      },
+    });
+  }
+
+  const { eventId } = await params;
+  const formData = await request.formData();
+  const file = formData.get('emblemImage');
+
+  if (file instanceof File && file.size > 0) {
+    const storedFileName = await saveUploadedImage(file);
+    await setEventEmblemImage(eventId, storedFileName);
+  }
+
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: `/admin/events/${eventId}`,
+    },
+  });
+}

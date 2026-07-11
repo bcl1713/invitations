@@ -20,6 +20,7 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   const updatedLocation = `Updated Test Kitchen ${suffix}`;
   const updatedHostName = `Brian ${suffix}`;
   const updatedStartsAt = '2026-08-20T18:30';
+  const updatedTemplate = 'ceremonial';
   const expectedInviteDate = new Intl.DateTimeFormat('en-US', {
     dateStyle: 'full',
     timeStyle: 'short',
@@ -43,9 +44,12 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await page.getByLabel('Description').fill('A quick deployment smoke test.');
   await page.getByRole('button', { name: 'Create event' }).click();
 
-  await expect(page.getByRole('heading', { name: originalTitle })).toBeVisible();
+  const dashboardTitle = page.locator('main h1').first();
+
+  await expect(dashboardTitle).toHaveText(originalTitle);
 
   const eventDetailsForm = page.getByRole('button', { name: 'Save event details' }).locator('..').locator('..');
+  const previewPanel = page.getByRole('heading', { name: 'Live invitation preview' }).locator('..').locator('..');
   const addGuestForm = page.getByRole('button', { name: 'Add guest' }).locator('..');
 
   await eventDetailsForm.getByLabel('Title').fill(updatedTitle);
@@ -53,16 +57,36 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await eventDetailsForm.getByLabel('Location').fill(updatedLocation);
   await eventDetailsForm.getByLabel('Start time').fill(updatedStartsAt);
   await eventDetailsForm.getByLabel('Description').fill(updatedDescription);
+  await eventDetailsForm.getByLabel('Invitation style').selectOption(updatedTemplate);
+
+  await expect(previewPanel.getByRole('heading', { name: updatedTitle })).toBeVisible();
+  await expect(previewPanel.getByText(updatedLocation)).toBeVisible();
+  await expect(previewPanel.getByText('You are cordially invited')).toBeVisible();
+  await expect(previewPanel.getByRole('heading', { name: 'Kindly respond' })).toBeVisible();
+
   await eventDetailsForm.getByRole('button', { name: 'Save event details' }).click();
 
-  await expect(page.getByRole('heading', { name: updatedTitle })).toBeVisible();
-  await expect(page.getByText(updatedLocation)).toBeVisible();
+  await expect(dashboardTitle).toHaveText(updatedTitle);
+  await expect(page.getByText(updatedLocation).first()).toBeVisible();
   await expect(page.getByLabel('Description')).toHaveValue(updatedDescription);
 
-  await page.getByLabel('Upload hero image').setInputFiles(heroImagePath);
-  await page.getByRole('button', { name: 'Upload image' }).click();
+  await page.reload();
+  await expect(dashboardTitle).toHaveText(updatedTitle);
+  await expect(eventDetailsForm.getByLabel('Invitation style')).toHaveValue(updatedTemplate);
 
-  const dashboardHero = page.locator('img.hero-image');
+  await page.getByLabel('Upload hero image').setInputFiles(heroImagePath);
+  await expect(previewPanel.locator('img.hero-image')).toBeVisible();
+  await page.locator('button', { hasText: 'Upload hero image' }).click();
+
+  await page.getByLabel('Upload event emblem').setInputFiles(heroImagePath);
+  await expect(previewPanel.locator('img.invitation-emblem')).toBeVisible();
+  await page.locator('button', { hasText: 'Upload event emblem' }).click();
+
+  await page.getByLabel('Upload custom watermark').setInputFiles(heroImagePath);
+  await expect(previewPanel.locator('img.invitation-watermark')).toBeVisible();
+  await page.locator('button', { hasText: 'Upload watermark' }).click();
+
+  const dashboardHero = page.locator('img.hero-image').first();
   await expect(dashboardHero).toBeVisible();
   await expect(dashboardHero).toHaveAttribute('src', /\/media\//);
 
@@ -85,6 +109,40 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await expect(sentRow).toBeVisible();
   await expect(sentRow.locator('td').nth(2)).toHaveText('Sent');
 
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Export guest CSV' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/-guests\.csv$/);
+  const csv = await download.createReadStream();
+  let csvText = '';
+  for await (const chunk of csv!) {
+    csvText += chunk.toString();
+  }
+  expect(csvText).toContain('guest_name,guest_email,guest_note,plus_one_allowed,invite_status,invite_sent_at,rsvp_status,rsvp_headcount,rsvp_note,rsvp_updated_at');
+  expect(csvText).toContain(draftGuestEmail);
+  expect(csvText).toContain(sentGuestEmail);
+
+  await page.getByRole('link', { name: 'Draft' }).click();
+  await expect(page).toHaveURL(/guestFilter=draft/);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Draft' })).toHaveAttribute('aria-current', 'page');
+
+  await page.getByRole('link', { name: 'Sent' }).click();
+  await expect(page).toHaveURL(/guestFilter=sent/);
+  await expect(sentRow).toBeVisible();
+  await expect(draftRow).toHaveCount(0);
+
+  await page.getByRole('link', { name: 'No response' }).click();
+  await expect(page).toHaveURL(/guestFilter=no-response/);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toBeVisible();
+
+  await page.getByRole('link', { name: 'All', exact: true }).click();
+  await expect(page).not.toHaveURL(/guestFilter=/);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toBeVisible();
+
   const token = readInvitationTokenForEmail(sentGuestEmail);
   expect(token).toBeTruthy();
 
@@ -95,10 +153,13 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await expect(page.getByText(updatedLocation)).toBeVisible();
   await expect(page.getByText(updatedDescription)).toBeVisible();
   await expect(page.getByText(expectedInviteDate)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible();
+  await expect(page.getByText('You are cordially invited')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Kindly respond' })).toBeVisible();
 
-  const inviteHero = page.locator('img.hero-image');
+  const inviteHero = page.locator('img.hero-image').first();
   await expect(inviteHero).toBeVisible();
   await expect(inviteHero).toHaveAttribute('src', /\/media\//);
+  await expect(page.locator('img.invitation-emblem')).toBeVisible();
+  await expect(page.locator('img.invitation-watermark')).toBeVisible();
   await expect(inviteHero.evaluate((img) => (img as HTMLImageElement).naturalWidth)).resolves.toBeGreaterThan(0);
 });

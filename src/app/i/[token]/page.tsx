@@ -1,24 +1,12 @@
 import Link from 'next/link';
 
+import { getEnv } from '@/lib/env';
+import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { getInvitationView } from '@/modules/invitations/invitation-service';
-import { getInvitationTemplateTheme } from '@/modules/templates/invitation-template-theme';
 
 import { submitRsvpAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-
-const eventDateFormatter = new Intl.DateTimeFormat('en-US', {
-  dateStyle: 'full',
-  timeStyle: 'short',
-});
-
-function formatEventDate(startsAt: string | Date | null) {
-  if (!startsAt) {
-    return 'A start time will be shared soon.';
-  }
-
-  return eventDateFormatter.format(new Date(startsAt));
-}
 
 export default async function InvitationPage({
   params,
@@ -42,54 +30,73 @@ export default async function InvitationPage({
     );
   }
 
-  const hostName = invitation.event.hostName || 'Your host';
-  const location = invitation.event.location || 'Location details will be shared soon.';
-  const description = invitation.event.description || 'We would love to celebrate with you. More event details are on the way.';
-  const theme = getInvitationTemplateTheme(invitation.event.templateKey);
+  const env = getEnv();
+  const presentation = buildInvitationPresentation({
+    appUrl: env.APP_URL,
+    inviteUrl: `${env.APP_URL.replace(/\/$/, '')}/i/${encodeURIComponent(token)}`,
+    event: {
+      title: invitation.event.title,
+      hostName: invitation.event.hostName,
+      location: invitation.event.location,
+      description: invitation.event.description,
+      startsAt: invitation.event.startsAt,
+      templateKey: invitation.event.templateKey,
+      heroImagePath: invitation.event.heroImagePath,
+      emblemImagePath: invitation.event.emblemImagePath,
+      watermarkImagePath: invitation.event.watermarkImagePath,
+    },
+    guest: {
+      name: invitation.guest.name,
+      canBringPlusOne: invitation.guest.canBringPlusOne,
+    },
+  });
 
   return (
-    <main className={`page wide-page ${theme.pageClassName}`}>
-      <section className="card stack wide-card">
-        {invitation.event.heroImagePath ? (
-          <img className={theme.heroClassName} src={`/media/${invitation.event.heroImagePath}`} alt={`${invitation.event.title} hero`} />
+    <main className={`page wide-page ${presentation.theme.pageClassName}`}>
+      <section className="card stack wide-card invitation-shell">
+        {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
+        {presentation.assetUrls.hero ? (
+          <img className={presentation.theme.heroClassName} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
         ) : null}
 
-        <div className={theme.contentClassName}>
-          <section className="stack" aria-label="Invitation details">
-            <div className="stack compact-info">
-              <p className="eyebrow">{theme.eyebrow}</p>
-              <h1>{invitation.event.title}</h1>
+        <div className={presentation.theme.contentClassName}>
+          <section className="stack invitation-main-copy" aria-label="Invitation details">
+            <div className="stack compact-info invitation-heading-block">
+              {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
+              <p className="eyebrow">{presentation.eyebrow}</p>
+              <h1>{presentation.title}</h1>
               <p>
-                Hosted by <strong>{hostName}</strong>
+                Hosted by <strong>{presentation.hostName}</strong>
               </p>
-              <p>Hello {invitation.guest.name},</p>
-              <p className="muted">{theme.introTitle}</p>
+              <p>Hello {presentation.guestName},</p>
+              <p className="muted">{presentation.introTitle}</p>
             </div>
 
-            <div className={theme.detailsPanelClassName}>
+            <div className={presentation.theme.detailsPanelClassName}>
               <div>
                 <p className="eyebrow">When</p>
-                <p>{formatEventDate(invitation.event.startsAt)}</p>
+                <p>{presentation.whenText}</p>
               </div>
               <div>
                 <p className="eyebrow">Where</p>
-                <p>{location}</p>
+                <p>{presentation.whereText}</p>
               </div>
             </div>
 
             <section className="stack compact-info" aria-labelledby="invitation-description-heading">
               <h2 id="invitation-description-heading">About this event</h2>
-              <p className="pre-wrap">{description}</p>
+              <p className="pre-wrap">{presentation.description}</p>
+              <p className="muted">{presentation.plusOneText}</p>
             </section>
           </section>
 
           <section className="stack" aria-labelledby="rsvp-heading">
             <div className="stack compact-info">
-              <h2 id="rsvp-heading">{theme.rsvpTitle}</h2>
-              <p>Please let {hostName} know if you can make it.</p>
+              <h2 id="rsvp-heading">{presentation.rsvpHeading}</h2>
+              <p>Please let {presentation.hostName} know if you can make it.</p>
             </div>
             {query.saved ? <p className="success">Your RSVP has been saved.</p> : null}
-            <form action={submitRsvpAction.bind(null, token)} className={theme.rsvpPanelClassName}>
+            <form action={submitRsvpAction.bind(null, token)} className={presentation.theme.rsvpPanelClassName}>
               <label>
                 RSVP status
                 <select name="status" defaultValue={invitation.guest.rsvp?.status ?? 'GOING'}>

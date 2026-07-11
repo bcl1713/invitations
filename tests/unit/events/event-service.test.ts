@@ -10,7 +10,7 @@ vi.mock('@/lib/db', () => ({
 }));
 
 import { prisma } from '@/lib/db';
-import { createEvent, updateEvent } from '@/modules/events/event-service';
+import { createEvent, setEventEmblemImage, setEventHeroImage, setEventWatermarkImage, updateEvent } from '@/modules/events/event-service';
 
 const createMock = vi.mocked(prisma.event.create);
 const updateMock = vi.mocked(prisma.event.update);
@@ -154,6 +154,36 @@ describe('updateEvent', () => {
       data: expect.objectContaining({
         templateKey: 'classic',
       }),
+    });
+  });
+});
+
+describe('event asset setters', () => {
+  beforeEach(() => {
+    updateMock.mockReset();
+    updateMock.mockResolvedValue({ id: 'event-1' } as never);
+  });
+
+  it('stores the hero image path on the event', async () => {
+    await setEventHeroImage('event-1', 'hero.jpg');
+
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: { heroImagePath: 'hero.jpg' },
+    });
+  });
+
+  it('stores emblem and watermark image paths on the event', async () => {
+    await setEventEmblemImage('event-1', 'emblem.png');
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: { emblemImagePath: 'emblem.png' },
+    });
+
+    await setEventWatermarkImage('event-1', 'watermark.png');
+    expect(updateMock).toHaveBeenLastCalledWith({
+      where: { id: 'event-1' },
+      data: { watermarkImagePath: 'watermark.png' },
     });
   });
 });

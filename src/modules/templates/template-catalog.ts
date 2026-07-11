@@ -16,6 +16,11 @@ export const TEMPLATE_OPTIONS = [
     label: 'Photo',
     description: 'Hero-image-first presentation for events that want a visual lead.',
   },
+  {
+    key: 'ceremonial',
+    label: 'Ceremonial',
+    description: 'Framed formal invitation with emblem, watermark, and ceremonial copy.',
+  },
 ] as const;
 
 export type TemplateKey = (typeof TEMPLATE_OPTIONS)[number]['key'];
