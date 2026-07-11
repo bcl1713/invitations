@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/bcl1713/invitations/compare/v1.5.3...v1.5.4) (2026-07-11)
+
+
+### Bug Fixes
+
+* thicken invitation and RSVP framing ([53dbff1](https://github.com/bcl1713/invitations/commit/53dbff12ca12cdc8daf19ab7d9332ad9a0cc01a8))
+
 ## [1.5.3](https://github.com/bcl1713/invitations/compare/v1.5.2...v1.5.3) (2026-07-11)
 
 
