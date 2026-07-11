@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/bcl1713/invitations/compare/v1.5.0...v1.5.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* polish invitation borders and spacing ([51d8af8](https://github.com/bcl1713/invitations/commit/51d8af8c734732e0cbaee2f2051c0ea813b05c93))
+
 # [1.5.0](https://github.com/bcl1713/invitations/compare/v1.4.0...v1.5.0) (2026-07-11)
 
 
