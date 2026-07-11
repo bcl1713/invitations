@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/bcl1713/invitations/compare/v1.5.1...v1.5.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* restore olive drab border accents ([eee1c79](https://github.com/bcl1713/invitations/commit/eee1c79cc2b319cd953a923e9eb1ace0502f0bef))
+
 ## [1.5.1](https://github.com/bcl1713/invitations/compare/v1.5.0...v1.5.1) (2026-07-11)
 
 
