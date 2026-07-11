@@ -362,7 +362,7 @@ td {
   background:
     linear-gradient(180deg, rgba(255, 252, 246, 0.97), rgba(246, 239, 227, 0.96)),
     radial-gradient(circle at top, rgba(255, 255, 255, 0.5), transparent 55%);
-  border: 1px solid rgba(140, 116, 72, 0.22);
+  border: 1px solid rgba(75, 90, 63, 0.42);
   box-shadow: 0 28px 70px rgba(31, 41, 55, 0.16);
   border-radius: 0.4rem;
 }
@@ -371,25 +371,25 @@ td {
   content: '';
   position: absolute;
   inset: 1rem;
-  border: 1px solid rgba(181, 153, 92, 0.38);
+  border: 1px solid rgba(75, 90, 63, 0.34);
   border-radius: 0.25rem;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(181, 153, 92, 0.34), rgba(181, 153, 92, 0.34)) left 1rem top 1rem / 0.9rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.34), rgba(181, 153, 92, 0.34)) left 1rem top 1rem / 1px 0.9rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.34), rgba(181, 153, 92, 0.34)) right 1rem top 1rem / 0.9rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.34), rgba(181, 153, 92, 0.34)) right 1rem top 1rem / 1px 0.9rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.24), rgba(181, 153, 92, 0.24)) left 1rem bottom 1rem / 0.75rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.24), rgba(181, 153, 92, 0.24)) left 1rem bottom 1rem / 1px 0.75rem no-repeat,
-    linear-gradient(90deg, rgba(181, 153, 92, 0.24), rgba(181, 153, 92, 0.24)) right 1rem bottom 1rem / 0.75rem 1px no-repeat,
-    linear-gradient(180deg, rgba(181, 153, 92, 0.24), rgba(181, 153, 92, 0.24)) right 1rem bottom 1rem / 1px 0.75rem no-repeat;
+    linear-gradient(90deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) left 1rem top 1rem / 1rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) left 1rem top 1rem / 1px 1rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) right 1rem top 1rem / 1rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.7), rgba(181, 153, 92, 0.7)) right 1rem top 1rem / 1px 1rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) left 1rem bottom 1rem / 0.85rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) left 1rem bottom 1rem / 1px 0.85rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) right 1rem bottom 1rem / 0.85rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.54), rgba(181, 153, 92, 0.54)) right 1rem bottom 1rem / 1px 0.85rem no-repeat;
 }
 
 .invitation-card-frame::after {
   content: '';
   position: absolute;
   inset: 1.55rem;
-  border: 1px solid rgba(75, 90, 63, 0.18);
+  border: 1px solid rgba(75, 90, 63, 0.26);
   border-radius: 0.2rem;
   pointer-events: none;
 }
@@ -444,6 +444,25 @@ td {
   text-wrap: balance;
 }
 
+.invitation-theme-photo .invitation-heading-block h1,
+.invitation-theme-photo .invitation-about-panel h2,
+.invitation-theme-photo .invitation-about-panel h3,
+.invitation-theme-photo .eyebrow,
+.invitation-theme-photo .invitation-kicker,
+.invitation-theme-photo .invitation-host-line,
+.invitation-theme-photo .invitation-guest-line,
+.invitation-theme-photo .invitation-detail-block .eyebrow,
+.invitation-theme-ceremonial .invitation-heading-block h1,
+.invitation-theme-ceremonial .invitation-about-panel h2,
+.invitation-theme-ceremonial .invitation-about-panel h3,
+.invitation-theme-ceremonial .eyebrow,
+.invitation-theme-ceremonial .invitation-kicker,
+.invitation-theme-ceremonial .invitation-host-line,
+.invitation-theme-ceremonial .invitation-guest-line,
+.invitation-theme-ceremonial .invitation-detail-block .eyebrow {
+  font-family: 'Copperplate', 'Trajan Pro', 'Cinzel', Georgia, 'Times New Roman', serif;
+}
+
 .invitation-host-line,
 .invitation-guest-line {
   font-size: 0.96rem;
@@ -461,11 +480,11 @@ td {
   height: 5.5rem;
   object-fit: contain;
   align-self: center;
-  filter: drop-shadow(0 4px 12px rgba(31, 41, 55, 0.18));
-  padding: 0.4rem;
-  border: 1px solid rgba(181, 153, 92, 0.34);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 251, 241, 0.95) 0%, rgba(245, 236, 216, 0.86) 72%, rgba(181, 153, 92, 0.1) 100%);
+  filter: drop-shadow(0 2px 4px rgba(31, 41, 55, 0.16)) drop-shadow(0 7px 16px rgba(31, 41, 55, 0.14));
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
 }
 
 .invitation-watermark {
@@ -501,6 +520,72 @@ td {
 .invitation-detail-block {
   display: grid;
   gap: 0.3rem;
+}
+
+.invitation-main-card .panel.invitation-panel-classic,
+.invitation-main-card .panel.invitation-panel-modern,
+.invitation-main-card .panel.invitation-panel-photo,
+.invitation-main-card .panel.invitation-panel-ceremonial,
+.invitation-main-card .invitation-about-panel {
+  width: min(100%, 30rem);
+  margin-inline: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  position: relative;
+}
+
+.invitation-main-card .panel.invitation-panel-classic,
+.invitation-main-card .panel.invitation-panel-modern,
+.invitation-main-card .panel.invitation-panel-photo,
+.invitation-main-card .panel.invitation-panel-ceremonial {
+  padding: 1rem 0.75rem 0.65rem;
+  gap: 1rem;
+}
+
+.invitation-main-card .invitation-about-panel {
+  padding: 1rem 0.75rem 0.55rem;
+  gap: 0.55rem;
+  margin-bottom: 0.2rem;
+}
+
+.invitation-main-card .panel.invitation-panel-classic::before,
+.invitation-main-card .panel.invitation-panel-modern::before,
+.invitation-main-card .panel.invitation-panel-photo::before,
+.invitation-main-card .panel.invitation-panel-ceremonial::before,
+.invitation-main-card .invitation-about-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(75, 90, 63, 0.58) 12%, rgba(181, 153, 92, 0.72) 50%, rgba(75, 90, 63, 0.58) 88%, transparent);
+}
+
+.invitation-main-card .invitation-about-panel::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(75, 90, 63, 0.14), rgba(181, 153, 92, 0.4), rgba(75, 90, 63, 0.14));
+}
+
+.invitation-main-card .invitation-detail-block,
+.invitation-main-card .invitation-about-panel {
+  text-align: center;
+}
+
+.invitation-main-card .invitation-detail-block p:not(.eyebrow),
+.invitation-main-card .invitation-about-panel p {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.invitation-main-card .invitation-about-panel h2,
+.invitation-main-card .invitation-about-panel h3 {
+  margin-bottom: 0.15rem;
 }
 
 .invitation-about-panel h2,
@@ -699,7 +784,7 @@ td {
 
 .invitation-theme-photo .invitation-card-frame {
   background: linear-gradient(180deg, rgba(255, 250, 243, 0.98), rgba(239, 230, 212, 0.98));
-  border-color: rgba(184, 155, 103, 0.24);
+  border-color: rgba(75, 90, 63, 0.48);
 }
 
 .invitation-theme-photo .eyebrow,
@@ -739,6 +824,7 @@ td {
 
 .invitation-theme-ceremonial .invitation-card-frame {
   background: linear-gradient(180deg, rgba(248, 243, 231, 0.99), rgba(242, 232, 211, 0.98));
+  border-color: rgba(75, 90, 63, 0.5);
 }
 
 .invitation-theme-ceremonial h1,
@@ -860,6 +946,19 @@ td {
 .invitation-ceremonial-layout .invitation-about-panel,
 .invitation-ceremonial-layout .invitation-rsvp-copy {
   text-align: center;
+}
+
+.invitation-theme-classic .invitation-main-card .panel.invitation-panel-classic,
+.invitation-theme-classic .invitation-main-card .invitation-about-panel,
+.invitation-theme-modern .invitation-main-card .panel.invitation-panel-modern,
+.invitation-theme-modern .invitation-main-card .invitation-about-panel,
+.invitation-theme-photo .invitation-main-card .panel.invitation-panel-photo,
+.invitation-theme-photo .invitation-main-card .invitation-about-panel,
+.invitation-theme-ceremonial .invitation-main-card .panel.invitation-panel-ceremonial,
+.invitation-theme-ceremonial .invitation-main-card .invitation-about-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 @media (max-width: 899px) {
