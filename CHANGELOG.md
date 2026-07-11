@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/bcl1713/invitations/compare/v1.2.0...v1.2.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* allow larger hero image uploads ([8f13cc3](https://github.com/bcl1713/invitations/commit/8f13cc32e106b417928eae06be35d181ca756d72))
+
 # [1.2.0](https://github.com/bcl1713/invitations/compare/v1.1.0...v1.2.0) (2026-07-10)
 
 
