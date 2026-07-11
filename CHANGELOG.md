@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/bcl1713/invitations/compare/v1.5.4...v1.5.5) (2026-07-11)
+
+
+### Bug Fixes
+
+* center ceremonial invitation content on mobile ([280f4cc](https://github.com/bcl1713/invitations/commit/280f4ccc954bd9ab1fc080d35206db2c02dc7c92))
+
 ## [1.5.4](https://github.com/bcl1713/invitations/compare/v1.5.3...v1.5.4) (2026-07-11)
 
 
