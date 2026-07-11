@@ -428,7 +428,7 @@ td {
 }
 
 .invitation-heading-block {
-  width: min(100%, 30rem);
+  width: 100%;
   margin-inline: auto;
   justify-items: center;
   justify-self: center;
@@ -889,7 +889,7 @@ td {
 }
 
 .invitation-theme-ceremonial .invitation-heading-block h1 {
-  max-width: 12ch;
+  max-width: 14ch;
   margin-inline: auto;
   font-size: clamp(2.4rem, 4.2vw, 3.8rem);
   letter-spacing: 0.06em;
@@ -1025,27 +1025,42 @@ td {
   }
 
   .invitation-page {
-    padding: 0.65rem;
+    padding: 0.3rem;
   }
 
   .invitation-main-card {
-    padding: 1.45rem 1.2rem 1.25rem;
+    padding: 1.2rem 0.65rem 1.1rem;
   }
 
   .invitation-response-card {
-    padding: 1.2rem 1rem 1rem;
+    padding: 1.05rem 0.75rem 0.95rem;
   }
 
   .invitation-copy-panel {
     width: 100%;
-    padding-inline: 0.1rem;
+    padding-inline: 0;
   }
 
   .invitation-about-panel,
   .invitation-rsvp-copy-shell,
   .invitation-rsvp-form-shell {
     width: 100%;
-    padding-inline: 0.85rem;
+    padding-inline: 0.3rem;
+  }
+
+  .invitation-main-card .panel.invitation-panel-classic,
+  .invitation-main-card .panel.invitation-panel-modern,
+  .invitation-main-card .panel.invitation-panel-photo,
+  .invitation-main-card .panel.invitation-panel-ceremonial,
+  .invitation-main-card .invitation-about-panel {
+    width: 100%;
+  }
+
+  .invitation-theme-ceremonial .invitation-heading-block h1 {
+    max-width: none;
+    width: 100%;
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1.02;
   }
 
   .invitation-card-frame::before {
