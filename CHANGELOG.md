@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/bcl1713/invitations/compare/v1.2.1...v1.2.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* move hero uploads off server actions ([46e8c3d](https://github.com/bcl1713/invitations/commit/46e8c3d6fb204a19b738e2ce23dbe2a750f139c3))
+
 ## [1.2.1](https://github.com/bcl1713/invitations/compare/v1.2.0...v1.2.1) (2026-07-11)
 
 
