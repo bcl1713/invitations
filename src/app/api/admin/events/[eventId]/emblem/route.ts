@@ -1,6 +1,6 @@
 import { getHostSession } from '@/lib/host-session';
-import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
-import { setEventEmblemImage } from '@/modules/events/event-service';
+import { deleteUploadedImageIfUnused, saveUploadedImage } from '@/modules/assets/local-asset-storage';
+import { replaceEventAssetImage } from '@/modules/events/event-service';
 
 export async function POST(
   request: Request,
@@ -23,7 +23,8 @@ export async function POST(
 
   if (file instanceof File && file.size > 0) {
     const storedFileName = await saveUploadedImage(file);
-    await setEventEmblemImage(eventId, storedFileName);
+    const { previousAssetPath } = await replaceEventAssetImage(eventId, 'emblemImagePath', storedFileName);
+    await deleteUploadedImageIfUnused(previousAssetPath);
   }
 
   return new Response(null, {

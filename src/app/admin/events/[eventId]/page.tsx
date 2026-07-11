@@ -88,7 +88,7 @@ export default async function EventDashboardPage({
         </div>
 
         {event.heroImagePath ? (
-          <img className="hero-image" src={`/media/${event.heroImagePath}`} alt={`${event.title} hero`} />
+          <img className="hero-image invitation-dashboard-hero" src={`/media/${event.heroImagePath}`} alt={`${event.title} hero`} />
         ) : null}
 
         <div className="two-column wide-split">
@@ -144,6 +144,14 @@ export default async function EventDashboardPage({
                   <input id="hero-image-input" name="heroImage" type="file" accept="image/png,image/jpeg,image/webp" />
                 </label>
                 <button type="submit">Upload hero image</button>
+                {event.heroImagePath ? (
+                  <div className="stack compact-info asset-existing-card">
+                    <img className="asset-thumb hero-image" src={`/media/${event.heroImagePath}`} alt={`${event.title} hero`} />
+                    <button type="submit" formAction={`/api/admin/events/${event.id}/hero/remove`} formMethod="post" className="secondary">
+                      Remove hero image
+                    </button>
+                  </div>
+                ) : null}
               </form>
               <form action={`/api/admin/events/${event.id}/emblem`} method="post" encType="multipart/form-data" className="stack form-grid panel subtle-panel">
                 <label>
@@ -151,6 +159,14 @@ export default async function EventDashboardPage({
                   <input id="emblem-image-input" name="emblemImage" type="file" accept="image/png,image/jpeg,image/webp" />
                 </label>
                 <button type="submit">Upload event emblem</button>
+                {event.emblemImagePath ? (
+                  <div className="stack compact-info asset-existing-card">
+                    <img className="asset-thumb invitation-emblem" src={`/media/${event.emblemImagePath}`} alt={`${event.title} emblem`} />
+                    <button type="submit" formAction={`/api/admin/events/${event.id}/emblem/remove`} formMethod="post" className="secondary">
+                      Remove event emblem
+                    </button>
+                  </div>
+                ) : null}
               </form>
               <form action={`/api/admin/events/${event.id}/watermark`} method="post" encType="multipart/form-data" className="stack form-grid panel subtle-panel">
                 <label>
@@ -158,6 +174,14 @@ export default async function EventDashboardPage({
                   <input id="watermark-image-input" name="watermarkImage" type="file" accept="image/png,image/jpeg,image/webp" />
                 </label>
                 <button type="submit">Upload watermark</button>
+                {event.watermarkImagePath ? (
+                  <div className="stack compact-info asset-existing-card">
+                    <img className="asset-thumb invitation-watermark-thumb" src={`/media/${event.watermarkImagePath}`} alt={`${event.title} watermark`} />
+                    <button type="submit" formAction={`/api/admin/events/${event.id}/watermark/remove`} formMethod="post" className="secondary">
+                      Remove watermark
+                    </button>
+                  </div>
+                ) : null}
               </form>
             </div>
           </div>

@@ -4,15 +4,25 @@ vi.mock('@/lib/db', () => ({
   prisma: {
     event: {
       create: vi.fn(),
+      findUnique: vi.fn(),
       update: vi.fn(),
     },
   },
 }));
 
 import { prisma } from '@/lib/db';
-import { createEvent, setEventEmblemImage, setEventHeroImage, setEventWatermarkImage, updateEvent } from '@/modules/events/event-service';
+import {
+  clearEventAssetImage,
+  createEvent,
+  replaceEventAssetImage,
+  setEventEmblemImage,
+  setEventHeroImage,
+  setEventWatermarkImage,
+  updateEvent,
+} from '@/modules/events/event-service';
 
 const createMock = vi.mocked(prisma.event.create);
+const findUniqueMock = vi.mocked(prisma.event.findUnique);
 const updateMock = vi.mocked(prisma.event.update);
 
 describe('createEvent', () => {
@@ -160,6 +170,7 @@ describe('updateEvent', () => {
 
 describe('event asset setters', () => {
   beforeEach(() => {
+    findUniqueMock.mockReset();
     updateMock.mockReset();
     updateMock.mockResolvedValue({ id: 'event-1' } as never);
   });
@@ -185,5 +196,45 @@ describe('event asset setters', () => {
       where: { id: 'event-1' },
       data: { watermarkImagePath: 'watermark.png' },
     });
+  });
+
+  it('replaces an asset path and returns the previous file for cleanup', async () => {
+    findUniqueMock.mockResolvedValue({ heroImagePath: 'old-hero.jpg' } as never);
+
+    const result = await replaceEventAssetImage('event-1', 'heroImagePath', 'new-hero.jpg');
+
+    expect(findUniqueMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      select: {
+        heroImagePath: true,
+        emblemImagePath: true,
+        watermarkImagePath: true,
+      },
+    });
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: { heroImagePath: 'new-hero.jpg' },
+    });
+    expect(result.previousAssetPath).toBe('old-hero.jpg');
+  });
+
+  it('clears an asset path and returns the removed file for cleanup', async () => {
+    findUniqueMock.mockResolvedValue({ watermarkImagePath: 'watermark.png' } as never);
+
+    const result = await clearEventAssetImage('event-1', 'watermarkImagePath');
+
+    expect(findUniqueMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      select: {
+        heroImagePath: true,
+        emblemImagePath: true,
+        watermarkImagePath: true,
+      },
+    });
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: { watermarkImagePath: null },
+    });
+    expect(result.previousAssetPath).toBe('watermark.png');
   });
 });

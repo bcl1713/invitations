@@ -1,7 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
+import { prisma } from '@/lib/db';
 import { getEnv } from '@/lib/env';
 
 const ALLOWED_TYPES = new Map([
@@ -34,4 +35,34 @@ export async function saveUploadedImage(file: File) {
   await writeFile(outputPath, buffer);
 
   return fileName;
+}
+
+export async function deleteUploadedImageIfUnused(fileName: string | null | undefined) {
+  if (!fileName) {
+    return;
+  }
+
+  const referenceCount = await prisma.event.count({
+    where: {
+      OR: [
+        { heroImagePath: fileName },
+        { emblemImagePath: fileName },
+        { watermarkImagePath: fileName },
+      ],
+    },
+  });
+
+  if (referenceCount > 0) {
+    return;
+  }
+
+  const outputPath = path.join(getEnv().UPLOADS_PATH, fileName);
+
+  try {
+    await unlink(outputPath);
+  } catch (error) {
+    if (!(error instanceof Error) || !('code' in error) || error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
 }

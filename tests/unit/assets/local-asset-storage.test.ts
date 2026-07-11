@@ -3,15 +3,24 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-const { getEnvMock } = vi.hoisted(() => ({
+const { getEnvMock, countMock } = vi.hoisted(() => ({
   getEnvMock: vi.fn(),
+  countMock: vi.fn(),
 }));
 
 vi.mock('@/lib/env', () => ({
   getEnv: getEnvMock,
 }));
 
-import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
+vi.mock('@/lib/db', () => ({
+  prisma: {
+    event: {
+      count: countMock,
+    },
+  },
+}));
+
+import { deleteUploadedImageIfUnused, saveUploadedImage } from '@/modules/assets/local-asset-storage';
 
 function makeFile({ type, size, bytes = new Uint8Array([1, 2, 3]) }: { type: string; size?: number; bytes?: Uint8Array }) {
   return {
@@ -26,6 +35,7 @@ describe('saveUploadedImage', () => {
 
   beforeEach(async () => {
     getEnvMock.mockReset();
+    countMock.mockReset();
 
     uploadsDir = await mkdtemp(path.join(os.tmpdir(), 'invitations-asset-storage-'));
     getEnvMock.mockReturnValue({
@@ -65,5 +75,35 @@ describe('saveUploadedImage', () => {
 
     await expect(saveUploadedImage(file)).rejects.toThrow('File too large');
     await expect(readdir(uploadsDir)).resolves.toEqual([]);
+  });
+
+  it('deletes an unused image file once nothing references it', async () => {
+    countMock.mockResolvedValue(0);
+    const fileName = 'orphaned.png';
+    await rm(path.join(uploadsDir, fileName), { force: true });
+    await import('node:fs/promises').then(({ writeFile }) => writeFile(path.join(uploadsDir, fileName), Buffer.from([1, 2, 3])));
+
+    await deleteUploadedImageIfUnused(fileName);
+
+    await expect(readdir(uploadsDir)).resolves.toEqual([]);
+    expect(countMock).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { heroImagePath: fileName },
+          { emblemImagePath: fileName },
+          { watermarkImagePath: fileName },
+        ],
+      },
+    });
+  });
+
+  it('keeps an image file when another event asset still references it', async () => {
+    countMock.mockResolvedValue(1);
+    const fileName = 'still-used.png';
+    await import('node:fs/promises').then(({ writeFile }) => writeFile(path.join(uploadsDir, fileName), Buffer.from([1, 2, 3])));
+
+    await deleteUploadedImageIfUnused(fileName);
+
+    await expect(readdir(uploadsDir)).resolves.toEqual([fileName]);
   });
 });

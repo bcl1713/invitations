@@ -146,59 +146,60 @@ export function InvitationPreview({
         </p>
       </div>
 
-      <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-shell`}>
-        {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
-        {presentation.assetUrls.hero ? (
-          <img className={presentation.theme.heroClassName} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
-        ) : null}
-        <div className={presentation.theme.contentClassName}>
-          <section className="stack invitation-main-copy">
-            <div className="stack compact-info invitation-heading-block">
-              {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
-              <p className="eyebrow">{presentation.eyebrow}</p>
-              <h1>{presentation.title}</h1>
-              <p>
-                Hosted by <strong>{presentation.hostName}</strong>
-              </p>
-              <p>Hello {presentation.guestName},</p>
-              <p className="muted">{presentation.introTitle}</p>
-            </div>
-            <div className={presentation.theme.detailsPanelClassName}>
-              <div>
-                <p className="eyebrow">When</p>
-                <p>{presentation.whenText}</p>
+      <div className="stack invitation-preview-stack">
+        <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
+          {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
+          {presentation.assetUrls.hero ? (
+            <img className={`${presentation.theme.heroClassName} invitation-hero-frame`} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
+          ) : null}
+          <div className={presentation.theme.contentClassName}>
+            <section className="stack invitation-main-copy invitation-copy-panel" aria-label="Invitation details preview">
+              <div className="stack compact-info invitation-heading-block">
+                {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
+                <p className="eyebrow">{presentation.eyebrow}</p>
+                <p className="invitation-kicker">{presentation.introTitle}</p>
+                <h1>{presentation.title}</h1>
+                <p className="invitation-host-line">Hosted by <strong>{presentation.hostName}</strong></p>
+                <p className="invitation-guest-line">Reserved for {presentation.guestName}</p>
               </div>
-              <div>
-                <p className="eyebrow">Where</p>
-                <p>{presentation.whereText}</p>
+              <div className={presentation.theme.detailsPanelClassName}>
+                <div className="invitation-detail-block">
+                  <p className="eyebrow">When</p>
+                  <p>{presentation.whenText}</p>
+                </div>
+                <div className="invitation-detail-block">
+                  <p className="eyebrow">Where</p>
+                  <p>{presentation.whereText}</p>
+                </div>
               </div>
-            </div>
-            <section className="stack compact-info">
-              <h3>About this event</h3>
-              <p className="pre-wrap">{presentation.description}</p>
-              <p className="muted">{presentation.plusOneText}</p>
+              <section className="stack compact-info invitation-about-panel">
+                <h3>About this event</h3>
+                <p className="pre-wrap">{presentation.description}</p>
+                <p className="muted invitation-plus-one-note">{presentation.plusOneText}</p>
+              </section>
             </section>
-          </section>
-          <section className="stack">
-            <div className="stack compact-info">
-              <h3>{presentation.rsvpHeading}</h3>
-              <p className="muted">Preview only — guest responses still happen on the live invite page.</p>
-            </div>
-            <div className={presentation.theme.rsvpPanelClassName}>
-              <label>
-                RSVP status
-                <select disabled defaultValue="GOING">
-                  <option value="GOING">Going</option>
-                </select>
-              </label>
-              <label>
-                Note
-                <textarea disabled rows={3} defaultValue="Preview only" />
-              </label>
-            </div>
-          </section>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-response-card invitation-card-frame invitation-preview-card invitation-preview-response-card`}>
+          <div className="stack compact-info invitation-rsvp-copy invitation-rsvp-copy-shell">
+            <h3>{presentation.rsvpHeading}</h3>
+            <p className="muted">Preview only — guest responses still happen on the live invite page.</p>
+          </div>
+          <div className={`${presentation.theme.rsvpPanelClassName} invitation-rsvp-form invitation-preview-form invitation-rsvp-form-shell`}>
+            <label>
+              RSVP status
+              <select disabled defaultValue="GOING">
+                <option value="GOING">Going</option>
+              </select>
+            </label>
+            <label>
+              Note
+              <textarea disabled rows={3} defaultValue="Preview only" />
+            </label>
+          </div>
+        </section>
+      </div>
     </aside>
   );
 }

@@ -122,6 +122,49 @@ export async function setEventAssetImage(eventId: string, field: EventAssetField
   });
 }
 
+async function getCurrentEventAssetPath(eventId: string, field: EventAssetField) {
+  const currentEvent = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: {
+      heroImagePath: true,
+      emblemImagePath: true,
+      watermarkImagePath: true,
+    },
+  });
+
+  if (!currentEvent) {
+    return null;
+  }
+
+  return currentEvent[field];
+}
+
+export async function replaceEventAssetImage(eventId: string, field: EventAssetField, assetPath: string) {
+  const previousAssetPath = await getCurrentEventAssetPath(eventId, field);
+
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { [field]: assetPath },
+  });
+
+  return {
+    previousAssetPath,
+  };
+}
+
+export async function clearEventAssetImage(eventId: string, field: EventAssetField) {
+  const previousAssetPath = await getCurrentEventAssetPath(eventId, field);
+
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { [field]: null },
+  });
+
+  return {
+    previousAssetPath,
+  };
+}
+
 export async function setEventHeroImage(eventId: string, heroImagePath: string) {
   return setEventAssetImage(eventId, 'heroImagePath', heroImagePath);
 }

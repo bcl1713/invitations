@@ -83,12 +83,24 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await page.locator('button', { hasText: 'Upload event emblem' }).click();
 
   await page.getByLabel('Upload custom watermark').setInputFiles(heroImagePath);
-  await expect(previewPanel.locator('img.invitation-watermark')).toBeVisible();
+  await expect(previewPanel.locator('img.invitation-watermark')).toHaveCount(1);
   await page.locator('button', { hasText: 'Upload watermark' }).click();
 
   const dashboardHero = page.locator('img.hero-image').first();
   await expect(dashboardHero).toBeVisible();
   await expect(dashboardHero).toHaveAttribute('src', /\/media\//);
+  await expect(page.getByRole('button', { name: 'Remove hero image' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove event emblem' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove watermark' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Remove hero image' }).click();
+  await expect(page.locator('img.hero-image').first()).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Remove event emblem' }).click();
+  await expect(page.locator('img.invitation-emblem')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Remove watermark' }).click();
+  await expect(page.locator('img.invitation-watermark')).toHaveCount(0);
 
   await addGuestForm.getByLabel('Name', { exact: true }).fill(draftGuestName);
   await addGuestForm.getByLabel('Email').fill(draftGuestEmail);
@@ -157,9 +169,7 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   await expect(page.getByRole('heading', { name: 'Kindly respond' })).toBeVisible();
 
   const inviteHero = page.locator('img.hero-image').first();
-  await expect(inviteHero).toBeVisible();
-  await expect(inviteHero).toHaveAttribute('src', /\/media\//);
-  await expect(page.locator('img.invitation-emblem')).toBeVisible();
-  await expect(page.locator('img.invitation-watermark')).toBeVisible();
-  await expect(inviteHero.evaluate((img) => (img as HTMLImageElement).naturalWidth)).resolves.toBeGreaterThan(0);
+  await expect(inviteHero).toHaveCount(0);
+  await expect(page.locator('img.invitation-emblem')).toHaveCount(0);
+  await expect(page.locator('img.invitation-watermark')).toHaveCount(0);
 });

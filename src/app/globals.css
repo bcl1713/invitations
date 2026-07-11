@@ -15,7 +15,7 @@ body {
 }
 
 a {
-  color: #7c3aed;
+  color: #556347;
 }
 
 img {
@@ -44,7 +44,7 @@ button {
   border: none;
   border-radius: 999px;
   padding: 0.85rem 1.2rem;
-  background: #7c3aed;
+  background: #556347;
   color: white;
   cursor: pointer;
 }
@@ -123,14 +123,14 @@ button.secondary {
 }
 
 .soft-panel {
-  background: #faf5ff;
+  background: #f7f1e4;
 }
 
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.8rem;
-  color: #7c3aed;
+  color: #556347;
 }
 
 h1,
@@ -181,7 +181,7 @@ p {
   gap: 0.15rem;
   padding: 0.9rem;
   border-radius: 1rem;
-  background: #f5f3ff;
+  background: #f3ede0;
 }
 
 .stats-grid strong {
@@ -234,14 +234,38 @@ td {
   justify-content: center;
   padding: 0.85rem 1.2rem;
   border-radius: 999px;
-  background: #ede9fe;
-  color: #5b21b6;
+  background: #e6dcc5;
+  color: #49573d;
   text-decoration: none;
   font-weight: 600;
 }
 
 .asset-upload-grid {
   gap: 0.75rem;
+}
+
+.asset-existing-card {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(107, 114, 128, 0.18);
+}
+
+.asset-thumb {
+  width: 100%;
+  max-height: 9rem;
+  object-fit: cover;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.invitation-watermark-thumb {
+  object-fit: contain;
+  background: linear-gradient(180deg, #f8f3e7 0%, #ffffff 100%);
+}
+
+.invitation-dashboard-hero {
+  border: 1px solid rgba(107, 114, 128, 0.18);
 }
 
 .invitation-preview-panel {
@@ -254,98 +278,570 @@ td {
   padding: 2rem;
 }
 
+.invitation-preview-card .invitation-copy-panel,
+.invitation-preview-card .invitation-about-panel,
+.invitation-preview-card .invitation-rsvp-copy,
+.invitation-preview-card .invitation-preview-form,
+.invitation-preview-card .invitation-detail-block {
+  width: min(100%, 19.5rem);
+  margin-inline: auto;
+}
+
+.invitation-preview-card .invitation-main-copy,
+.invitation-preview-card .invitation-rsvp-copy-shell {
+  justify-items: center;
+}
+
+.invitation-preview-card .invitation-heading-block {
+  width: 100%;
+  justify-items: center;
+}
+
+.invitation-preview-card .invitation-preview-form {
+  text-align: left;
+}
+
+.invitation-preview-card .invitation-detail-block,
+.invitation-preview-card .invitation-about-panel,
+.invitation-preview-card .invitation-rsvp-copy {
+  text-align: center;
+}
+
+.invitation-page {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), rgba(247, 244, 239, 0.95) 40%, rgba(232, 226, 214, 0.98) 100%);
+  padding: 1.4rem;
+}
+
+.invitation-experience,
+.invitation-preview-stack {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  gap: 1rem;
+}
+
+.invitation-main-card {
+  width: 100%;
+  padding: 2rem 1.8rem 1.7rem;
+}
+
+.invitation-response-card {
+  width: min(100%, 31rem);
+  margin-inline: auto;
+  padding: 1.25rem 1.2rem 1.1rem;
+  gap: 0.8rem;
+}
+
+.invitation-preview-stack {
+  width: min(100%, 23.5rem);
+}
+
+.invitation-preview-stack .invitation-main-card,
+.invitation-preview-stack .invitation-response-card {
+  width: 100%;
+}
+
+.invitation-response-card .invitation-rsvp-copy-shell {
+  text-align: center;
+  justify-items: center;
+}
+
+.invitation-response-card .invitation-rsvp-form-shell {
+  width: 100%;
+}
+
 .invitation-shell {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
+  gap: 1.5rem;
+}
+
+.invitation-card-frame {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 246, 0.97), rgba(246, 239, 227, 0.96)),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.5), transparent 55%);
+  border: 1px solid rgba(140, 116, 72, 0.22);
+  box-shadow: 0 28px 70px rgba(31, 41, 55, 0.16);
+  border-radius: 0.4rem;
+}
+
+.invitation-card-frame::before {
+  content: '';
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgba(181, 153, 92, 0.55);
+  border-radius: 0.25rem;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) left 1rem top 1rem / 1.6rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) left 1rem top 1rem / 1px 1.6rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) right 1rem top 1rem / 1.6rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) right 1rem top 1rem / 1px 1.6rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) left 1rem bottom 1rem / 1.6rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) left 1rem bottom 1rem / 1px 1.6rem no-repeat,
+    linear-gradient(90deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) right 1rem bottom 1rem / 1.6rem 1px no-repeat,
+    linear-gradient(180deg, rgba(181, 153, 92, 0.55), rgba(181, 153, 92, 0.55)) right 1rem bottom 1rem / 1px 1.6rem no-repeat;
+}
+
+.invitation-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 1.55rem;
+  border: 1px solid rgba(75, 90, 63, 0.18);
+  border-radius: 0.2rem;
+  pointer-events: none;
 }
 
 .invitation-main-copy,
-.invitation-heading-block {
+.invitation-heading-block,
+.invitation-rsvp-stack,
+.invitation-rsvp-form,
+.invitation-about-panel,
+.invitation-detail-block,
+.invitation-rsvp-copy {
   position: relative;
   z-index: 1;
 }
 
+.invitation-main-copy {
+  gap: 1.25rem;
+}
+
+.invitation-copy-panel {
+  padding: 1.25rem 0.5rem 0.15rem;
+  width: min(100%, 34rem);
+  margin-inline: auto;
+}
+
+.invitation-heading-block {
+  justify-items: center;
+  text-align: center;
+  gap: 0.45rem;
+}
+
+.invitation-kicker {
+  font-size: 0.86rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.88;
+}
+
+.invitation-heading-block h1 {
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: 0.045em;
+  text-wrap: balance;
+}
+
+.invitation-host-line,
+.invitation-guest-line {
+  font-size: 0.96rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.invitation-guest-line {
+  font-style: italic;
+  opacity: 0.82;
+}
+
 .invitation-emblem {
-  width: 5rem;
-  height: 5rem;
+  width: 5.5rem;
+  height: 5.5rem;
   object-fit: contain;
   align-self: center;
+  filter: drop-shadow(0 4px 12px rgba(31, 41, 55, 0.18));
+  padding: 0.4rem;
+  border: 1px solid rgba(181, 153, 92, 0.34);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 251, 241, 0.95) 0%, rgba(245, 236, 216, 0.86) 72%, rgba(181, 153, 92, 0.1) 100%);
 }
 
 .invitation-watermark {
   position: absolute;
-  inset: 6rem auto auto 50%;
-  width: min(65%, 24rem);
+  inset: 5.5rem auto auto 50%;
+  width: min(62%, 26rem);
   transform: translateX(-50%);
-  opacity: 0.1;
+  opacity: 0.11;
   pointer-events: none;
 }
 
-.invitation-hero-ceremonial {
-  max-height: 18rem;
+.invitation-hero-frame {
+  position: relative;
+  z-index: 1;
+  max-height: 17rem;
+  border: 1px solid rgba(181, 153, 92, 0.38);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 10px 28px rgba(31, 41, 55, 0.08);
+  border-radius: 0.35rem;
+}
+
+.invitation-details-grid,
+.invitation-theme-classic .two-column,
+.invitation-theme-modern .two-column,
+.invitation-theme-photo .two-column {
+  align-items: start;
+}
+
+.invitation-main-card .two-column,
+.invitation-main-card .invitation-ceremonial-layout {
+  justify-items: center;
+}
+
+.invitation-detail-block {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.invitation-about-panel h2,
+.invitation-about-panel h3,
+.invitation-rsvp-copy h2,
+.invitation-rsvp-copy h3 {
+  letter-spacing: 0.02em;
+}
+
+.invitation-plus-one-note {
+  font-style: italic;
+}
+
+.invitation-rsvp-stack {
+  align-content: start;
+}
+
+.invitation-rsvp-form {
+  gap: 0.9rem;
+}
+
+.invitation-rsvp-form button,
+.invitation-page .button-link,
+.invitation-preview-card .button-link {
+  border-radius: 0.3rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  padding-inline: 1.4rem;
+}
+
+.invitation-rsvp-form input,
+.invitation-rsvp-form select,
+.invitation-rsvp-form textarea,
+.invitation-page .panel,
+.invitation-preview-card .panel,
+.invitation-theme-ceremonial .panel,
+.invitation-theme-ceremonial .invitation-rsvp-form {
+  border-radius: 0.35rem;
+}
+
+.invitation-rsvp-form label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.invitation-rsvp-form input,
+.invitation-rsvp-form select,
+.invitation-rsvp-form textarea {
+  margin-top: 0;
+}
+
+.invitation-response-card .invitation-rsvp-form {
+  background: rgba(255, 251, 241, 0.9);
 }
 
 .invitation-theme-classic .card {
-  background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+  background: linear-gradient(180deg, #fffdf9 0%, #f7efe6 100%);
+}
+
+.invitation-theme-classic .eyebrow,
+.invitation-theme-classic .invitation-kicker,
+.invitation-theme-classic a,
+.invitation-theme-classic .button-link {
+  color: #556347;
+}
+
+.invitation-theme-classic .invitation-card-frame {
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 238, 224, 0.98));
+}
+
+.invitation-theme-classic .invitation-copy-panel,
+.invitation-theme-classic .invitation-about-panel,
+.invitation-theme-classic .invitation-rsvp-copy,
+.invitation-theme-classic .invitation-rsvp-form,
+.invitation-theme-classic .invitation-panel-classic,
+.invitation-theme-classic .compact-info.panel,
+.invitation-theme-classic .panel {
+  color: #2f382b;
+}
+
+.invitation-theme-classic .invitation-rsvp-form,
+.invitation-theme-classic .soft-panel,
+.invitation-theme-classic .panel {
+  background: rgba(251, 247, 239, 0.78);
+  border: 1px solid rgba(133, 126, 84, 0.26);
+}
+
+.invitation-theme-classic .invitation-rsvp-form input,
+.invitation-theme-classic .invitation-rsvp-form select,
+.invitation-theme-classic .invitation-rsvp-form textarea {
+  border-color: rgba(133, 126, 84, 0.32);
+  background: rgba(255, 252, 245, 0.94);
+}
+
+.invitation-theme-classic .invitation-rsvp-form button,
+.invitation-theme-classic .button-link {
+  background: #556347;
+  color: #ffffff;
 }
 
 .invitation-theme-modern .card {
-  background: linear-gradient(135deg, #111827 0%, #1f2937 35%, #312e81 100%);
-  color: #f9fafb;
+  background: linear-gradient(135deg, #2f382b 0%, #40503a 42%, #596a4d 100%);
+  color: #f8f3e7;
+}
+
+.invitation-theme-modern .invitation-card-frame {
+  background: linear-gradient(180deg, rgba(47, 56, 43, 0.97), rgba(63, 78, 57, 0.96));
+  border-color: rgba(182, 154, 100, 0.34);
+}
+
+.invitation-theme-modern .invitation-card-frame::before {
+  border-color: rgba(243, 233, 209, 0.42);
+}
+
+.invitation-theme-modern .invitation-card-frame::after {
+  border-color: rgba(182, 154, 100, 0.22);
 }
 
 .invitation-theme-modern a,
 .invitation-theme-modern .eyebrow,
-.invitation-theme-modern .button-link {
-  color: #c4b5fd;
+.invitation-theme-modern .invitation-kicker,
+.invitation-theme-modern .button-link,
+.invitation-theme-modern .muted {
+  color: #f3e9d1;
 }
 
-.invitation-panel-modern {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.invitation-theme-modern .invitation-rsvp-form,
+.invitation-theme-modern .invitation-panel-modern {
+  background: rgba(34, 43, 31, 0.62);
+  border: 1px solid rgba(243, 233, 209, 0.2);
+}
+
+.invitation-theme-modern .invitation-rsvp-form input,
+.invitation-theme-modern .invitation-rsvp-form select,
+.invitation-theme-modern .invitation-rsvp-form textarea {
+  border-color: rgba(243, 233, 209, 0.28);
+  background: rgba(248, 243, 231, 0.12);
+  color: #f8f3e7;
+}
+
+.invitation-theme-modern .invitation-rsvp-form button,
+.invitation-theme-modern .button-link {
+  background: #d8c49a;
+  color: #2f382b;
 }
 
 .invitation-theme-photo .card {
-  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 45%);
+  background: linear-gradient(180deg, #fffaf3 0%, #efe6d4 100%);
+}
+
+.invitation-theme-photo .invitation-card-frame {
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.98), rgba(239, 230, 212, 0.98));
+  border-color: rgba(184, 155, 103, 0.24);
+}
+
+.invitation-theme-photo .eyebrow,
+.invitation-theme-photo .invitation-kicker,
+.invitation-theme-photo a,
+.invitation-theme-photo .button-link {
+  color: #5b684c;
+}
+
+.invitation-theme-photo .invitation-rsvp-form,
+.invitation-theme-photo .invitation-panel-photo {
+  background: rgba(255, 251, 241, 0.78);
+  border: 1px solid rgba(184, 155, 103, 0.22);
+}
+
+.invitation-theme-photo .invitation-rsvp-form input,
+.invitation-theme-photo .invitation-rsvp-form select,
+.invitation-theme-photo .invitation-rsvp-form textarea {
+  border-color: rgba(184, 155, 103, 0.32);
+  background: rgba(255, 253, 248, 0.96);
+}
+
+.invitation-theme-photo .invitation-rsvp-form button,
+.invitation-theme-photo .button-link {
+  background: #5b684c;
+  color: #ffffff;
 }
 
 .invitation-theme-ceremonial .card {
-  background:
-    linear-gradient(180deg, rgba(248, 243, 231, 0.98) 0%, rgba(244, 236, 218, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(248, 243, 231, 0.99) 0%, rgba(243, 234, 216, 0.99) 100%);
   border: 10px solid #4b5a3f;
   box-shadow: inset 0 0 0 2px #b69a64, 0 20px 45px rgba(31, 41, 55, 0.16);
+  border-radius: 0.32rem;
+}
+
+.invitation-theme-ceremonial .invitation-card-frame {
+  background: linear-gradient(180deg, rgba(248, 243, 231, 0.99), rgba(242, 232, 211, 0.98));
 }
 
 .invitation-theme-ceremonial h1,
 .invitation-theme-ceremonial h2,
 .invitation-theme-ceremonial h3,
-.invitation-theme-ceremonial .eyebrow {
+.invitation-theme-ceremonial .eyebrow,
+.invitation-theme-ceremonial .invitation-kicker {
   font-family: Georgia, 'Times New Roman', serif;
 }
 
 .invitation-theme-ceremonial .eyebrow,
+.invitation-theme-ceremonial .invitation-kicker,
 .invitation-theme-ceremonial a,
 .invitation-theme-ceremonial .button-link {
   color: #4b5a3f;
 }
 
-.invitation-panel-ceremonial {
-  background: rgba(255, 255, 255, 0.72);
+.invitation-theme-ceremonial .invitation-heading-block h1 {
+  max-width: 12ch;
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.invitation-theme-ceremonial .invitation-heading-block::before,
+.invitation-theme-ceremonial .invitation-heading-block::after {
+  content: '✦';
+  color: rgba(181, 153, 92, 0.88);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.invitation-theme-ceremonial .invitation-host-line,
+.invitation-theme-ceremonial .invitation-guest-line,
+.invitation-theme-ceremonial .invitation-detail-block p,
+.invitation-theme-ceremonial .invitation-about-panel p,
+.invitation-theme-ceremonial .invitation-rsvp-copy p {
+  letter-spacing: 0.05em;
+}
+
+.invitation-theme-ceremonial .invitation-detail-block,
+.invitation-theme-ceremonial .invitation-about-panel,
+.invitation-theme-ceremonial .invitation-rsvp-copy,
+.invitation-theme-ceremonial .invitation-rsvp-form {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.invitation-panel-ceremonial,
+.invitation-theme-ceremonial .invitation-rsvp-form {
+  background: rgba(255, 255, 255, 0.68);
   border: 1px solid rgba(139, 125, 82, 0.5);
+}
+
+.invitation-theme-ceremonial .invitation-rsvp-form input,
+.invitation-theme-ceremonial .invitation-rsvp-form select,
+.invitation-theme-ceremonial .invitation-rsvp-form textarea {
+  border-color: rgba(139, 125, 82, 0.42);
+  background: rgba(255, 251, 241, 0.94);
+}
+
+.invitation-theme-ceremonial .invitation-rsvp-form button,
+.invitation-theme-ceremonial .button-link {
+  background: #4b5a3f;
+  color: #f8f3e7;
 }
 
 .invitation-preview-ceremonial {
   border-width: 6px !important;
 }
 
-.invitation-panel-photo {
-  background: #fff1f2;
+.invitation-panel-modern,
+.invitation-panel-photo,
+.invitation-panel-ceremonial,
+.invitation-theme-classic .panel,
+.invitation-theme-modern .panel,
+.invitation-theme-photo .panel,
+.invitation-theme-ceremonial .panel {
+  backdrop-filter: blur(2px);
 }
 
-.invitation-photo-layout {
-  align-items: start;
+.invitation-theme-modern .invitation-watermark {
+  opacity: 0.08;
+}
+
+.invitation-theme-photo .invitation-watermark {
+  opacity: 0.09;
+}
+
+.invitation-theme-ceremonial .invitation-watermark {
+  opacity: 0.12;
 }
 
 .invitation-hero-tall {
-  max-height: 32rem;
+  max-height: 22rem;
+}
+
+.invitation-hero-ceremonial {
+  max-height: 13rem;
+}
+
+.invitation-ceremonial-layout {
+  gap: 1rem;
+  justify-items: center;
+}
+
+.invitation-ceremonial-layout .invitation-copy-panel {
+  width: min(100%, 34rem);
+}
+
+.invitation-ceremonial-layout .invitation-panel-ceremonial,
+.invitation-ceremonial-layout .invitation-rsvp-form {
+  width: 100%;
+}
+
+.invitation-ceremonial-layout .invitation-detail-block,
+.invitation-ceremonial-layout .invitation-about-panel,
+.invitation-ceremonial-layout .invitation-rsvp-copy {
+  text-align: center;
+}
+
+@media (max-width: 899px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.4rem;
+  }
+
+  .invitation-page {
+    padding: 0.65rem;
+  }
+
+  .invitation-main-card {
+    padding: 1.25rem 1.05rem 1.15rem;
+  }
+
+  .invitation-response-card {
+    padding: 1rem 0.9rem 0.95rem;
+  }
+
+  .invitation-copy-panel {
+    width: 100%;
+    padding-inline: 0.15rem;
+  }
+
+  .invitation-card-frame::before {
+    inset: 0.7rem;
+  }
+
+  .invitation-card-frame::after {
+    inset: 1.1rem;
+  }
+
+  .invitation-watermark {
+    width: min(72%, 18rem);
+    top: 4.75rem;
+  }
+
+  .invitation-heading-block h1 {
+    font-size: 2rem;
+  }
 }
