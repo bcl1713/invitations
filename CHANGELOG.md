@@ -1,3 +1,10 @@
+## [1.5.7](https://github.com/bcl1713/invitations/compare/v1.5.6...v1.5.7) (2026-07-11)
+
+
+### Bug Fixes
+
+* tighten ceremonial invitation spacing ([ae512c7](https://github.com/bcl1713/invitations/commit/ae512c7e31a9fc3cbadde9d33ffc999ac2c63010))
+
 ## [1.5.6](https://github.com/bcl1713/invitations/compare/v1.5.5...v1.5.6) (2026-07-11)
 
 
