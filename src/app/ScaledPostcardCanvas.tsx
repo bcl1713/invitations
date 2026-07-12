@@ -9,13 +9,17 @@ export function ScaledPostcardCanvas({
   children,
   className = '',
   stageClassName = '',
+  onOverflowChange,
 }: {
   children: ReactNode;
   className?: string;
   stageClassName?: string;
+  onOverflowChange?: (overflowing: boolean) => void;
 }) {
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
+  const [overflowing, setOverflowing] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,9 +31,38 @@ export function ScaledPostcardCanvas({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const checkOverflow = () => {
+      const card = stage.querySelector<HTMLElement>('.invitation-main-card');
+      const nextOverflowing = Boolean(card && (card.scrollHeight > card.clientHeight + 1 || card.scrollWidth > card.clientWidth + 1));
+      setOverflowing((current) => current === nextOverflowing ? current : nextOverflowing);
+    };
+
+    checkOverflow();
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    resizeObserver.observe(stage);
+    const card = stage.querySelector<HTMLElement>('.invitation-main-card');
+    if (card) resizeObserver.observe(card);
+    const mutationObserver = new MutationObserver(checkOverflow);
+    mutationObserver.observe(stage, { childList: true, characterData: true, subtree: true, attributes: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [children]);
+
+  useEffect(() => {
+    onOverflowChange?.(overflowing);
+  }, [onOverflowChange, overflowing]);
+
   return (
     <div ref={canvasRef} className={`postcard-canvas ${className}`}>
       <div
+        ref={stageRef}
         className={`postcard-stage ${stageClassName}`}
         style={{
           width: DESIGN_WIDTH,

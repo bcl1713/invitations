@@ -48,6 +48,7 @@ export function InvitationPreview({
   initialEvent: PreviewState;
 }) {
   const [preview, setPreview] = useState(initialEvent);
+  const [postcardOverflowing, setPostcardOverflowing] = useState(false);
   const objectUrls = useRef<Record<'heroUrl' | 'emblemUrl' | 'watermarkUrl', string | null>>({
     heroUrl: null,
     emblemUrl: null,
@@ -183,7 +184,7 @@ export function InvitationPreview({
       </div>
 
       <div className="stack invitation-preview-stack">
-        <ScaledPostcardCanvas>
+        <ScaledPostcardCanvas onOverflowChange={setPostcardOverflowing}>
           <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
           {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
           {presentation.assetUrls.hero ? (
@@ -218,6 +219,11 @@ export function InvitationPreview({
           </div>
           </section>
         </ScaledPostcardCanvas>
+        {postcardOverflowing ? (
+          <p className="invitation-overflow-warning compact-info" role="alert">
+            Some postcard text exceeds the fixed 2:3 design surface and may be clipped. Reduce the copy or font size before saving.
+          </p>
+        ) : null}
 
         <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-response-card invitation-card-frame invitation-preview-card invitation-preview-response-card`}>
           <div className="stack compact-info invitation-rsvp-copy invitation-rsvp-copy-shell">
