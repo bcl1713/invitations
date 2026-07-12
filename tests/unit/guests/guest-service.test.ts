@@ -54,19 +54,40 @@ describe('updateGuest', () => {
   });
 
   it('updates and normalizes guest fields only when the guest belongs to the event', async () => {
-    await updateGuest('event-1', 'guest-1', {
+    const result = await updateGuest('event-1', 'guest-1', {
       name: '  Jamie Guest  ',
       email: '  JAMIE@EXAMPLE.COM ',
       note: '  Needs ramp access  ',
       canBringPlusOne: false,
     });
 
+    expect(result).toEqual({ count: 1 });
     expect(updateManyMock).toHaveBeenCalledWith({
       where: { id: 'guest-1', eventId: 'event-1' },
       data: {
         name: 'Jamie Guest',
         email: 'jamie@example.com',
         note: 'Needs ramp access',
+        canBringPlusOne: false,
+      },
+    });
+  });
+
+  it('reports zero updates when the guest belongs to a different event', async () => {
+    updateManyMock.mockResolvedValue({ count: 0 });
+
+    const result = await updateGuest('event-1', 'guest-from-event-2', {
+      name: 'Jamie Guest',
+      email: 'jamie@example.com',
+    });
+
+    expect(result).toEqual({ count: 0 });
+    expect(updateManyMock).toHaveBeenCalledWith({
+      where: { id: 'guest-from-event-2', eventId: 'event-1' },
+      data: {
+        name: 'Jamie Guest',
+        email: 'jamie@example.com',
+        note: '',
         canBringPlusOne: false,
       },
     });

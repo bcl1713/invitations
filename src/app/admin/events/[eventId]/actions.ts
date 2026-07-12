@@ -86,12 +86,16 @@ export async function sendInviteAction(eventId: string, guestId: string) {
 export async function updateGuestAction(eventId: string, guestId: string, formData: FormData) {
   await requireHostSession();
 
-  await updateGuest(eventId, guestId, {
+  const { count } = await updateGuest(eventId, guestId, {
     name: String(formData.get('name') ?? ''),
     email: String(formData.get('email') ?? ''),
     note: String(formData.get('note') ?? ''),
     canBringPlusOne: formData.get('canBringPlusOne') === 'on',
   });
+
+  if (count === 0) {
+    throw new Error('Guest not found for event');
+  }
 
   revalidatePath(`/admin/events/${eventId}`);
 }
