@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/bcl1713/invitations/compare/v1.6.0...v1.6.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* stabilize postcard rendering and editor ([8fe2966](https://github.com/bcl1713/invitations/commit/8fe29668f5cbdb358716047842e3b9af4d52d41a))
+
 # [1.6.0](https://github.com/bcl1713/invitations/compare/v1.5.9...v1.6.0) (2026-07-12)
 
 
