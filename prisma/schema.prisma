@@ -87,3 +87,16 @@ model HostSession {
 
   @@index([expiresAt])
 }
+
+model LoginAttemptThrottle {
+  identifierHash String   @id
+  failures       Int
+  windowStartedAt DateTime
+  blockedUntil   DateTime?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([blockedUntil])
+  @@index([expiresAt])
+}
