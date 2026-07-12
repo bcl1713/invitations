@@ -30,6 +30,16 @@ function textStyle(design: ReturnType<typeof buildInvitationPresentation>['desig
   };
 }
 
+function parseDesignConfig(value: string | undefined) {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function InvitationPreview({
   appUrl,
   initialEvent,
@@ -142,7 +152,7 @@ export function InvitationPreview({
         description: preview.description,
         startsAt: preview.startsAt,
         templateKey: preview.templateKey,
-        designConfig: preview.designConfig ? JSON.parse(preview.designConfig) : undefined,
+        designConfig: parseDesignConfig(preview.designConfig),
         heroImagePath: null,
         emblemImagePath: null,
         watermarkImagePath: null,

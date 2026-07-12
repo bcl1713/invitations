@@ -31,7 +31,11 @@ function parseDesignConfig(value: FormDataEntryValue | null): InvitationDesign |
   const raw = String(value ?? '').trim();
   if (!raw) return undefined;
   try {
-    return JSON.parse(raw) as InvitationDesign;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Invalid invitation design');
+    }
+    return parsed as InvitationDesign;
   } catch {
     throw new Error('Invalid invitation design');
   }
