@@ -1,0 +1,32 @@
+name: auto-merge-approved-dev
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  enable-auto-merge:
+    if: github.event.label.name == 'review-approved' && startsWith(github.event.issue.pull_request.url, 'https://api.github.com/repos/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify reviewed PR targets dev
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh pr view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json baseRefName,isDraft,state,mergeable \
+            --jq 'select(.baseRefName == "dev" and .isDraft == false and .state == "OPEN" and .mergeable == "MERGEABLE")' > /tmp/pr.json
+          test -s /tmp/pr.json
+      - name: Enable squash auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --squash --delete-branch
