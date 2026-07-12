@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/bcl1713/invitations/compare/v1.6.1...v1.6.2) (2026-07-12)
+
+
+### Bug Fixes
+
+* synchronize postcard preview with editor ([f49c993](https://github.com/bcl1713/invitations/commit/f49c9931b244a93e39e0c9292c40bf0949f24028))
+
 ## [1.6.1](https://github.com/bcl1713/invitations/compare/v1.6.0...v1.6.1) (2026-07-12)
 
 
