@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/bcl1713/invitations/compare/v1.6.2...v1.6.3) (2026-07-12)
+
+
+### Bug Fixes
+
+* complete admin RSVP preview ([f0e8e66](https://github.com/bcl1713/invitations/commit/f0e8e661b3d8c089eccca27b7d846a007dc275cd))
+
 ## [1.6.2](https://github.com/bcl1713/invitations/compare/v1.6.1...v1.6.2) (2026-07-12)
 
 
