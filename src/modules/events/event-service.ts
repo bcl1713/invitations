@@ -168,6 +168,42 @@ export async function clearEventAssetImage(eventId: string, field: EventAssetFie
   };
 }
 
+export async function clearEventAssetImageAndScheduleCleanup(eventId: string, field: EventAssetField) {
+  return prisma.$transaction(async (tx) => {
+    const previousAssetPath = await tx.event.findUnique({
+      where: { id: eventId },
+      select: {
+        heroImagePath: true,
+        emblemImagePath: true,
+        watermarkImagePath: true,
+      },
+    }).then((event) => event?.[field] ?? null);
+
+    await tx.event.update({
+      where: { id: eventId },
+      data: { [field]: null },
+    });
+
+    if (previousAssetPath) {
+      await tx.assetCleanup.upsert({
+        where: {
+          eventId_fileName: {
+            eventId,
+            fileName: previousAssetPath,
+          },
+        },
+        create: {
+          eventId,
+          fileName: previousAssetPath,
+        },
+        update: {},
+      });
+    }
+
+    return { previousAssetPath };
+  });
+}
+
 export async function setEventHeroImage(eventId: string, heroImagePath: string) {
   return setEventAssetImage(eventId, 'heroImagePath', heroImagePath);
 }

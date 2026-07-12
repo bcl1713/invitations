@@ -2,10 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/db', () => ({
   prisma: {
+    $transaction: vi.fn(),
     event: {
       create: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
+    },
+    assetCleanup: {
+      upsert: vi.fn(),
     },
   },
 }));
@@ -13,6 +17,7 @@ vi.mock('@/lib/db', () => ({
 import { prisma } from '@/lib/db';
 import {
   clearEventAssetImage,
+  clearEventAssetImageAndScheduleCleanup,
   createEvent,
   replaceEventAssetImage,
   setEventEmblemImage,
@@ -24,6 +29,8 @@ import {
 const createMock = vi.mocked(prisma.event.create);
 const findUniqueMock = vi.mocked(prisma.event.findUnique);
 const updateMock = vi.mocked(prisma.event.update);
+const transactionMock = vi.mocked(prisma.$transaction);
+const assetCleanupUpsertMock = vi.mocked(prisma.assetCleanup.upsert);
 
 describe('createEvent', () => {
   beforeEach(() => {
@@ -172,6 +179,8 @@ describe('event asset setters', () => {
   beforeEach(() => {
     findUniqueMock.mockReset();
     updateMock.mockReset();
+    transactionMock.mockReset();
+    assetCleanupUpsertMock.mockReset();
     updateMock.mockResolvedValue({ id: 'event-1' } as never);
   });
 
@@ -236,5 +245,40 @@ describe('event asset setters', () => {
       data: { watermarkImagePath: null },
     });
     expect(result.previousAssetPath).toBe('watermark.png');
+  });
+
+  it('atomically clears an asset path and records its cleanup work', async () => {
+    findUniqueMock.mockResolvedValue({ heroImagePath: 'hero.png' } as never);
+    transactionMock.mockImplementation(async (callback) => callback({
+      event: {
+        findUnique: findUniqueMock,
+        update: updateMock,
+      },
+      assetCleanup: {
+        upsert: assetCleanupUpsertMock,
+      },
+    } as never));
+
+    await expect(clearEventAssetImageAndScheduleCleanup('event-1', 'heroImagePath')).resolves.toEqual({
+      previousAssetPath: 'hero.png',
+    });
+
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: 'event-1' },
+      data: { heroImagePath: null },
+    });
+    expect(assetCleanupUpsertMock).toHaveBeenCalledWith({
+      where: {
+        eventId_fileName: {
+          eventId: 'event-1',
+          fileName: 'hero.png',
+        },
+      },
+      create: {
+        eventId: 'event-1',
+        fileName: 'hero.png',
+      },
+      update: {},
+    });
   });
 });

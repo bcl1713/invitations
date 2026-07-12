@@ -1,6 +1,5 @@
 import { getHostSession } from '@/lib/host-session';
 import { retryEventAssetCleanup } from '@/modules/assets/event-asset-cleanup';
-import { clearEventAssetImageAndScheduleCleanup } from '@/modules/events/event-service';
 
 export async function POST(
   _request: Request,
@@ -18,7 +17,6 @@ export async function POST(
   }
 
   const { eventId } = await params;
-  await clearEventAssetImageAndScheduleCleanup(eventId, 'emblemImagePath');
   const { cleanupPending } = await retryEventAssetCleanup(eventId);
 
   return new Response(null, {
