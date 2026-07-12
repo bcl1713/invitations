@@ -5,6 +5,7 @@ import { getEnv } from '@/lib/env';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { fontCssFamily } from '@/modules/invitations/invitation-design';
 import { getInvitationView } from '@/modules/invitations/invitation-service';
+import { RSVP_NOTE_MAX_LENGTH } from '@/modules/rsvps/rsvp-service';
 
 import { submitRsvpAction } from './actions';
 
@@ -26,7 +27,7 @@ export default async function InvitationPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ error?: string; saved?: string }>;
 }) {
   const { token } = await params;
   const query = await searchParams;
@@ -113,6 +114,7 @@ export default async function InvitationPage({
             <p style={textStyle(presentation.design, 'rsvpIntro')}>{presentation.design.content.rsvpIntro.replace('{host}', presentation.hostName)}</p>
           </div>
           {query.saved ? <p className="success invitation-response-status">Your RSVP has been saved.</p> : null}
+          {query.error ? <p className="error invitation-response-status">Please review your RSVP and try again.</p> : null}
           <form action={submitRsvpAction.bind(null, token)} className={`${presentation.theme.rsvpPanelClassName} invitation-rsvp-form invitation-rsvp-form-shell`}>
             <label>
               <span style={textStyle(presentation.design, 'rsvpStatusLabel')}>{presentation.design.content.rsvpStatusLabel}</span>
@@ -134,7 +136,7 @@ export default async function InvitationPage({
             </label>
             <label>
               <span style={textStyle(presentation.design, 'noteLabel')}>{presentation.design.content.noteLabel}</span>
-              <textarea name="note" rows={4} defaultValue={invitation.guest.rsvp?.note ?? ''} />
+              <textarea name="note" rows={4} maxLength={RSVP_NOTE_MAX_LENGTH} defaultValue={invitation.guest.rsvp?.note ?? ''} />
             </label>
             <button type="submit" style={textStyle(presentation.design, 'saveRsvpLabel')}>{presentation.design.content.saveRsvpLabel}</button>
           </form>

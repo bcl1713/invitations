@@ -49,6 +49,12 @@ secret, all requests use the conservative shared `unknown` source key rather tha
 accepting attacker-controlled headers. Throttle telemetry contains only truncated
 SHA-256 fingerprints, never credentials.
 
+## RSVP validation
+
+Public RSVP submissions are validated on the server: status must be `GOING`,
+`MAYBE`, or `DECLINED`; headcount must be 1 (or 2 for a guest whose stored
+record permits a plus-one); and notes are limited to 1,000 characters.
+
 ## Current MVP target
 
 - host authentication
