@@ -1,9 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { requireHostSessionMock, updateGuestMock, revalidatePathMock } = vi.hoisted(() => ({
+const {
+  requireHostSessionMock,
+  updateGuestMock,
+  revalidatePathMock,
+  saveUploadedImageMock,
+  deleteUploadedImageIfUnusedMock,
+  setEventHeroImageMock,
+} = vi.hoisted(() => ({
   requireHostSessionMock: vi.fn(),
   updateGuestMock: vi.fn(),
   revalidatePathMock: vi.fn(),
+  saveUploadedImageMock: vi.fn(),
+  deleteUploadedImageIfUnusedMock: vi.fn(),
+  setEventHeroImageMock: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -19,11 +29,12 @@ vi.mock('@/lib/host-session', () => ({
 }));
 
 vi.mock('@/modules/assets/local-asset-storage', () => ({
-  saveUploadedImage: vi.fn(),
+  saveUploadedImage: saveUploadedImageMock,
+  deleteUploadedImageIfUnused: deleteUploadedImageIfUnusedMock,
 }));
 
 vi.mock('@/modules/events/event-service', () => ({
-  setEventHeroImage: vi.fn(),
+  setEventHeroImage: setEventHeroImageMock,
   updateEvent: vi.fn(),
 }));
 
@@ -40,7 +51,7 @@ vi.mock('@/modules/templates/template-catalog', () => ({
   normalizeTemplateKey: vi.fn(),
 }));
 
-import { updateGuestAction } from '@/app/admin/events/[eventId]/actions';
+import { updateGuestAction, uploadHeroAction } from '@/app/admin/events/[eventId]/actions';
 
 function guestFormData() {
   const formData = new FormData();
@@ -55,6 +66,9 @@ describe('updateGuestAction', () => {
     requireHostSessionMock.mockReset();
     updateGuestMock.mockReset();
     revalidatePathMock.mockReset();
+    saveUploadedImageMock.mockReset();
+    deleteUploadedImageIfUnusedMock.mockReset();
+    setEventHeroImageMock.mockReset();
     requireHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
   });
 
@@ -80,6 +94,30 @@ describe('updateGuestAction', () => {
     );
 
     expect(updateGuestMock).toHaveBeenCalledTimes(1);
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('uploadHeroAction', () => {
+  beforeEach(() => {
+    requireHostSessionMock.mockReset();
+    revalidatePathMock.mockReset();
+    saveUploadedImageMock.mockReset();
+    deleteUploadedImageIfUnusedMock.mockReset();
+    setEventHeroImageMock.mockReset();
+    requireHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+  });
+
+  it('removes the stored image when the event update fails', async () => {
+    saveUploadedImageMock.mockResolvedValue('stored-hero.png');
+    setEventHeroImageMock.mockRejectedValue(new Error('Event not found'));
+    const formData = new FormData();
+    formData.set('heroImage', new File([new Uint8Array(128)], 'hero.png', { type: 'image/png' }));
+
+    await expect(uploadHeroAction('missing-event', formData)).rejects.toThrow('Event not found');
+
+    expect(setEventHeroImageMock).toHaveBeenCalledWith('missing-event', 'stored-hero.png');
+    expect(deleteUploadedImageIfUnusedMock).toHaveBeenCalledWith('stored-hero.png');
     expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 });

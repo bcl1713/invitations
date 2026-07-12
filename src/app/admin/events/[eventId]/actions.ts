@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { getEnv } from '@/lib/env';
 import { requireHostSession } from '@/lib/host-session';
-import { saveUploadedImage } from '@/modules/assets/local-asset-storage';
+import { deleteUploadedImageIfUnused, saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
 import { addGuest, updateGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
@@ -109,6 +109,13 @@ export async function uploadHeroAction(eventId: string, formData: FormData) {
   }
 
   const storedFileName = await saveUploadedImage(file);
-  await setEventHeroImage(eventId, storedFileName);
+
+  try {
+    await setEventHeroImage(eventId, storedFileName);
+  } catch (error) {
+    await deleteUploadedImageIfUnused(storedFileName);
+    throw error;
+  }
+
   revalidatePath(`/admin/events/${eventId}`);
 }
