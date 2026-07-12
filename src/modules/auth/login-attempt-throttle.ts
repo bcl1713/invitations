@@ -11,8 +11,6 @@ type ThrottleScope = 'account' | 'source';
 
 export interface LoginThrottleTelemetry {
   event: 'login_throttled';
-  accountFingerprint: string;
-  sourceFingerprint: string;
 }
 
 export interface LoginAttemptThrottleStore {
@@ -109,11 +107,7 @@ export function createLoginAttemptThrottle({
 
   async function recordFailure(account: string, source: string) {
     if (await store.recordFailure(identifiers(account, source), new Date(now()), maxFailures, cooldownMs)) {
-      onThrottle?.({
-        event: 'login_throttled',
-        accountFingerprint: identifierHash('account', account).slice(0, 16),
-        sourceFingerprint: identifierHash('source', source).slice(0, 16),
-      });
+      onThrottle?.({ event: 'login_throttled' });
     }
   }
 

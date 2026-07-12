@@ -46,8 +46,8 @@ configured and a reverse proxy injects that value in `X-Login-Proxy-Secret` afte
 removing any client-supplied copy. The proxy must also remove client-supplied
 `X-Forwarded-For` and set it from the actual peer address. With no trusted proxy
 secret, all requests use the conservative shared `unknown` source key rather than
-accepting attacker-controlled headers. Throttle telemetry contains only truncated
-SHA-256 fingerprints, never credentials.
+accepting attacker-controlled headers. Throttle telemetry records only that a
+throttle occurred; it contains no identifiers, credentials, or secrets.
 
 ## Current MVP target
 

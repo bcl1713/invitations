@@ -67,17 +67,14 @@ describe('login attempt throttle', () => {
     await expect(throttle.isThrottled(account, source)).resolves.toBe(true);
   });
 
-  it('records safe throttle telemetry without identifiers or passwords', async () => {
+  it('records throttle telemetry without identifiers or passwords', async () => {
     const telemetry = vi.fn();
     const throttle = createLoginAttemptThrottle({ now: () => startedAt, maxFailures: 1, cooldownMs: 60_000, onThrottle: telemetry, store: createStore() });
     await throttle.recordFailure(account, source);
 
-    expect(telemetry).toHaveBeenCalledWith({
-      event: 'login_throttled',
-      accountFingerprint: expect.stringMatching(/^[a-f0-9]{16}$/),
-      sourceFingerprint: expect.stringMatching(/^[a-f0-9]{16}$/),
-    });
+    expect(telemetry).toHaveBeenCalledWith({ event: 'login_throttled' });
     expect(JSON.stringify(telemetry.mock.calls)).not.toContain(account);
+    expect(JSON.stringify(telemetry.mock.calls)).not.toContain(source);
     expect(JSON.stringify(telemetry.mock.calls)).not.toContain('correct-horse-battery-staple');
   });
 });

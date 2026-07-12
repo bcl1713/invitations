@@ -34,9 +34,8 @@ required by the application, for shared and restart-safe throttle state.
   abusive-source protection.
 - Return the existing `/login?error=1` generic error for invalid and throttled
   attempts. Do not expose whether a limit, account, or password caused failure.
-- Emit telemetry only when a record becomes throttled, with short SHA-256
-  fingerprints for account and source. Never log an email, source address,
-  password, or configured secret.
+- Emit telemetry only when a record becomes throttled. Never log an email,
+  source address, identifier fingerprint, password, or configured secret.
 
 ## Persistence and configuration
 
