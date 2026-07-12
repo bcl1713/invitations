@@ -1,3 +1,10 @@
+## [1.6.8](https://github.com/bcl1713/invitations/compare/v1.6.7...v1.6.8) (2026-07-12)
+
+
+### Bug Fixes
+
+* insert invitation variables with ranges ([1e5f345](https://github.com/bcl1713/invitations/commit/1e5f345d09b679d6e2e106370fbf3452f78f8880))
+
 ## [1.6.7](https://github.com/bcl1713/invitations/compare/v1.6.6...v1.6.7) (2026-07-12)
 
 
