@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 
+import { prisma } from '@/lib/db';
+
 const DEFAULT_MAX_FAILURES = 5;
 const DEFAULT_COOLDOWN_MS = 15 * 60 * 1000;
-const MAX_TRACKED_IDENTIFIERS = 10_000;
 
 type ThrottleScope = 'account' | 'source';
 
@@ -12,17 +13,24 @@ export interface LoginThrottleTelemetry {
   sourceFingerprint: string;
 }
 
+export interface LoginAttemptThrottleStore {
+  clearAccount(accountIdentifierHash: string): Promise<void>;
+  isThrottled(identifierHashes: string[], now: Date): Promise<boolean>;
+  recordFailure(identifierHashes: string[], now: Date, maxFailures: number, cooldownMs: number): Promise<boolean>;
+}
+
 export interface LoginAttemptThrottleOptions {
   now?: () => number;
   maxFailures?: number;
   cooldownMs?: number;
   onThrottle?: (event: LoginThrottleTelemetry) => void;
+  store?: LoginAttemptThrottleStore;
 }
 
 export interface LoginAttemptThrottle {
-  isThrottled(account: string, source: string): boolean;
-  recordFailure(account: string, source: string): void;
-  recordSuccess(account: string, source: string): void;
+  isThrottled(account: string, source: string): Promise<boolean>;
+  recordFailure(account: string, source: string): Promise<void>;
+  recordSuccess(account: string, source: string): Promise<void>;
 }
 
 function normalizeIdentifier(value: string) {
@@ -30,74 +38,78 @@ function normalizeIdentifier(value: string) {
 }
 
 function fingerprint(value: string) {
-  return createHash('sha256').update(value).digest('hex').slice(0, 16);
+  return createHash('sha256').update(value).digest('hex');
 }
+
+function identifierHash(scope: ThrottleScope, identifier: string) {
+  return fingerprint(`${scope}:${normalizeIdentifier(identifier)}`);
+}
+
+const prismaLoginAttemptThrottleStore: LoginAttemptThrottleStore = {
+  async clearAccount(accountIdentifierHash) {
+    await prisma.loginAttemptThrottle.deleteMany({ where: { identifierHash: accountIdentifierHash } });
+  },
+  async isThrottled(identifierHashes, now) {
+    return Boolean(
+      await prisma.loginAttemptThrottle.findFirst({
+        where: { identifierHash: { in: identifierHashes }, blockedUntil: { gt: now } },
+        select: { identifierHash: true },
+      }),
+    );
+  },
+  async recordFailure(identifierHashes, now, maxFailures, cooldownMs) {
+    const windowStart = new Date(now.getTime() - cooldownMs);
+    const expiresAt = new Date(now.getTime() + cooldownMs);
+
+    return prisma.$transaction(async (tx) => {
+      await tx.loginAttemptThrottle.deleteMany({ where: { expiresAt: { lte: now } } });
+      let throttled = false;
+
+      for (const identifierHash of identifierHashes) {
+        const existing = await tx.loginAttemptThrottle.findUnique({ where: { identifierHash } });
+        const withinWindow = existing && existing.windowStartedAt > windowStart;
+        const failures = withinWindow ? existing.failures + 1 : 1;
+        const blockedUntil = failures >= maxFailures ? expiresAt : null;
+        throttled ||= blockedUntil !== null;
+
+        await tx.loginAttemptThrottle.upsert({
+          where: { identifierHash },
+          create: { identifierHash, failures, windowStartedAt: now, blockedUntil, expiresAt },
+          update: { failures, windowStartedAt: withinWindow ? existing.windowStartedAt : now, blockedUntil, expiresAt },
+        });
+      }
+
+      return throttled;
+    });
+  },
+};
 
 export function createLoginAttemptThrottle({
   now = Date.now,
   maxFailures = DEFAULT_MAX_FAILURES,
   cooldownMs = DEFAULT_COOLDOWN_MS,
   onThrottle,
+  store = prismaLoginAttemptThrottleStore,
 }: LoginAttemptThrottleOptions = {}): LoginAttemptThrottle {
-  const failuresByIdentifier = new Map<string, number[]>();
-
-  function key(scope: ThrottleScope, identifier: string) {
-    return `${scope}:${normalizeIdentifier(identifier)}`;
+  function identifiers(account: string, source: string) {
+    return [identifierHash('account', account), identifierHash('source', source)];
   }
 
-  function recentFailures(identifier: string, currentTime: number) {
-    const failures = failuresByIdentifier.get(identifier) ?? [];
-    const recent = failures.filter((failedAt) => failedAt > currentTime - cooldownMs);
-
-    if (recent.length === 0) {
-      failuresByIdentifier.delete(identifier);
-    } else if (recent.length !== failures.length) {
-      failuresByIdentifier.set(identifier, recent);
-    }
-
-    return recent;
-  }
-
-  function trimTrackedIdentifiers() {
-    while (failuresByIdentifier.size > MAX_TRACKED_IDENTIFIERS) {
-      const oldestKey = failuresByIdentifier.keys().next().value;
-      if (oldestKey === undefined) {
-        return;
-      }
-      failuresByIdentifier.delete(oldestKey);
-    }
-  }
-
-  function isThrottled(account: string, source: string) {
-    const currentTime = now();
-    return [key('account', account), key('source', source)].some(
-      (identifier) => recentFailures(identifier, currentTime).length >= maxFailures,
-    );
-  }
-
-  function recordFailure(account: string, source: string) {
-    const currentTime = now();
-    const identifiers = [key('account', account), key('source', source)];
-
-    for (const identifier of identifiers) {
-      failuresByIdentifier.set(identifier, [...recentFailures(identifier, currentTime), currentTime]);
-    }
-    trimTrackedIdentifiers();
-
-    if (identifiers.some((identifier) => recentFailures(identifier, currentTime).length >= maxFailures)) {
+  async function recordFailure(account: string, source: string) {
+    if (await store.recordFailure(identifiers(account, source), new Date(now()), maxFailures, cooldownMs)) {
       onThrottle?.({
         event: 'login_throttled',
-        accountFingerprint: fingerprint(normalizeIdentifier(account)),
-        sourceFingerprint: fingerprint(normalizeIdentifier(source)),
+        accountFingerprint: identifierHash('account', account).slice(0, 16),
+        sourceFingerprint: identifierHash('source', source).slice(0, 16),
       });
     }
   }
 
   return {
-    isThrottled,
+    isThrottled: (account, source) => store.isThrottled(identifiers(account, source), new Date(now())),
     recordFailure,
-    // Failure records expire naturally. A success must not erase a separate abusive source's limit.
-    recordSuccess() {},
+    // A successful account login resets that account only, never a shared abusive-source limit.
+    recordSuccess: async (account) => store.clearAccount(identifierHash('account', account)),
   };
 }
 

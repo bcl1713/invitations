@@ -33,6 +33,20 @@ container. The application startup command does not run migrations implicitly.
 See [the production database migration runbook](docs/operations/database-migrations.md)
 for the full deployment sequence and guidance for existing databases.
 
+## Login throttling
+
+Host login failures are throttled across both account and client-source identifiers
+(five failures in fifteen minutes blocks further attempts for fifteen minutes).
+Throttle state is stored in PostgreSQL, so it is shared across application
+instances and survives restarts. Apply the included Prisma migration before
+deploying this change.
+
+When deployed behind a reverse proxy, configure that proxy to remove client-supplied
+`X-Forwarded-For` and `X-Real-IP` headers and set them from the actual peer address.
+The application uses the first forwarded address for source-level protection; an
+unsanitized proxy permits attackers to choose that identifier. Throttle telemetry
+contains only truncated SHA-256 fingerprints, never credentials.
+
 ## Current MVP target
 
 - host authentication

@@ -18,7 +18,7 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const source = getLoginSource(await headers());
 
-  if (loginAttemptThrottle.isThrottled(email, source)) {
+  if (await loginAttemptThrottle.isThrottled(email, source)) {
     redirect('/login?error=1');
   }
 
@@ -31,11 +31,11 @@ export async function loginAction(formData: FormData) {
   );
 
   if (!isValid) {
-    loginAttemptThrottle.recordFailure(email, source);
+    await loginAttemptThrottle.recordFailure(email, source);
     redirect('/login?error=1');
   }
 
-  loginAttemptThrottle.recordSuccess(email, source);
+  await loginAttemptThrottle.recordSuccess(email, source);
   await setHostSession(env.ADMIN_EMAIL);
   redirect('/admin');
 }
