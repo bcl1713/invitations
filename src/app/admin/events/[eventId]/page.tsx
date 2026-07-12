@@ -152,7 +152,7 @@ export default async function EventDashboardPage({
                 {TEMPLATE_OPTIONS.find((template) => template.key === event.templateKey)?.description ??
                   'Choose the base invitation presentation.'}
               </p>
-              <InvitationDesignEditor initialDesign={initialPresentation.design} />
+              <InvitationDesignEditor initialDesign={initialPresentation.editableDesign} />
               <button type="submit">Save event details</button>
             </form>
 

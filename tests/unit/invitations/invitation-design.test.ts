@@ -40,7 +40,7 @@ describe('invitation design normalization', () => {
 
     expect(design.content.title).toBe('Edited title');
     expect(design.content.whereValue).toBe('Edited location');
-    expect(design.typography.title).toEqual({ fontFamily: 'mono', fontSize: 44 });
+    expect(design.typography.title).toMatchObject({ fontFamily: 'mono', fontSize: 44, fontWeight: 'normal', fontStyle: 'normal', textAlign: 'center' });
     expect(design.typography.description.fontFamily).toBe('serif');
     expect(design.typography.description.fontSize).toBe(72);
   });

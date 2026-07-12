@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { ScaledPostcardCanvas } from '@/app/ScaledPostcardCanvas';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { fontCssFamily } from '@/modules/invitations/invitation-design';
 
@@ -20,7 +21,13 @@ type PreviewState = {
 
 function textStyle(design: ReturnType<typeof buildInvitationPresentation>['design'], block: keyof ReturnType<typeof buildInvitationPresentation>['design']['typography']) {
   const style = design.typography[block];
-  return { fontFamily: fontCssFamily(style.fontFamily), fontSize: `${style.fontSize}px` };
+  return {
+    fontFamily: fontCssFamily(style.fontFamily),
+    fontSize: `${style.fontSize}px`,
+    fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
+    textAlign: style.textAlign,
+  };
 }
 
 export function InvitationPreview({
@@ -156,7 +163,8 @@ export function InvitationPreview({
       </div>
 
       <div className="stack invitation-preview-stack">
-        <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} postcard-canvas invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
+        <ScaledPostcardCanvas>
+          <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
           {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
           {presentation.assetUrls.hero ? (
             <img className={`${presentation.theme.heroClassName} invitation-hero-frame`} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
@@ -188,7 +196,8 @@ export function InvitationPreview({
               </section>
             </section>
           </div>
-        </section>
+          </section>
+        </ScaledPostcardCanvas>
 
         <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-response-card invitation-card-frame invitation-preview-card invitation-preview-response-card`}>
           <div className="stack compact-info invitation-rsvp-copy invitation-rsvp-copy-shell">

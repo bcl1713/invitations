@@ -24,12 +24,23 @@ export const DESIGN_BLOCKS = [
 export type DesignBlock = (typeof DESIGN_BLOCKS)[number];
 
 export type FontFamilyKey = 'serif' | 'sans' | 'display' | 'mono';
+export type TextAlign = 'left' | 'center' | 'right';
+export type FontWeight = 'normal' | 'bold';
+export type FontStyle = 'normal' | 'italic';
+
+export type InvitationTextStyle = {
+  fontFamily: FontFamilyKey;
+  fontSize: number;
+  fontWeight: FontWeight;
+  fontStyle: FontStyle;
+  textAlign: TextAlign;
+};
 
 export type InvitationDesign = {
   version: 1;
   aspectRatio: typeof POSTCARD_ASPECT_RATIO;
   content: Record<DesignBlock, string>;
-  typography: Record<DesignBlock, { fontFamily: FontFamilyKey; fontSize: number }>;
+  typography: Record<DesignBlock, InvitationTextStyle>;
 };
 
 export const FONT_FAMILY_OPTIONS: Array<{ key: FontFamilyKey; label: string; css: string }> = [
@@ -106,6 +117,18 @@ function fontFamily(value: unknown, fallback: FontFamilyKey) {
   return FONT_FAMILY_OPTIONS.some((option) => option.key === value) ? (value as FontFamilyKey) : fallback;
 }
 
+function textAlign(value: unknown, fallback: TextAlign) {
+  return value === 'left' || value === 'right' || value === 'center' ? value : fallback;
+}
+
+function fontWeight(value: unknown, fallback: FontWeight) {
+  return value === 'bold' || value === 'normal' ? value : fallback;
+}
+
+function fontStyle(value: unknown, fallback: FontStyle) {
+  return value === 'italic' || value === 'normal' ? value : fallback;
+}
+
 export function createDefaultInvitationDesign(source: LegacyDesignSource): InvitationDesign {
   const content: Record<DesignBlock, string> = {
     eyebrow: source.eyebrow,
@@ -131,7 +154,7 @@ export function createDefaultInvitationDesign(source: LegacyDesignSource): Invit
   const typography = Object.fromEntries(
     DESIGN_BLOCKS.map((block) => [
       block,
-      { fontFamily: DEFAULT_FONT_BY_BLOCK[block], fontSize: DEFAULT_SIZE_BY_BLOCK[block] },
+      { fontFamily: DEFAULT_FONT_BY_BLOCK[block], fontSize: DEFAULT_SIZE_BY_BLOCK[block], fontWeight: 'normal', fontStyle: 'normal', textAlign: 'center' },
     ]),
   ) as InvitationDesign['typography'];
 
@@ -152,10 +175,14 @@ export function normalizeInvitationDesign(value: unknown, source: LegacyDesignSo
 
     const styleValue = candidate.typography?.[block];
     if (styleValue && typeof styleValue === 'object') {
-      const style = styleValue as { fontFamily?: unknown; fontSize?: unknown };
+      const style = styleValue as { fontFamily?: unknown; fontSize?: unknown; fontWeight?: unknown; fontStyle?: unknown; textAlign?: unknown };
+      const fallbackStyle = fallback.typography[block];
       typography[block] = {
-        fontFamily: fontFamily(style.fontFamily, fallback.typography[block].fontFamily),
-        fontSize: clampFontSize(style.fontSize, fallback.typography[block].fontSize),
+        fontFamily: fontFamily(style.fontFamily, fallbackStyle.fontFamily),
+        fontSize: clampFontSize(style.fontSize, fallbackStyle.fontSize),
+        fontWeight: fontWeight(style.fontWeight, fallbackStyle.fontWeight),
+        fontStyle: fontStyle(style.fontStyle, fallbackStyle.fontStyle),
+        textAlign: textAlign(style.textAlign, fallbackStyle.textAlign),
       };
     }
   }

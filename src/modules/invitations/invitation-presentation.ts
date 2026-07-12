@@ -84,6 +84,28 @@ function buildTitleLines(title: string, templateKey: string) {
   return [firstLine, secondLine];
 }
 
+function resolveVariables(value: string, variables: Record<string, string>) {
+  return value.replace(/%([a-z][a-z0-9_]*)/gi, (match, key: string) => variables[key.toLowerCase()] ?? match);
+}
+
+function resolveDesignVariables(design: ReturnType<typeof normalizeInvitationDesign>, input: InvitationPresentationInput) {
+  const startsAt = input.event.startsAt ? new Date(input.event.startsAt) : null;
+  const variables = {
+    guestname: input.guest.name.trim(),
+    hostname: input.event.hostName.trim(),
+    eventtitle: input.event.title.trim(),
+    location: input.event.location.trim(),
+    date: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(startsAt) : '',
+    time: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(startsAt) : '',
+  };
+  return {
+    ...design,
+    content: Object.fromEntries(
+      Object.entries(design.content).map(([block, value]) => [block, resolveVariables(value, variables)]),
+    ) as typeof design.content,
+  };
+}
+
 export function buildInvitationPresentation(input: InvitationPresentationInput) {
   const theme = getInvitationTemplateTheme(input.event.templateKey);
   const hostName = input.event.hostName.trim() || 'Your host';
@@ -106,24 +128,27 @@ export function buildInvitationPresentation(input: InvitationPresentationInput) 
     rsvpIntro: 'Please let your host know if you can make it.',
     plusOneText: input.guest.canBringPlusOne ? 'A plus-one is welcome.' : 'This invitation is for one guest.',
   });
-  const title = design.content.title;
+  const editableDesign = design;
+  const renderedDesign = resolveDesignVariables(editableDesign, input);
+  const title = renderedDesign.content.title;
 
   return {
     theme,
     title,
     titleLines: buildTitleLines(title, input.event.templateKey),
-    design,
+    design: renderedDesign,
+    editableDesign,
     hostName,
     guestName,
-    description: design.content.description,
-    whenText: design.content.whenValue,
-    whereText: design.content.whereValue,
-    introTitle: design.content.introTitle,
+    description: renderedDesign.content.description,
+    whenText: renderedDesign.content.whenValue,
+    whereText: renderedDesign.content.whereValue,
+    introTitle: renderedDesign.content.introTitle,
     emailIntro: theme.emailIntro,
-    eyebrow: design.content.eyebrow,
-    rsvpHeading: design.content.rsvpHeading,
+    eyebrow: renderedDesign.content.eyebrow,
+    rsvpHeading: renderedDesign.content.rsvpHeading,
     inviteUrl: input.inviteUrl,
-    plusOneText: design.content.plusOneText,
+    plusOneText: renderedDesign.content.plusOneText,
     assetUrls: {
       hero: joinUrl(input.appUrl, input.event.heroImagePath),
       emblem: joinUrl(input.appUrl, input.event.emblemImagePath),

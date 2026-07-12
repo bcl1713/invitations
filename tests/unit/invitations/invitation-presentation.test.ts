@@ -42,6 +42,43 @@ describe('buildInvitationPresentation', () => {
     );
     expect(presentation.emailIntro).toContain('cordially invited');
     expect(presentation.rsvpHeading).toBe('Kindly respond');
+    expect(presentation.editableDesign.typography.title).toMatchObject({
+      fontFamily: 'display',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+      textAlign: 'center',
+    });
+  });
+
+  it('keeps empty lines and resolves variables only in rendered copy', () => {
+    const presentation = buildInvitationPresentation({
+      appUrl: 'https://invites.example.com',
+      inviteUrl: 'https://invites.example.com/i/token-789',
+      event: {
+        title: 'Promotion Ceremony',
+        hostName: 'Colonel Hayes',
+        location: 'Officers Club',
+        description: 'Details',
+        startsAt: '2026-08-20T18:30:00.000Z',
+        templateKey: 'classic',
+        designConfig: {
+          version: 1,
+          aspectRatio: '2:3',
+          content: { title: 'Welcome %guestname', description: '', hostLine: 'Hosted by %hostname' },
+          typography: { title: { fontFamily: 'sans', fontSize: 20, fontWeight: 'bold', fontStyle: 'italic', textAlign: 'left' } },
+        },
+        heroImagePath: null,
+        emblemImagePath: null,
+        watermarkImagePath: null,
+      },
+      guest: { name: 'Major Chen', canBringPlusOne: true },
+    });
+
+    expect(presentation.editableDesign.content.title).toBe('Welcome %guestname');
+    expect(presentation.design.content.title).toBe('Welcome Major Chen');
+    expect(presentation.editableDesign.content.description).toBe('');
+    expect(presentation.design.content.description).toBe('');
+    expect(presentation.editableDesign.typography.title).toMatchObject({ fontWeight: 'bold', fontStyle: 'italic', textAlign: 'left' });
   });
 
   it('falls back gracefully when optional event fields are missing', () => {
