@@ -222,9 +222,16 @@ export function InvitationPreview({
               </select>
             </label>
             <label>
+              <span style={textStyle(presentation.design, 'headcountLabel')}>{presentation.design.content.headcountLabel}</span>
+              <input disabled type="number" min={1} max={2} defaultValue={1} />
+            </label>
+            <label>
               <span style={textStyle(presentation.design, 'noteLabel')}>{presentation.design.content.noteLabel}</span>
               <textarea disabled rows={3} defaultValue="Preview only" />
             </label>
+            <button type="button" disabled style={textStyle(presentation.design, 'saveRsvpLabel')}>
+              {presentation.design.content.saveRsvpLabel}
+            </button>
           </div>
         </section>
       </div>
