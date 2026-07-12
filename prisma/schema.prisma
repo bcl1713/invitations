@@ -25,6 +25,7 @@ model Event {
   emblemImagePath    String?
   watermarkImagePath String?
   templateKey        String       @default("classic")
+  designConfig       Json?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
   guests             Guest[]

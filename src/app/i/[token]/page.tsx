@@ -2,9 +2,15 @@ import Link from 'next/link';
 
 import { getEnv } from '@/lib/env';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
+import { fontCssFamily } from '@/modules/invitations/invitation-design';
 import { getInvitationView } from '@/modules/invitations/invitation-service';
 
 import { submitRsvpAction } from './actions';
+
+function textStyle(design: ReturnType<typeof buildInvitationPresentation>['design'], block: keyof ReturnType<typeof buildInvitationPresentation>['design']['typography']) {
+  const style = design.typography[block];
+  return { fontFamily: fontCssFamily(style.fontFamily), fontSize: `${style.fontSize}px` };
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +47,7 @@ export default async function InvitationPage({
       description: invitation.event.description,
       startsAt: invitation.event.startsAt,
       templateKey: invitation.event.templateKey,
+      designConfig: invitation.event.designConfig,
       heroImagePath: invitation.event.heroImagePath,
       emblemImagePath: invitation.event.emblemImagePath,
       watermarkImagePath: invitation.event.watermarkImagePath,
@@ -54,7 +61,7 @@ export default async function InvitationPage({
   return (
     <main className={`page wide-page invitation-page ${presentation.theme.pageClassName}`}>
       <div className="stack invitation-experience">
-        <section className="card stack invitation-main-card invitation-shell invitation-card-frame">
+        <section className="card stack invitation-main-card postcard-canvas invitation-shell invitation-card-frame">
           {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
           {presentation.assetUrls.hero ? (
             <img className={`${presentation.theme.heroClassName} invitation-hero-frame`} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
@@ -64,28 +71,28 @@ export default async function InvitationPage({
             <section className="stack invitation-main-copy invitation-copy-panel" aria-label="Invitation details">
               <div className="stack compact-info invitation-heading-block">
                 {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
-                <p className="eyebrow">{presentation.eyebrow}</p>
-                <p className="invitation-kicker">{presentation.introTitle}</p>
-                <h1>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
-                <p className="invitation-host-line">Hosted by <strong>{presentation.hostName}</strong></p>
-                <p className="invitation-guest-line">Reserved for {presentation.guestName}</p>
+                <p className="eyebrow" style={textStyle(presentation.design, 'eyebrow')}>{presentation.design.content.eyebrow}</p>
+                <p className="invitation-kicker" style={textStyle(presentation.design, 'introTitle')}>{presentation.design.content.introTitle}</p>
+                <h1 style={textStyle(presentation.design, 'title')}>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
+                <p className="invitation-host-line" style={textStyle(presentation.design, 'hostLine')}>{presentation.design.content.hostLine}</p>
+                <p className="invitation-guest-line" style={textStyle(presentation.design, 'guestLine')}>{presentation.design.content.guestLine}</p>
               </div>
 
               <div className={presentation.theme.detailsPanelClassName}>
                 <div className="invitation-detail-block">
-                  <p className="eyebrow">When</p>
-                  <p>{presentation.whenText}</p>
+                  <p className="eyebrow" style={textStyle(presentation.design, 'whenLabel')}>{presentation.design.content.whenLabel}</p>
+                  <p style={textStyle(presentation.design, 'whenValue')}>{presentation.design.content.whenValue}</p>
                 </div>
                 <div className="invitation-detail-block">
-                  <p className="eyebrow">Where</p>
-                  <p>{presentation.whereText}</p>
+                  <p className="eyebrow" style={textStyle(presentation.design, 'whereLabel')}>{presentation.design.content.whereLabel}</p>
+                  <p style={textStyle(presentation.design, 'whereValue')}>{presentation.design.content.whereValue}</p>
                 </div>
               </div>
 
               <section className="stack compact-info invitation-about-panel" aria-labelledby="invitation-description-heading">
-                <h2 id="invitation-description-heading">About this event</h2>
-                <p className="pre-wrap">{presentation.description}</p>
-                <p className="muted invitation-plus-one-note">{presentation.plusOneText}</p>
+                <h2 id="invitation-description-heading" style={textStyle(presentation.design, 'aboutHeading')}>{presentation.design.content.aboutHeading}</h2>
+                <p className="pre-wrap" style={textStyle(presentation.design, 'description')}>{presentation.design.content.description}</p>
+                <p className="muted invitation-plus-one-note" style={textStyle(presentation.design, 'plusOneText')}>{presentation.design.content.plusOneText}</p>
               </section>
             </section>
           </div>
@@ -93,13 +100,13 @@ export default async function InvitationPage({
 
         <section className="card stack invitation-response-card invitation-card-frame" aria-labelledby="rsvp-heading">
           <div className="stack compact-info invitation-rsvp-copy invitation-rsvp-copy-shell">
-            <h2 id="rsvp-heading">{presentation.rsvpHeading}</h2>
-            <p>Please let {presentation.hostName} know if you can make it.</p>
+            <h2 id="rsvp-heading" style={textStyle(presentation.design, 'rsvpHeading')}>{presentation.design.content.rsvpHeading}</h2>
+            <p style={textStyle(presentation.design, 'rsvpIntro')}>{presentation.design.content.rsvpIntro.replace('{host}', presentation.hostName)}</p>
           </div>
           {query.saved ? <p className="success invitation-response-status">Your RSVP has been saved.</p> : null}
           <form action={submitRsvpAction.bind(null, token)} className={`${presentation.theme.rsvpPanelClassName} invitation-rsvp-form invitation-rsvp-form-shell`}>
             <label>
-              RSVP status
+              <span style={textStyle(presentation.design, 'rsvpStatusLabel')}>{presentation.design.content.rsvpStatusLabel}</span>
               <select name="status" defaultValue={invitation.guest.rsvp?.status ?? 'GOING'}>
                 <option value="GOING">Going</option>
                 <option value="MAYBE">Maybe</option>
@@ -107,7 +114,7 @@ export default async function InvitationPage({
               </select>
             </label>
             <label>
-              Headcount
+              <span style={textStyle(presentation.design, 'headcountLabel')}>{presentation.design.content.headcountLabel}</span>
               <input
                 name="headcount"
                 type="number"
@@ -117,10 +124,10 @@ export default async function InvitationPage({
               />
             </label>
             <label>
-              Note
+              <span style={textStyle(presentation.design, 'noteLabel')}>{presentation.design.content.noteLabel}</span>
               <textarea name="note" rows={4} defaultValue={invitation.guest.rsvp?.note ?? ''} />
             </label>
-            <button type="submit">Save RSVP</button>
+            <button type="submit" style={textStyle(presentation.design, 'saveRsvpLabel')}>{presentation.design.content.saveRsvpLabel}</button>
           </form>
         </section>
       </div>

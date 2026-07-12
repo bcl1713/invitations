@@ -7,9 +7,11 @@ import {
   filterGuests,
 } from '@/modules/events/event-dashboard-filters';
 import { getEventDashboard } from '@/modules/events/event-service';
+import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
 import { InvitationPreview } from './InvitationPreview';
+import { InvitationDesignEditor } from './InvitationDesignEditor';
 import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +62,23 @@ export default async function EventDashboardPage({
 
   const env = getEnv();
   const { event, summary } = data;
+  const initialPresentation = buildInvitationPresentation({
+    appUrl: env.APP_URL,
+    inviteUrl: '#preview',
+    event: {
+      title: event.title,
+      hostName: event.hostName,
+      location: event.location,
+      description: event.description,
+      startsAt: event.startsAt,
+      templateKey: event.templateKey,
+      designConfig: event.designConfig,
+      heroImagePath: event.heroImagePath,
+      emblemImagePath: event.emblemImagePath,
+      watermarkImagePath: event.watermarkImagePath,
+    },
+    guest: { name: 'Your guest', canBringPlusOne: true },
+  });
   const filteredGuests = filterGuests(event.guests, guestFilter);
   const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter);
 
@@ -133,6 +152,7 @@ export default async function EventDashboardPage({
                 {TEMPLATE_OPTIONS.find((template) => template.key === event.templateKey)?.description ??
                   'Choose the base invitation presentation.'}
               </p>
+              <InvitationDesignEditor initialDesign={initialPresentation.design} />
               <button type="submit">Save event details</button>
             </form>
 
@@ -195,6 +215,7 @@ export default async function EventDashboardPage({
               description: event.description,
               startsAt: event.startsAt ? new Date(event.startsAt).toISOString() : null,
               templateKey: event.templateKey,
+              designConfig: event.designConfig ? JSON.stringify(event.designConfig) : undefined,
               heroUrl: event.heroImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.heroImagePath}` : null,
               emblemUrl: event.emblemImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.emblemImagePath}` : null,
               watermarkUrl: event.watermarkImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.watermarkImagePath}` : null,

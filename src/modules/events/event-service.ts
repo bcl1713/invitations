@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { summarizeGuestStatuses } from '@/modules/events/event-dashboard-service';
 import { slugifyEventTitle } from '@/modules/events/slugify';
 import { DEFAULT_TEMPLATE_KEY, normalizeTemplateKey } from '@/modules/templates/template-catalog';
+import type { InvitationDesign } from '@/modules/invitations/invitation-design';
 
 export type EventAssetField = 'heroImagePath' | 'emblemImagePath' | 'watermarkImagePath';
 
@@ -20,6 +21,7 @@ export interface UpdateEventInput {
   hostName: string;
   startsAt?: Date | string | null;
   templateKey?: string | null;
+  designConfig?: InvitationDesign;
 }
 
 function normalizeEventString(value: string) {
@@ -70,6 +72,7 @@ export async function updateEvent(eventId: string, input: UpdateEventInput) {
       hostName: normalizeEventString(input.hostName),
       startsAt: normalizeStartsAt(input.startsAt),
       templateKey: normalizeTemplateKey(input.templateKey),
+      ...(input.designConfig === undefined ? {} : { designConfig: input.designConfig }),
     },
   });
 }

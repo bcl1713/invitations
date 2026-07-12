@@ -9,6 +9,7 @@ import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
 import { addGuest, updateGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
 import { normalizeTemplateKey } from '@/modules/templates/template-catalog';
+import type { InvitationDesign } from '@/modules/invitations/invitation-design';
 
 function parseDateTimeLocalInput(value: FormDataEntryValue | null) {
   const normalizedValue = String(value ?? '').trim();
@@ -26,6 +27,16 @@ function parseDateTimeLocalInput(value: FormDataEntryValue | null) {
   return startsAt;
 }
 
+function parseDesignConfig(value: FormDataEntryValue | null): InvitationDesign | undefined {
+  const raw = String(value ?? '').trim();
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw) as InvitationDesign;
+  } catch {
+    throw new Error('Invalid invitation design');
+  }
+}
+
 export async function updateEventAction(eventId: string, formData: FormData) {
   await requireHostSession();
 
@@ -36,6 +47,7 @@ export async function updateEventAction(eventId: string, formData: FormData) {
     startsAt: parseDateTimeLocalInput(formData.get('startsAt')),
     description: String(formData.get('description') ?? ''),
     templateKey: normalizeTemplateKey(String(formData.get('templateKey') ?? '')),
+    designConfig: parseDesignConfig(formData.get('designConfig')),
   });
 
   revalidatePath(`/admin/events/${eventId}`);

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
+import { fontCssFamily } from '@/modules/invitations/invitation-design';
 
 type PreviewState = {
   title: string;
@@ -11,10 +12,16 @@ type PreviewState = {
   description: string;
   startsAt: string | null;
   templateKey: string;
+  designConfig?: string;
   heroUrl: string | null;
   emblemUrl: string | null;
   watermarkUrl: string | null;
 };
+
+function textStyle(design: ReturnType<typeof buildInvitationPresentation>['design'], block: keyof ReturnType<typeof buildInvitationPresentation>['design']['typography']) {
+  const style = design.typography[block];
+  return { fontFamily: fontCssFamily(style.fontFamily), fontSize: `${style.fontSize}px` };
+}
 
 export function InvitationPreview({
   appUrl,
@@ -79,6 +86,7 @@ export function InvitationPreview({
         description: readTextValue('description'),
         startsAt: readTextValue('startsAt') || null,
         templateKey: readTextValue('templateKey') || 'classic',
+        designConfig: readTextValue('designConfig') || initialEvent.designConfig,
         heroUrl: updateAssetPreview(heroInput, 'heroUrl', initialEvent.heroUrl),
         emblemUrl: updateAssetPreview(emblemInput, 'emblemUrl', initialEvent.emblemUrl),
         watermarkUrl: updateAssetPreview(watermarkInput, 'watermarkUrl', initialEvent.watermarkUrl),
@@ -117,6 +125,7 @@ export function InvitationPreview({
         description: preview.description,
         startsAt: preview.startsAt,
         templateKey: preview.templateKey,
+        designConfig: preview.designConfig ? JSON.parse(preview.designConfig) : undefined,
         heroImagePath: null,
         emblemImagePath: null,
         watermarkImagePath: null,
@@ -147,7 +156,7 @@ export function InvitationPreview({
       </div>
 
       <div className="stack invitation-preview-stack">
-        <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
+        <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} postcard-canvas invitation-main-card invitation-shell invitation-card-frame invitation-preview-card`}>
           {presentation.assetUrls.watermark ? <img className="invitation-watermark" src={presentation.assetUrls.watermark} alt="" /> : null}
           {presentation.assetUrls.hero ? (
             <img className={`${presentation.theme.heroClassName} invitation-hero-frame`} src={presentation.assetUrls.hero} alt={`${presentation.title} hero`} />
@@ -156,26 +165,26 @@ export function InvitationPreview({
             <section className="stack invitation-main-copy invitation-copy-panel" aria-label="Invitation details preview">
               <div className="stack compact-info invitation-heading-block">
                 {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
-                <p className="eyebrow">{presentation.eyebrow}</p>
-                <p className="invitation-kicker">{presentation.introTitle}</p>
-                <h1>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
-                <p className="invitation-host-line">Hosted by <strong>{presentation.hostName}</strong></p>
-                <p className="invitation-guest-line">Reserved for {presentation.guestName}</p>
+                <p className="eyebrow" style={textStyle(presentation.design, 'eyebrow')}>{presentation.design.content.eyebrow}</p>
+                <p className="invitation-kicker" style={textStyle(presentation.design, 'introTitle')}>{presentation.design.content.introTitle}</p>
+                <h1 style={textStyle(presentation.design, 'title')}>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
+                <p className="invitation-host-line" style={textStyle(presentation.design, 'hostLine')}>{presentation.design.content.hostLine}</p>
+                <p className="invitation-guest-line" style={textStyle(presentation.design, 'guestLine')}>{presentation.design.content.guestLine}</p>
               </div>
               <div className={presentation.theme.detailsPanelClassName}>
                 <div className="invitation-detail-block">
-                  <p className="eyebrow">When</p>
-                  <p>{presentation.whenText}</p>
+                  <p className="eyebrow" style={textStyle(presentation.design, 'whenLabel')}>{presentation.design.content.whenLabel}</p>
+                  <p style={textStyle(presentation.design, 'whenValue')}>{presentation.design.content.whenValue}</p>
                 </div>
                 <div className="invitation-detail-block">
-                  <p className="eyebrow">Where</p>
-                  <p>{presentation.whereText}</p>
+                  <p className="eyebrow" style={textStyle(presentation.design, 'whereLabel')}>{presentation.design.content.whereLabel}</p>
+                  <p style={textStyle(presentation.design, 'whereValue')}>{presentation.design.content.whereValue}</p>
                 </div>
               </div>
               <section className="stack compact-info invitation-about-panel">
-                <h3>About this event</h3>
-                <p className="pre-wrap">{presentation.description}</p>
-                <p className="muted invitation-plus-one-note">{presentation.plusOneText}</p>
+                <h3 style={textStyle(presentation.design, 'aboutHeading')}>{presentation.design.content.aboutHeading}</h3>
+                <p className="pre-wrap" style={textStyle(presentation.design, 'description')}>{presentation.design.content.description}</p>
+                <p className="muted invitation-plus-one-note" style={textStyle(presentation.design, 'plusOneText')}>{presentation.design.content.plusOneText}</p>
               </section>
             </section>
           </div>
@@ -183,18 +192,18 @@ export function InvitationPreview({
 
         <section className={`${presentation.theme.previewCardClassName} ${presentation.theme.pageClassName} invitation-response-card invitation-card-frame invitation-preview-card invitation-preview-response-card`}>
           <div className="stack compact-info invitation-rsvp-copy invitation-rsvp-copy-shell">
-            <h3>{presentation.rsvpHeading}</h3>
-            <p className="muted">Preview only — guest responses still happen on the live invite page.</p>
+            <h3 style={textStyle(presentation.design, 'rsvpHeading')}>{presentation.design.content.rsvpHeading}</h3>
+            <p className="muted" style={textStyle(presentation.design, 'rsvpIntro')}>{presentation.design.content.rsvpIntro}</p>
           </div>
           <div className={`${presentation.theme.rsvpPanelClassName} invitation-rsvp-form invitation-preview-form invitation-rsvp-form-shell`}>
             <label>
-              RSVP status
+              <span style={textStyle(presentation.design, 'rsvpStatusLabel')}>{presentation.design.content.rsvpStatusLabel}</span>
               <select disabled defaultValue="GOING">
                 <option value="GOING">Going</option>
               </select>
             </label>
             <label>
-              Note
+              <span style={textStyle(presentation.design, 'noteLabel')}>{presentation.design.content.noteLabel}</span>
               <textarea disabled rows={3} defaultValue="Preview only" />
             </label>
           </div>

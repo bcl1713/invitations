@@ -1,3 +1,4 @@
+import { normalizeInvitationDesign } from '@/modules/invitations/invitation-design';
 import { getInvitationTemplateTheme } from '@/modules/templates/invitation-template-theme';
 
 const eventDateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -15,6 +16,7 @@ export interface InvitationPresentationInput {
     description: string;
     startsAt: string | Date | null;
     templateKey: string;
+    designConfig?: unknown;
     heroImagePath: string | null;
     emblemImagePath: string | null;
     watermarkImagePath: string | null;
@@ -84,27 +86,44 @@ function buildTitleLines(title: string, templateKey: string) {
 
 export function buildInvitationPresentation(input: InvitationPresentationInput) {
   const theme = getInvitationTemplateTheme(input.event.templateKey);
-  const title = input.event.title.trim();
   const hostName = input.event.hostName.trim() || 'Your host';
+  const guestName = input.guest.name.trim();
   const whereText = input.event.location.trim() || 'Location details will be shared soon.';
   const description =
     input.event.description.trim() || 'We would be delighted to celebrate with you. More event details are on the way.';
+  const whenText = formatEventDate(input.event.startsAt);
+  const design = normalizeInvitationDesign(input.event.designConfig, {
+    eyebrow: theme.eyebrow,
+    introTitle: theme.introTitle,
+    title: input.event.title.trim(),
+    hostName,
+    guestName,
+    whenText,
+    whereText,
+    aboutHeading: 'About this event',
+    description,
+    rsvpHeading: theme.rsvpTitle,
+    rsvpIntro: 'Please let your host know if you can make it.',
+    plusOneText: input.guest.canBringPlusOne ? 'A plus-one is welcome.' : 'This invitation is for one guest.',
+  });
+  const title = design.content.title;
 
   return {
     theme,
     title,
     titleLines: buildTitleLines(title, input.event.templateKey),
+    design,
     hostName,
-    guestName: input.guest.name.trim(),
-    description,
-    whenText: formatEventDate(input.event.startsAt),
-    whereText,
-    introTitle: theme.introTitle,
+    guestName,
+    description: design.content.description,
+    whenText: design.content.whenValue,
+    whereText: design.content.whereValue,
+    introTitle: design.content.introTitle,
     emailIntro: theme.emailIntro,
-    eyebrow: theme.eyebrow,
-    rsvpHeading: theme.rsvpTitle,
+    eyebrow: design.content.eyebrow,
+    rsvpHeading: design.content.rsvpHeading,
     inviteUrl: input.inviteUrl,
-    plusOneText: input.guest.canBringPlusOne ? 'A plus-one is welcome.' : 'This invitation is for one guest.',
+    plusOneText: design.content.plusOneText,
     assetUrls: {
       hero: joinUrl(input.appUrl, input.event.heroImagePath),
       emblem: joinUrl(input.appUrl, input.event.emblemImagePath),
