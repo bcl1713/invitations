@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/bcl1713/invitations/compare/v1.5.9...v1.6.0) (2026-07-12)
+
+
+### Features
+
+* add fixed postcard editor ([dd6561a](https://github.com/bcl1713/invitations/commit/dd6561a3c5ca6fe9da7c1dd0b1e242e0e64d402b))
+
 ## [1.5.9](https://github.com/bcl1713/invitations/compare/v1.5.8...v1.5.9) (2026-07-11)
 
 
