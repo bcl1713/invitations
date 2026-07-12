@@ -179,7 +179,7 @@ export function InvitationPreview({
       <div className="stack compact-info">
         <h2>Live invitation preview</h2>
         <p className="muted">
-          This mirrors the editable text and graphic slots now, so the same seams can graduate into full WYSIWYG controls later.
+          This preview mirrors the editable text, typography, variables, and graphic slots that will be saved with the event.
         </p>
       </div>
 
