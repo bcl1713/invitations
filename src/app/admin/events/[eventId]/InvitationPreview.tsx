@@ -100,7 +100,16 @@ export function InvitationPreview({
       }));
     };
 
+    const handleDesignChange = (event: Event) => {
+      if (!(event instanceof CustomEvent) || typeof event.detail !== 'string') {
+        return;
+      }
+
+      setPreview((current) => ({ ...current, designConfig: event.detail }));
+    };
+
     syncPreview();
+    window.addEventListener('invitation-design-change', handleDesignChange);
     form.addEventListener('input', syncPreview);
     form.addEventListener('change', syncPreview);
     heroInput?.addEventListener('change', syncPreview);
@@ -108,6 +117,7 @@ export function InvitationPreview({
     watermarkInput?.addEventListener('change', syncPreview);
 
     return () => {
+      window.removeEventListener('invitation-design-change', handleDesignChange);
       form.removeEventListener('input', syncPreview);
       form.removeEventListener('change', syncPreview);
       heroInput?.removeEventListener('change', syncPreview);

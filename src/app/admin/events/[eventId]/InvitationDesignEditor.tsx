@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   DESIGN_BLOCKS,
@@ -42,6 +42,10 @@ export function InvitationDesignEditor({ initialDesign }: { initialDesign: Invit
   const fieldRefs = useRef<Partial<Record<DesignBlock, HTMLDivElement | null>>>({});
   const selectedStyle = design.typography[selectedBlock];
   const serialized = useMemo(() => JSON.stringify(design), [design]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('invitation-design-change', { detail: serialized }));
+  }, [serialized]);
 
   function updateContent(block: DesignBlock, value: string) {
     setDesign((current) => ({
