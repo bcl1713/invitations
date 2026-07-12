@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/bcl1713/invitations/compare/v1.6.3...v1.6.4) (2026-07-12)
+
+
+### Bug Fixes
+
+* apply invitation design to email rendering ([871e2b2](https://github.com/bcl1713/invitations/commit/871e2b28947647819c22affdaf81b66baf486450))
+
 ## [1.6.3](https://github.com/bcl1713/invitations/compare/v1.6.2...v1.6.3) (2026-07-12)
 
 
