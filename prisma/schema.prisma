@@ -100,3 +100,14 @@ model LoginAttemptThrottle {
   @@index([blockedUntil])
   @@index([expiresAt])
 }
+
+model AssetCleanup {
+  id        String   @id @default(cuid())
+  eventId   String
+  fileName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, fileName])
+  @@index([eventId])
+}

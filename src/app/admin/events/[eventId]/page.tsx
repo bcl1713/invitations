@@ -42,11 +42,11 @@ export default async function EventDashboardPage({
   searchParams,
 }: {
   params: Promise<{ eventId: string }>;
-  searchParams: Promise<{ guestFilter?: string }>;
+  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string }>;
 }) {
   await requireHostSession();
   const { eventId } = await params;
-  const { guestFilter = 'all' } = await searchParams;
+  const { assetCleanup, guestFilter = 'all' } = await searchParams;
   const data = await getEventDashboard(eventId);
 
   if (!data) {
@@ -86,6 +86,14 @@ export default async function EventDashboardPage({
     <main className="page wide-page">
       <section className="card stack wide-card">
         <Link href="/admin">← Back to all events</Link>
+        {assetCleanup === 'pending' ? (
+          <div className="panel subtle-panel stack" role="status">
+            <p>The event asset was removed, but its file cleanup is pending. You can safely retry cleanup.</p>
+            <form action={`/api/admin/events/${event.id}/assets/cleanup`} method="post">
+              <button type="submit" className="secondary">Retry asset cleanup</button>
+            </form>
+          </div>
+        ) : null}
         <div className="row between wrap">
           <div>
             <p className="eyebrow">Event dashboard</p>
