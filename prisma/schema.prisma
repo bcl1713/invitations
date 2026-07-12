@@ -21,6 +21,7 @@ model Event {
   location           String       @default("")
   hostName           String       @default("")
   startsAt           DateTime?
+  timeZone           String       @default("UTC")
   heroImagePath      String?
   emblemImagePath    String?
   watermarkImagePath String?

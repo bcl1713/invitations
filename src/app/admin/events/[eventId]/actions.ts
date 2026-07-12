@@ -6,26 +6,11 @@ import { getEnv } from '@/lib/env';
 import { requireHostSession } from '@/lib/host-session';
 import { deleteUploadedImageIfUnused, saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
+import { parseEventDateTimeLocal } from '@/modules/events/event-time';
 import { addGuest, updateGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
 import { normalizeTemplateKey } from '@/modules/templates/template-catalog';
 import type { InvitationDesign } from '@/modules/invitations/invitation-design';
-
-function parseDateTimeLocalInput(value: FormDataEntryValue | null) {
-  const normalizedValue = String(value ?? '').trim();
-
-  if (normalizedValue === '') {
-    return null;
-  }
-
-  const startsAt = new Date(normalizedValue);
-
-  if (Number.isNaN(startsAt.getTime())) {
-    throw new Error('Invalid start time');
-  }
-
-  return startsAt;
-}
 
 function parseDesignConfig(value: FormDataEntryValue | null): InvitationDesign | undefined {
   const raw = String(value ?? '').trim();
@@ -48,7 +33,8 @@ export async function updateEventAction(eventId: string, formData: FormData) {
     title: String(formData.get('title') ?? ''),
     hostName: String(formData.get('hostName') ?? ''),
     location: String(formData.get('location') ?? ''),
-    startsAt: parseDateTimeLocalInput(formData.get('startsAt')),
+    timeZone: String(formData.get('timeZone') ?? ''),
+    startsAt: parseEventDateTimeLocal(String(formData.get('startsAt') ?? ''), String(formData.get('timeZone') ?? '')),
     description: String(formData.get('description') ?? ''),
     templateKey: normalizeTemplateKey(String(formData.get('templateKey') ?? '')),
     designConfig: parseDesignConfig(formData.get('designConfig')),

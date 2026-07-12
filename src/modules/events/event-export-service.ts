@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { formatEventDateTime, normalizeEventTimeZone } from '@/modules/events/event-time';
 
 function formatCsvCell(value: string) {
   if (/[\n",]/.test(value)) {
@@ -22,6 +23,8 @@ export async function exportEventCsv(eventId: string) {
     select: {
       slug: true,
       title: true,
+      startsAt: true,
+      timeZone: true,
       guests: {
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         select: {
@@ -53,6 +56,8 @@ export async function exportEventCsv(eventId: string) {
   }
 
   const header = [
+    'event_start_time',
+    'event_time_zone',
     'guest_name',
     'guest_email',
     'guest_note',
@@ -67,6 +72,8 @@ export async function exportEventCsv(eventId: string) {
 
   const rows = event.guests.map((guest) => {
     const values = [
+      event.startsAt ? formatEventDateTime(event.startsAt, event.timeZone) : '',
+      normalizeEventTimeZone(event.timeZone),
       guest.name,
       guest.email,
       guest.note,

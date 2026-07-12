@@ -54,6 +54,7 @@ export default async function InvitationPage({
       location: invitation.event.location,
       description: invitation.event.description,
       startsAt: invitation.event.startsAt,
+      timeZone: invitation.event.timeZone,
       templateKey: invitation.event.templateKey,
       designConfig: invitation.event.designConfig,
       heroImagePath: invitation.event.heroImagePath,

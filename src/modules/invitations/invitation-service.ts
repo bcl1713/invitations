@@ -34,6 +34,7 @@ export async function issueInvitation(eventId: string, guestId: string, appUrl: 
       location: guest.event.location,
       description: guest.event.description,
       startsAt: guest.event.startsAt,
+      timeZone: guest.event.timeZone,
       templateKey: guest.event.templateKey,
       heroImagePath: guest.event.heroImagePath,
       emblemImagePath: guest.event.emblemImagePath,
