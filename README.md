@@ -25,13 +25,13 @@ Copy `.env.example` to `.env` and adjust values.
 
 ## Deployment database migrations
 
-Before rolling out an image that includes a Prisma schema change, apply the
-database migrations with `npm run prisma:migrate`. Run that deployment step
-against the intended production database **before** restarting the application
-container. The application startup command does not run migrations implicitly.
+The production image runs `prisma migrate deploy` against `DATABASE_URL` before
+starting Next.js. A failed migration prevents the application process from
+starting, so redeploy the Portainer stack whenever an image includes a Prisma
+schema change. The Next.js start command itself remains schema-mutation-free.
 
 See [the production database migration runbook](docs/operations/database-migrations.md)
-for the full deployment sequence and guidance for existing databases.
+for deployment, recovery, and existing-database guidance.
 
 ## Login throttling
 
