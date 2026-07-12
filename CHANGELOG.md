@@ -1,3 +1,10 @@
+## [1.6.5](https://github.com/bcl1713/invitations/compare/v1.6.4...v1.6.5) (2026-07-12)
+
+
+### Bug Fixes
+
+* tolerate malformed invitation design data ([9e585af](https://github.com/bcl1713/invitations/commit/9e585af94b3f09dd3a1a6e81dcac21918f8dc7e9))
+
 ## [1.6.4](https://github.com/bcl1713/invitations/compare/v1.6.3...v1.6.4) (2026-07-12)
 
 
