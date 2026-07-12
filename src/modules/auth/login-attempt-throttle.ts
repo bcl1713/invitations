@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 
+import { PrismaClient } from '@prisma/client';
+
 import { prisma } from '@/lib/db';
 
 const DEFAULT_MAX_FAILURES = 5;
@@ -45,44 +47,54 @@ function identifierHash(scope: ThrottleScope, identifier: string) {
   return fingerprint(`${scope}:${normalizeIdentifier(identifier)}`);
 }
 
-const prismaLoginAttemptThrottleStore: LoginAttemptThrottleStore = {
-  async clearAccount(accountIdentifierHash) {
-    await prisma.loginAttemptThrottle.deleteMany({ where: { identifierHash: accountIdentifierHash } });
-  },
-  async isThrottled(identifierHashes, now) {
-    return Boolean(
-      await prisma.loginAttemptThrottle.findFirst({
-        where: { identifierHash: { in: identifierHashes }, blockedUntil: { gt: now } },
-        select: { identifierHash: true },
-      }),
-    );
-  },
-  async recordFailure(identifierHashes, now, maxFailures, cooldownMs) {
-    const windowStart = new Date(now.getTime() - cooldownMs);
-    const expiresAt = new Date(now.getTime() + cooldownMs);
+export function createPrismaLoginAttemptThrottleStore(client: PrismaClient = prisma): LoginAttemptThrottleStore {
+  return {
+    async clearAccount(accountIdentifierHash) {
+      await client.loginAttemptThrottle.deleteMany({ where: { identifierHash: accountIdentifierHash } });
+    },
+    async isThrottled(identifierHashes, now) {
+      return Boolean(
+        await client.loginAttemptThrottle.findFirst({
+          where: { identifierHash: { in: identifierHashes }, blockedUntil: { gt: now } },
+          select: { identifierHash: true },
+        }),
+      );
+    },
+    async recordFailure(identifierHashes, now, maxFailures, cooldownMs) {
+      const windowStart = new Date(now.getTime() - cooldownMs);
+      const expiresAt = new Date(now.getTime() + cooldownMs);
 
-    return prisma.$transaction(async (tx) => {
-      await tx.loginAttemptThrottle.deleteMany({ where: { expiresAt: { lte: now } } });
-      let throttled = false;
+      return client.$transaction(async (tx) => {
+        await tx.loginAttemptThrottle.deleteMany({ where: { expiresAt: { lte: now } } });
+        let throttled = false;
 
-      for (const identifierHash of identifierHashes) {
-        const existing = await tx.loginAttemptThrottle.findUnique({ where: { identifierHash } });
-        const withinWindow = existing && existing.windowStartedAt > windowStart;
-        const failures = withinWindow ? existing.failures + 1 : 1;
-        const blockedUntil = failures >= maxFailures ? expiresAt : null;
-        throttled ||= blockedUntil !== null;
+        // PostgreSQL advisory locks serialize each identifier across app instances.
+        // Sorting prevents deadlocks when overlapping account/source pairs arrive together.
+        for (const identifierHash of [...identifierHashes].sort()) {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${identifierHash}))`;
+        }
 
-        await tx.loginAttemptThrottle.upsert({
-          where: { identifierHash },
-          create: { identifierHash, failures, windowStartedAt: now, blockedUntil, expiresAt },
-          update: { failures, windowStartedAt: withinWindow ? existing.windowStartedAt : now, blockedUntil, expiresAt },
-        });
-      }
+        for (const identifierHash of identifierHashes) {
+          const existing = await tx.loginAttemptThrottle.findUnique({ where: { identifierHash } });
+          const withinWindow = existing && existing.windowStartedAt > windowStart;
+          const failures = withinWindow ? existing.failures + 1 : 1;
+          const blockedUntil = failures >= maxFailures ? expiresAt : null;
+          throttled ||= blockedUntil !== null;
 
-      return throttled;
-    });
-  },
-};
+          await tx.loginAttemptThrottle.upsert({
+            where: { identifierHash },
+            create: { identifierHash, failures, windowStartedAt: now, blockedUntil, expiresAt },
+            update: { failures, windowStartedAt: withinWindow ? existing.windowStartedAt : now, blockedUntil, expiresAt },
+          });
+        }
+
+        return throttled;
+      });
+    },
+  };
+}
+
+const prismaLoginAttemptThrottleStore = createPrismaLoginAttemptThrottleStore();
 
 export function createLoginAttemptThrottle({
   now = Date.now,

@@ -45,8 +45,17 @@ function formData() {
 describe('loginAction', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getEnvMock.mockReturnValue({ ADMIN_EMAIL: 'host@example.com', ADMIN_PASSWORD: 'correct-horse' });
-    headersMock.mockResolvedValue(new Headers({ 'x-forwarded-for': '203.0.113.42, 10.0.0.1' }));
+    getEnvMock.mockReturnValue({
+      ADMIN_EMAIL: 'host@example.com',
+      ADMIN_PASSWORD: 'correct-horse',
+      LOGIN_TRUSTED_PROXY_SECRET: 'test-trusted-proxy-secret',
+    });
+    headersMock.mockResolvedValue(
+      new Headers({
+        'x-forwarded-for': '203.0.113.42, 10.0.0.1',
+        'x-login-proxy-secret': 'test-trusted-proxy-secret',
+      }),
+    );
     redirectMock.mockImplementation((location: string) => {
       throw new Error(`redirect:${location}`);
     });
@@ -69,6 +78,16 @@ describe('loginAction', () => {
 
     expect(recordFailureMock).toHaveBeenCalledWith('host@example.com', '203.0.113.42');
     expect(recordSuccessMock).not.toHaveBeenCalled();
+  });
+
+  it('does not accept spoofed forwarding headers without the trusted proxy secret', async () => {
+    headersMock.mockResolvedValue(new Headers({ 'x-forwarded-for': '198.51.100.99' }));
+    isThrottledMock.mockReturnValue(false);
+    authenticateHostMock.mockResolvedValue(false);
+
+    await expect(loginAction(formData())).rejects.toThrow('redirect:/login?error=1');
+
+    expect(recordFailureMock).toHaveBeenCalledWith('host@example.com', 'unknown');
   });
 
   it('records successful authentication without clearing unrelated source protections', async () => {

@@ -1,22 +1,32 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { timingSafeEqual } from 'node:crypto';
+
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import { getEnv } from '@/lib/env';
 import { setHostSession } from '@/lib/host-session';
 import { authenticateHost } from '@/modules/auth/host-auth-service';
 import { loginAttemptThrottle } from '@/modules/auth/login-attempt-throttle';
 
-function getLoginSource(requestHeaders: Headers) {
-  return requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() || requestHeaders.get('x-real-ip') || 'unknown';
+function hasTrustedProxySecret(candidate: string | null, secret: string) {
+  if (!candidate || !secret || candidate.length !== secret.length) return false;
+
+  return timingSafeEqual(Buffer.from(candidate), Buffer.from(secret));
+}
+
+function getLoginSource(requestHeaders: Headers, trustedProxySecret: string) {
+  if (!hasTrustedProxySecret(requestHeaders.get('x-login-proxy-secret'), trustedProxySecret)) return 'unknown';
+
+  return requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
 export async function loginAction(formData: FormData) {
   const env = getEnv();
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
-  const source = getLoginSource(await headers());
+  const source = getLoginSource(await headers(), env.LOGIN_TRUSTED_PROXY_SECRET);
 
   if (await loginAttemptThrottle.isThrottled(email, source)) {
     redirect('/login?error=1');

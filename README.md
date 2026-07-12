@@ -41,11 +41,13 @@ Throttle state is stored in PostgreSQL, so it is shared across application
 instances and survives restarts. Apply the included Prisma migration before
 deploying this change.
 
-When deployed behind a reverse proxy, configure that proxy to remove client-supplied
-`X-Forwarded-For` and `X-Real-IP` headers and set them from the actual peer address.
-The application uses the first forwarded address for source-level protection; an
-unsanitized proxy permits attackers to choose that identifier. Throttle telemetry
-contains only truncated SHA-256 fingerprints, never credentials.
+The application ignores forwarded headers unless `LOGIN_TRUSTED_PROXY_SECRET` is
+configured and a reverse proxy injects that value in `X-Login-Proxy-Secret` after
+removing any client-supplied copy. The proxy must also remove client-supplied
+`X-Forwarded-For` and set it from the actual peer address. With no trusted proxy
+secret, all requests use the conservative shared `unknown` source key rather than
+accepting attacker-controlled headers. Throttle telemetry contains only truncated
+SHA-256 fingerprints, never credentials.
 
 ## Current MVP target
 
