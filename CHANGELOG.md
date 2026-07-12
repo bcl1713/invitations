@@ -1,3 +1,10 @@
+## [1.6.7](https://github.com/bcl1713/invitations/compare/v1.6.6...v1.6.7) (2026-07-12)
+
+
+### Bug Fixes
+
+* clamp editor font sizes ([c719583](https://github.com/bcl1713/invitations/commit/c71958336cd29441b1a19feed7aad934c9db0e79))
+
 ## [1.6.6](https://github.com/bcl1713/invitations/compare/v1.6.5...v1.6.6) (2026-07-12)
 
 
