@@ -24,20 +24,6 @@ export async function issueInvitation(eventId: string, guestId: string, appUrl: 
     secret,
   );
 
-  const invitation = await prisma.invitation.upsert({
-    where: { guestId: guest.id },
-    update: {
-      token,
-      sentAt: new Date(),
-    },
-    create: {
-      guestId: guest.id,
-      eventId: guest.eventId,
-      token,
-      sentAt: new Date(),
-    },
-  });
-
   const inviteUrl = `${appUrl.replace(/\/$/, '')}/i/${encodeURIComponent(token)}`;
   const presentation = buildInvitationPresentation({
     appUrl,
@@ -66,6 +52,20 @@ export async function issueInvitation(eventId: string, guestId: string, appUrl: 
     subject: `You are invited: ${guest.event.title}`,
     text: buildInvitationEmailText(presentation),
     html: buildInvitationEmailHtml(presentation),
+  });
+
+  const invitation = await prisma.invitation.upsert({
+    where: { guestId: guest.id },
+    update: {
+      token,
+      sentAt: new Date(),
+    },
+    create: {
+      guestId: guest.id,
+      eventId: guest.eventId,
+      token,
+      sentAt: new Date(),
+    },
   });
 
   return { invitation, inviteUrl };

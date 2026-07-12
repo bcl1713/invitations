@@ -79,5 +79,64 @@ describe('issueInvitation', () => {
         html: expect.stringContaining('https://invites.example.com/media/emblem.png'),
       }),
     );
+    expect(invitationUpsertMock).toHaveBeenCalledWith({
+      where: { guestId: 'guest-1' },
+      update: {
+        token: 'invite-token-123',
+        sentAt: expect.any(Date),
+      },
+      create: {
+        guestId: 'guest-1',
+        eventId: 'event-1',
+        token: 'invite-token-123',
+        sentAt: expect.any(Date),
+      },
+    });
+    expect(sendMailMock.mock.invocationCallOrder[0]).toBeLessThan(
+      invitationUpsertMock.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('does not create an invitation when the first delivery fails', async () => {
+    sendMailMock.mockRejectedValue(new Error('SMTP unavailable'));
+
+    await expect(
+      issueInvitation('event-1', 'guest-1', 'https://invites.example.com', 'secret-value'),
+    ).rejects.toThrow('SMTP unavailable');
+
+    expect(invitationUpsertMock).not.toHaveBeenCalled();
+  });
+
+  it('preserves the previous invitation when a resend delivery fails', async () => {
+    guestFindUniqueMock.mockResolvedValueOnce({
+      id: 'guest-1',
+      eventId: 'event-1',
+      name: 'Major Chen',
+      email: 'major.chen@example.com',
+      canBringPlusOne: true,
+      event: {
+        title: 'Officer Evening Reception',
+        hostName: 'Colonel Hayes',
+        location: 'Joint Base Andrews Officers Club',
+        description: 'Join us for a formal reception honouring the promotion.',
+        startsAt: new Date('2026-08-20T18:30:00.000Z'),
+        templateKey: 'ceremonial',
+        heroImagePath: 'hero.jpg',
+        emblemImagePath: 'emblem.png',
+        watermarkImagePath: 'watermark.png',
+      },
+      invitation: {
+        id: 'invitation-1',
+        token: 'previous-token',
+        sentAt: new Date('2026-07-01T12:00:00.000Z'),
+      },
+    });
+    sendMailMock.mockRejectedValue(new Error('SMTP unavailable'));
+
+    await expect(
+      issueInvitation('event-1', 'guest-1', 'https://invites.example.com', 'secret-value'),
+    ).rejects.toThrow('SMTP unavailable');
+
+    expect(invitationUpsertMock).not.toHaveBeenCalled();
   });
 });
