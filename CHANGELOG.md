@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/bcl1713/invitations/compare/v1.6.5...v1.6.6) (2026-07-12)
+
+
+### Bug Fixes
+
+* warn when postcard content overflows ([bf71c90](https://github.com/bcl1713/invitations/commit/bf71c9025c56557cb061b61ee810c91bbca47a0f))
+
 ## [1.6.5](https://github.com/bcl1713/invitations/compare/v1.6.4...v1.6.5) (2026-07-12)
 
 
