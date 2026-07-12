@@ -36,6 +36,12 @@ const BLOCK_LABELS: Record<DesignBlock, string> = {
 
 const VARIABLES = ['%guestname', '%hostname', '%eventtitle', '%location', '%date', '%time'];
 
+function normalizeEditorFontSize(value: string, fallback: number) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.min(72, Math.max(9, Math.round(numeric)));
+}
+
 export function InvitationDesignEditor({ initialDesign }: { initialDesign: InvitationDesign }) {
   const [design, setDesign] = useState(initialDesign);
   const [selectedBlock, setSelectedBlock] = useState<DesignBlock>('title');
@@ -64,7 +70,9 @@ export function InvitationDesignEditor({ initialDesign }: { initialDesign: Invit
         ...current.typography,
         [selectedBlock]: {
           ...current.typography[selectedBlock],
-          [field]: field === 'fontSize' ? Number(value) : value,
+          [field]: field === 'fontSize'
+            ? normalizeEditorFontSize(value, current.typography[selectedBlock].fontSize)
+            : value,
         },
       },
     }));
