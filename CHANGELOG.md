@@ -1,3 +1,10 @@
+## [1.6.9](https://github.com/bcl1713/invitations/compare/v1.6.8...v1.6.9) (2026-07-12)
+
+
+### Bug Fixes
+
+* deploy database migrations explicitly ([c04b7ef](https://github.com/bcl1713/invitations/commit/c04b7efb8df5cabc3eed5cc0c37ca286b4bef485))
+
 ## [1.6.8](https://github.com/bcl1713/invitations/compare/v1.6.7...v1.6.8) (2026-07-12)
 
 
