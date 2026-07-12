@@ -83,14 +83,21 @@ export function InvitationDesignEditor({ initialDesign }: { initialDesign: Invit
     if (!field) return;
     field.focus();
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0 || !field.contains(selection.anchorNode)) {
-      const range = document.createRange();
+    const hasFieldSelection = Boolean(selection && selection.rangeCount > 0 && field.contains(selection.getRangeAt(0).commonAncestorContainer));
+    const range = hasFieldSelection ? selection!.getRangeAt(0) : document.createRange();
+
+    if (!hasFieldSelection) {
       range.selectNodeContents(field);
       range.collapse(false);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
     }
-    document.execCommand('insertText', false, variable);
+
+    range.deleteContents();
+    const textNode = document.createTextNode(variable);
+    range.insertNode(textNode);
+    range.setStartAfter(textNode);
+    range.collapse(true);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
     updateContent(selectedBlock, field.textContent ?? '');
   }
 
