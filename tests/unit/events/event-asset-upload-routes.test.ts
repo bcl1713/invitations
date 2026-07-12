@@ -117,6 +117,29 @@ describe('event asset routes', () => {
   });
 
   it.each([
+    ['hero', postHero, 'heroImage', 'heroImagePath', 'stored-hero.png'],
+    ['emblem', postEmblem, 'emblemImage', 'emblemImagePath', 'stored-emblem.png'],
+    ['watermark', postWatermark, 'watermarkImage', 'watermarkImagePath', 'stored-watermark.png'],
+  ])('removes the newly stored %s asset when its event update fails', async (_label, handler, fieldName, field, storedFileName) => {
+    getHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+    saveUploadedImageMock.mockResolvedValue(storedFileName);
+    replaceEventAssetImageMock.mockRejectedValue(new Error('Event not found'));
+
+    const file = new File([new Uint8Array(128)], `${fieldName}.png`, { type: 'image/png' });
+    const request = {
+      url: `http://localhost/api/admin/events/missing-event/${_label}`,
+      formData: vi.fn().mockResolvedValue(makeUploadForm(fieldName, file)),
+    } as unknown as Request;
+
+    await expect(handler(request, {
+      params: Promise.resolve({ eventId: 'missing-event' }),
+    })).rejects.toThrow('Event not found');
+
+    expect(replaceEventAssetImageMock).toHaveBeenCalledWith('missing-event', field, storedFileName);
+    expect(deleteUploadedImageIfUnusedMock).toHaveBeenCalledWith(storedFileName);
+  });
+
+  it.each([
     ['hero', postHeroRemove, 'heroImagePath', 'old-hero.png'],
     ['emblem', postEmblemRemove, 'emblemImagePath', 'old-emblem.png'],
     ['watermark', postWatermarkRemove, 'watermarkImagePath', 'old-watermark.png'],

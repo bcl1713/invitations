@@ -23,8 +23,14 @@ export async function POST(
 
   if (file instanceof File && file.size > 0) {
     const storedFileName = await saveUploadedImage(file);
-    const { previousAssetPath } = await replaceEventAssetImage(eventId, 'watermarkImagePath', storedFileName);
-    await deleteUploadedImageIfUnused(previousAssetPath);
+
+    try {
+      const { previousAssetPath } = await replaceEventAssetImage(eventId, 'watermarkImagePath', storedFileName);
+      await deleteUploadedImageIfUnused(previousAssetPath);
+    } catch (error) {
+      await deleteUploadedImageIfUnused(storedFileName);
+      throw error;
+    }
   }
 
   return new Response(null, {
