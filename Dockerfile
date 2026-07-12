@@ -25,4 +25,4 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 RUN mkdir -p /app/uploads
 EXPOSE 3000
-CMD ["/bin/sh", "-lc", "npx prisma db push && npm run start"]
+CMD ["npm", "run", "start"]

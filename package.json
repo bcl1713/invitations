@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate deploy",
     "release": "semantic-release"
   },
   "dependencies": {
