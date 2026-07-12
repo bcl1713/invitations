@@ -23,11 +23,18 @@ export function verifySessionToken(token: string, secret: string) {
     return null;
   }
 
-  const expectedSignature = sign(payload, secret);
-  if (!timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+  const signatureBuffer = Buffer.from(signature);
+  const expectedSignatureBuffer = Buffer.from(sign(payload, secret));
+  if (
+    signatureBuffer.length !== expectedSignatureBuffer.length
+    || !timingSafeEqual(signatureBuffer, expectedSignatureBuffer)
+  ) {
     return null;
   }
 
-  const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { email: string };
-  return parsed;
+  try {
+    return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { email: string };
+  } catch {
+    return null;
+  }
 }
