@@ -86,7 +86,7 @@ export async function sendInviteAction(eventId: string, guestId: string) {
 export async function updateGuestAction(eventId: string, guestId: string, formData: FormData) {
   await requireHostSession();
 
-  await updateGuest(guestId, {
+  await updateGuest(eventId, guestId, {
     name: String(formData.get('name') ?? ''),
     email: String(formData.get('email') ?? ''),
     note: String(formData.get('note') ?? ''),
