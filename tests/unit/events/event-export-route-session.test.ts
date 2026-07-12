@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { cookiesMock, exportEventCsvMock, getEnvMock } = vi.hoisted(() => ({
+const { cookiesMock, exportEventCsvMock, getEnvMock, hostSessionMock } = vi.hoisted(() => ({
   cookiesMock: vi.fn(),
   exportEventCsvMock: vi.fn(),
   getEnvMock: vi.fn(),
+  hostSessionMock: {
+    findUnique: vi.fn(),
+  },
 }));
 
 vi.mock('next/headers', () => ({
@@ -14,6 +17,12 @@ vi.mock('@/lib/env', () => ({
   getEnv: getEnvMock,
 }));
 
+vi.mock('@/lib/db', () => ({
+  prisma: {
+    hostSession: hostSessionMock,
+  },
+}));
+
 vi.mock('@/modules/events/event-export-service', () => ({
   exportEventCsv: exportEventCsvMock,
 }));
@@ -22,6 +31,15 @@ import { GET } from '@/app/api/admin/events/[eventId]/export/route';
 import { createSessionToken } from '@/lib/session';
 
 const secret = 'test-session-secret';
+
+function createToken() {
+  return createSessionToken(
+    'host@example.com',
+    'session-123',
+    new Date(Date.now() + 60_000),
+    secret,
+  );
+}
 
 function setSessionCookie(value?: string) {
   cookiesMock.mockResolvedValue({
@@ -40,6 +58,7 @@ describe('event export route session handling', () => {
     cookiesMock.mockReset();
     exportEventCsvMock.mockReset();
     getEnvMock.mockReset();
+    hostSessionMock.findUnique.mockReset();
     getEnvMock.mockReturnValue({ APP_SECRET: secret });
   });
 
@@ -54,7 +73,12 @@ describe('event export route session handling', () => {
   });
 
   it('allows a valid host session to export the event', async () => {
-    setSessionCookie(createSessionToken('host@example.com', secret));
+    setSessionCookie(createToken());
+    hostSessionMock.findUnique.mockResolvedValue({
+      email: 'host@example.com',
+      expiresAt: new Date(Date.now() + 60_000),
+      id: 'session-123',
+    });
     exportEventCsvMock.mockResolvedValue({
       fileName: 'guest-list.csv',
       csv: 'guest_name\nAlex Example',

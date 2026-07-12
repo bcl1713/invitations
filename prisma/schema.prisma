@@ -77,3 +77,13 @@ model Rsvp {
 
   @@index([eventId])
 }
+
+model HostSession {
+  id        String   @id
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

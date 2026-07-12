@@ -23,6 +23,16 @@ Self-hosted invitation and RSVP platform for private events.
 
 Copy `.env.example` to `.env` and adjust values.
 
+## Deployment database migrations
+
+Before rolling out an image that includes a Prisma schema change, apply the
+database migrations with `npm run prisma:migrate`. Run that deployment step
+against the intended production database **before** restarting the application
+container. The application startup command does not run migrations implicitly.
+
+See [the production database migration runbook](docs/operations/database-migrations.md)
+for the full deployment sequence and guidance for existing databases.
+
 ## Current MVP target
 
 - host authentication
