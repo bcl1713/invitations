@@ -109,7 +109,7 @@ describe('deleteGuest', () => {
     expect(deleteManyMock).toHaveBeenCalledWith({ where: { id: 'guest-1', eventId: 'event-1' } });
   });
 
-  it('reports zero deletions for a missing or cross-event guest', async () => {
+  it('reports zero deletions for a cross-event guest', async () => {
     deleteManyMock.mockResolvedValue({ count: 0 });
 
     const result = await deleteGuest('event-1', 'guest-from-event-2');
@@ -117,6 +117,17 @@ describe('deleteGuest', () => {
     expect(result).toEqual({ count: 0 });
     expect(deleteManyMock).toHaveBeenCalledWith({
       where: { id: 'guest-from-event-2', eventId: 'event-1' },
+    });
+  });
+
+  it('reports zero deletions for a genuinely missing guest', async () => {
+    deleteManyMock.mockResolvedValue({ count: 0 });
+
+    const result = await deleteGuest('event-1', 'missing-guest');
+
+    expect(result).toEqual({ count: 0 });
+    expect(deleteManyMock).toHaveBeenCalledWith({
+      where: { id: 'missing-guest', eventId: 'event-1' },
     });
   });
 });
