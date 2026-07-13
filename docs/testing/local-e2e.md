@@ -50,7 +50,7 @@ set -a
 . /path/to/invitations/.env.local-smoke
 set +a
 export SMOKE_DB_HOST="$(docker inspect invitations-smoke-db-1 --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')"
-export DATABASE_URL="$(node -e 'const { POSTGRES_USER, POSTGRES_DB, SMOKE_DB_HOST } = process.env; const password = process.env["POSTGRES_" + "PASSWORD"]; process.stdout.write(`postgresql://${encodeURIComponent(POSTGRES_USER)}:${encodeURIComponent(password)}@${SMOKE_DB_HOST}:5432/${encodeURIComponent(POSTGRES_DB)}`)')"
+export DATABASE_URL="$(node -e 'const { POSTGRES_USER, POSTGRES_DB, SMOKE_DB_HOST } = process.env; const postgresCredential = process.env["POSTGRES_" + "PASSWORD"]; const url = new URL(`postgresql://${encodeURIComponent(POSTGRES_USER)}@${SMOKE_DB_HOST}:5432/${encodeURIComponent(POSTGRES_DB)}`); url.password = postgresCredential; process.stdout.write(url.href)')"
 test "$APP_URL" = 'http://127.0.0.1:3300'
 npm run prisma:migrate
 ```
