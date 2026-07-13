@@ -48,16 +48,16 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
 
   await expect(dashboardTitle).toHaveText(originalTitle);
 
-  const eventDetailsForm = page.getByRole('button', { name: 'Save event details' }).locator('..').locator('..');
+  const eventDetailsForm = page.locator('#event-details-form');
   const previewPanel = page.getByRole('heading', { name: 'Live invitation preview' }).locator('..').locator('..');
   const addGuestForm = page.getByRole('button', { name: 'Add guest' }).locator('..');
 
-  await eventDetailsForm.getByLabel('Title').fill(updatedTitle);
-  await eventDetailsForm.getByLabel('Host name').fill(updatedHostName);
-  await eventDetailsForm.getByLabel('Location').fill(updatedLocation);
-  await eventDetailsForm.getByLabel('Start time').fill(updatedStartsAt);
-  await eventDetailsForm.getByLabel('Description').fill(updatedDescription);
-  await eventDetailsForm.getByLabel('Invitation style').selectOption(updatedTemplate);
+  await eventDetailsForm.locator('input[name="title"]').fill(updatedTitle);
+  await eventDetailsForm.locator('input[name="hostName"]').fill(updatedHostName);
+  await eventDetailsForm.locator('input[name="location"]').fill(updatedLocation);
+  await eventDetailsForm.locator('input[name="startsAt"]').fill(updatedStartsAt);
+  await eventDetailsForm.locator('textarea[name="description"]').fill(updatedDescription);
+  await eventDetailsForm.locator('select[name="templateKey"]').selectOption(updatedTemplate);
 
   await expect(previewPanel.getByRole('heading', { name: updatedTitle })).toBeVisible();
   await expect(previewPanel.getByText(updatedLocation)).toBeVisible();
@@ -68,11 +68,11 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
 
   await expect(dashboardTitle).toHaveText(updatedTitle);
   await expect(page.getByText(updatedLocation).first()).toBeVisible();
-  await expect(page.getByLabel('Description')).toHaveValue(updatedDescription);
+  await expect(eventDetailsForm.locator('textarea[name="description"]')).toHaveValue(updatedDescription);
 
   await page.reload();
   await expect(dashboardTitle).toHaveText(updatedTitle);
-  await expect(eventDetailsForm.getByLabel('Invitation style')).toHaveValue(updatedTemplate);
+  await expect(eventDetailsForm.locator('select[name="templateKey"]')).toHaveValue(updatedTemplate);
 
   await page.getByLabel('Upload hero image').setInputFiles(heroImagePath);
   await expect(previewPanel.locator('img.hero-image')).toBeVisible();

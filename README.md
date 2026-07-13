@@ -23,6 +23,13 @@ Self-hosted invitation and RSVP platform for private events.
 
 Copy `.env.example` to `.env` and adjust values.
 
+## Local E2E smoke verification
+
+The Playwright smoke test requires a disposable local Docker database/mail stack
+and a local app process on port 3300; it is intentionally not part of GitHub CI.
+See [the local E2E smoke runbook](docs/testing/local-e2e.md) for safe setup,
+Prisma migration preparation, browser installation, and the exact test command.
+
 ## Deployment database migrations
 
 The production image runs `prisma migrate deploy` against `DATABASE_URL` before
