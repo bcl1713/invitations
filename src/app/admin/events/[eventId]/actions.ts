@@ -7,7 +7,7 @@ import { requireHostSession } from '@/lib/host-session';
 import { deleteUploadedImageIfUnused, saveUploadedImage } from '@/modules/assets/local-asset-storage';
 import { setEventHeroImage, updateEvent } from '@/modules/events/event-service';
 import { parseEventDateTimeLocal } from '@/modules/events/event-time';
-import { addGuest, updateGuest } from '@/modules/guests/guest-service';
+import { addGuest, deleteGuest, updateGuest } from '@/modules/guests/guest-service';
 import { issueInvitation } from '@/modules/invitations/invitation-service';
 import { normalizeTemplateKey } from '@/modules/templates/template-catalog';
 import type { InvitationDesign } from '@/modules/invitations/invitation-design';
@@ -79,6 +79,17 @@ export async function updateGuestAction(eventId: string, guestId: string, formDa
     canBringPlusOne: formData.get('canBringPlusOne') === 'on',
   });
 
+  if (count === 0) {
+    throw new Error('Guest not found for event');
+  }
+
+  revalidatePath(`/admin/events/${eventId}`);
+}
+
+export async function deleteGuestAction(eventId: string, guestId: string) {
+  await requireHostSession();
+
+  const { count } = await deleteGuest(eventId, guestId);
   if (count === 0) {
     throw new Error('Guest not found for event');
   }

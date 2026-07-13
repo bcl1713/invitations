@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const {
   requireHostSessionMock,
+  deleteGuestMock,
   updateGuestMock,
   revalidatePathMock,
   saveUploadedImageMock,
@@ -9,6 +10,7 @@ const {
   setEventHeroImageMock,
 } = vi.hoisted(() => ({
   requireHostSessionMock: vi.fn(),
+  deleteGuestMock: vi.fn(),
   updateGuestMock: vi.fn(),
   revalidatePathMock: vi.fn(),
   saveUploadedImageMock: vi.fn(),
@@ -40,6 +42,7 @@ vi.mock('@/modules/events/event-service', () => ({
 
 vi.mock('@/modules/guests/guest-service', () => ({
   addGuest: vi.fn(),
+  deleteGuest: deleteGuestMock,
   updateGuest: updateGuestMock,
 }));
 
@@ -51,7 +54,7 @@ vi.mock('@/modules/templates/template-catalog', () => ({
   normalizeTemplateKey: vi.fn(),
 }));
 
-import { updateGuestAction, uploadHeroAction } from '@/app/admin/events/[eventId]/actions';
+import { deleteGuestAction, updateGuestAction, uploadHeroAction } from '@/app/admin/events/[eventId]/actions';
 
 function guestFormData() {
   const formData = new FormData();
@@ -60,6 +63,34 @@ function guestFormData() {
   formData.set('note', 'Needs ramp access');
   return formData;
 }
+
+describe('deleteGuestAction', () => {
+  beforeEach(() => {
+    requireHostSessionMock.mockReset();
+    deleteGuestMock.mockReset();
+    revalidatePathMock.mockReset();
+    requireHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+  });
+
+  it('requires the host session, deletes the event-scoped guest, and revalidates once', async () => {
+    deleteGuestMock.mockResolvedValue({ count: 1 });
+
+    await expect(deleteGuestAction('event-1', 'guest-1')).resolves.toBeUndefined();
+
+    expect(requireHostSessionMock).toHaveBeenCalledOnce();
+    expect(deleteGuestMock).toHaveBeenCalledWith('event-1', 'guest-1');
+    expect(revalidatePathMock).toHaveBeenCalledExactlyOnceWith('/admin/events/event-1');
+  });
+
+  it('rejects a guest that is not in the event without revalidating', async () => {
+    deleteGuestMock.mockResolvedValue({ count: 0 });
+
+    await expect(deleteGuestAction('event-1', 'guest-from-event-2')).rejects.toThrow('Guest not found for event');
+
+    expect(deleteGuestMock).toHaveBeenCalledWith('event-1', 'guest-from-event-2');
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+});
 
 describe('updateGuestAction', () => {
   beforeEach(() => {

@@ -13,9 +13,10 @@ import { buildInvitationPresentation } from '@/modules/invitations/invitation-pr
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
 import { EventTimeZoneInput } from '../../EventTimeZoneInput';
+import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { InvitationPreview } from './InvitationPreview';
 import { InvitationDesignEditor } from './InvitationDesignEditor';
-import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
+import { addGuestAction, deleteGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -327,6 +328,11 @@ export default async function EventDashboardPage({
                             <button type="submit">Save guest</button>
                           </form>
                         </details>
+                        <ConfirmSubmitButton
+                          action={deleteGuestAction.bind(null, event.id, guest.id)}
+                          guestId={guest.id}
+                          guestName={guest.name}
+                        />
                       </div>
                     </td>
                   </tr>
