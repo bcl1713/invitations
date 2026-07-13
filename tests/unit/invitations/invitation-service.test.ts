@@ -107,6 +107,73 @@ describe('issueInvitation', () => {
     expect(invitationUpsertMock).not.toHaveBeenCalled();
   });
 
+  it('replaces the token and sent time on resend and emails the fresh URL', async () => {
+    const firstSentAt = new Date('2026-07-01T12:00:00.000Z');
+    const secondSentAt = new Date('2026-07-02T12:00:00.000Z');
+    guestFindUniqueMock.mockResolvedValue({
+      id: 'guest-1',
+      eventId: 'event-1',
+      name: 'Major Chen',
+      email: 'major.chen@example.com',
+      canBringPlusOne: true,
+      event: {
+        title: 'Officer Evening Reception',
+        hostName: 'Colonel Hayes',
+        location: 'Joint Base Andrews Officers Club',
+        description: 'Join us for a formal reception honouring the promotion.',
+        startsAt: new Date('2026-08-20T18:30:00.000Z'),
+        templateKey: 'ceremonial',
+        heroImagePath: 'hero.jpg',
+        emblemImagePath: 'emblem.png',
+        watermarkImagePath: 'watermark.png',
+      },
+      invitation: {
+        id: 'invitation-1',
+        token: 'first-token',
+        sentAt: firstSentAt,
+      },
+    });
+    createInvitationTokenMock
+      .mockResolvedValueOnce('first-token')
+      .mockResolvedValueOnce('fresh-token');
+    invitationUpsertMock
+      .mockResolvedValueOnce({ id: 'invitation-1', token: 'first-token', sentAt: firstSentAt })
+      .mockResolvedValueOnce({ id: 'invitation-1', token: 'fresh-token', sentAt: secondSentAt });
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(firstSentAt);
+      await issueInvitation('event-1', 'guest-1', 'https://invites.example.com', 'secret-value');
+      vi.setSystemTime(secondSentAt);
+      await issueInvitation('event-1', 'guest-1', 'https://invites.example.com', 'secret-value');
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(sendMailMock).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        text: expect.stringContaining('RSVP: https://invites.example.com/i/fresh-token'),
+        html: expect.stringContaining('https://invites.example.com/i/fresh-token'),
+      }),
+    );
+    expect(sendMailMock.mock.calls[1][0].text).not.toContain('first-token');
+    expect(invitationUpsertMock).toHaveBeenNthCalledWith(2, {
+      where: { guestId: 'guest-1' },
+      update: {
+        token: 'fresh-token',
+        sentAt: secondSentAt,
+      },
+      create: {
+        guestId: 'guest-1',
+        eventId: 'event-1',
+        token: 'fresh-token',
+        sentAt: secondSentAt,
+      },
+    });
+    expect(secondSentAt.getTime()).toBeGreaterThan(firstSentAt.getTime());
+  });
+
   it('preserves the previous invitation when a resend delivery fails', async () => {
     guestFindUniqueMock.mockResolvedValueOnce({
       id: 'guest-1',

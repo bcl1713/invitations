@@ -4,6 +4,7 @@ vi.mock('@/lib/db', () => ({
   prisma: {
     guest: {
       create: vi.fn(),
+      deleteMany: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
     },
@@ -11,11 +12,12 @@ vi.mock('@/lib/db', () => ({
 }));
 
 import { prisma } from '@/lib/db';
-import { addGuest, updateGuest } from '@/modules/guests/guest-service';
+import { addGuest, deleteGuest, updateGuest } from '@/modules/guests/guest-service';
 
 const createMock = vi.mocked(prisma.guest.create);
 const updateMock = vi.mocked(prisma.guest.update);
 const updateManyMock = vi.mocked(prisma.guest.updateMany);
+const deleteManyMock = vi.mocked(prisma.guest.deleteMany);
 
 describe('addGuest', () => {
   beforeEach(() => {
@@ -90,6 +92,42 @@ describe('updateGuest', () => {
         note: '',
         canBringPlusOne: false,
       },
+    });
+  });
+});
+
+describe('deleteGuest', () => {
+  beforeEach(() => {
+    deleteManyMock.mockReset();
+    deleteManyMock.mockResolvedValue({ count: 1 });
+  });
+
+  it('deletes only a guest belonging to the requested event', async () => {
+    const result = await deleteGuest('event-1', 'guest-1');
+
+    expect(result).toEqual({ count: 1 });
+    expect(deleteManyMock).toHaveBeenCalledWith({ where: { id: 'guest-1', eventId: 'event-1' } });
+  });
+
+  it('reports zero deletions for a cross-event guest', async () => {
+    deleteManyMock.mockResolvedValue({ count: 0 });
+
+    const result = await deleteGuest('event-1', 'guest-from-event-2');
+
+    expect(result).toEqual({ count: 0 });
+    expect(deleteManyMock).toHaveBeenCalledWith({
+      where: { id: 'guest-from-event-2', eventId: 'event-1' },
+    });
+  });
+
+  it('reports zero deletions for a genuinely missing guest', async () => {
+    deleteManyMock.mockResolvedValue({ count: 0 });
+
+    const result = await deleteGuest('event-1', 'missing-guest');
+
+    expect(result).toEqual({ count: 0 });
+    expect(deleteManyMock).toHaveBeenCalledWith({
+      where: { id: 'missing-guest', eventId: 'event-1' },
     });
   });
 });

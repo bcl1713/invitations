@@ -5,6 +5,7 @@ import { requireHostSession } from '@/lib/host-session';
 import {
   buildGuestFilterLinks,
   filterGuests,
+  normalizeGuestSearch,
 } from '@/modules/events/event-dashboard-filters';
 import { getEventDashboard } from '@/modules/events/event-service';
 import { formatEventDateTime, formatEventDateTimeLocal } from '@/modules/events/event-time';
@@ -12,9 +13,10 @@ import { buildInvitationPresentation } from '@/modules/invitations/invitation-pr
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
 import { EventTimeZoneInput } from '../../EventTimeZoneInput';
+import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { InvitationPreview } from './InvitationPreview';
 import { InvitationDesignEditor } from './InvitationDesignEditor';
-import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
+import { addGuestAction, deleteGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,11 +25,12 @@ export default async function EventDashboardPage({
   searchParams,
 }: {
   params: Promise<{ eventId: string }>;
-  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string }>;
+  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string; guestSearch?: string | string[] }>;
 }) {
   await requireHostSession();
   const { eventId } = await params;
-  const { assetCleanup, guestFilter = 'all' } = await searchParams;
+  const { assetCleanup, guestFilter = 'all', guestSearch: rawGuestSearch } = await searchParams;
+  const guestSearch = normalizeGuestSearch(rawGuestSearch);
   const data = await getEventDashboard(eventId);
 
   if (!data) {
@@ -61,8 +64,11 @@ export default async function EventDashboardPage({
     },
     guest: { name: 'Your guest', canBringPlusOne: true },
   });
-  const filteredGuests = filterGuests(event.guests, guestFilter);
-  const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter);
+  const filteredGuests = filterGuests(event.guests, guestFilter, guestSearch);
+  const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter, guestSearch);
+  const clearGuestSearchHref = buildGuestFilterLinks(event.id, guestFilter).find(
+    (filter) => filter.key === guestFilter,
+  )?.href ?? `/admin/events/${encodeURIComponent(event.id)}`;
 
   return (
     <main className="page wide-page">
@@ -245,7 +251,7 @@ export default async function EventDashboardPage({
           <div className="row between wrap">
             <div>
               <h2>Guests</h2>
-              <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
+              <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row. Resending creates a fresh invitation link and invalidates the previous URL.</p>
             </div>
             <div className="row wrap" style={{ gap: '0.5rem' }}>
               {guestFilterLinks.map((filter) => (
@@ -258,8 +264,21 @@ export default async function EventDashboardPage({
                 </Link>
               ))}
             </div>
+            <form action={`/admin/events/${encodeURIComponent(event.id)}`} method="get" className="row wrap" role="search">
+              {guestFilter !== 'all' ? <input type="hidden" name="guestFilter" value={guestFilter} /> : null}
+              <label>
+                Search guests
+                <input name="guestSearch" type="search" defaultValue={guestSearch} placeholder="Name or email" />
+              </label>
+              <button type="submit">Search</button>
+              {guestSearch.trim() ? <Link href={clearGuestSearchHref}>Clear search</Link> : null}
+            </form>
           </div>
-          <div className="table-scroll">
+          {event.guests.length === 0 ? <p className="muted">No guests have been added yet.</p> : null}
+          {event.guests.length > 0 && filteredGuests.length === 0 ? (
+            <p className="muted">No guests match the current search and status filter.</p>
+          ) : null}
+          {filteredGuests.length > 0 ? <div className="table-scroll">
             <table>
               <thead>
                 <tr>
@@ -285,7 +304,7 @@ export default async function EventDashboardPage({
                     <td>
                       <div className="stack">
                         <form action={sendInviteAction.bind(null, event.id, guest.id)}>
-                          <button type="submit">Send invite</button>
+                          <button type="submit">{guest.invitation?.sentAt ? 'Resend invite' : 'Send invite'}</button>
                         </form>
                         <details>
                           <summary>Edit guest</summary>
@@ -300,7 +319,7 @@ export default async function EventDashboardPage({
                             </label>
                             <label>
                               Note
-                              <textarea name="note" rows={2} defaultValue={guest.note} />
+                              <textarea name="note" rows={2} defaultValue={guest.note ?? ''} />
                             </label>
                             <label className="checkbox-row">
                               <input name="canBringPlusOne" type="checkbox" defaultChecked={guest.canBringPlusOne} />
@@ -309,13 +328,18 @@ export default async function EventDashboardPage({
                             <button type="submit">Save guest</button>
                           </form>
                         </details>
+                        <ConfirmSubmitButton
+                          action={deleteGuestAction.bind(null, event.id, guest.id)}
+                          guestId={guest.id}
+                          guestName={guest.name}
+                        />
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </div> : null}
         </section>
       </section>
     </main>

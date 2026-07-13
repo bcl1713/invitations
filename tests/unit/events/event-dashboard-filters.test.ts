@@ -3,19 +3,22 @@ import { describe, expect, it } from 'vitest';
 import {
   buildGuestFilterLinks,
   filterGuests,
+  normalizeGuestSearch,
   type GuestFilterKey,
 } from '@/modules/events/event-dashboard-filters';
 
 type TestGuest = {
   id: string;
+  name: string;
+  email: string;
   invitation: { sentAt: string | null } | null;
   rsvp: { status: string } | null;
 };
 
 const guests: TestGuest[] = [
-  { id: 'draft', invitation: null, rsvp: null },
-  { id: 'sent', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: null },
-  { id: 'responded', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: { status: 'GOING' } },
+  { id: 'draft', name: 'Alex Draft', email: 'alex@example.com', invitation: null, rsvp: null },
+  { id: 'sent', name: 'Jamie Sent', email: 'jamie@example.com', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: null },
+  { id: 'responded', name: 'Morgan Responded', email: 'morgan@example.com', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: { status: 'GOING' } },
 ];
 
 describe('event dashboard filters', () => {
@@ -30,6 +33,36 @@ describe('event dashboard filters', () => {
     expect(filterGuests(guests, filterKey).map((guest) => guest.id)).toEqual(expectedIds);
   });
 
+  it('filters by a normalized case-insensitive name or email search while preserving status filters and order', () => {
+    expect(filterGuests(guests, 'all', '  EXAMPLE.COM  ').map((guest) => guest.id)).toEqual([
+      'draft',
+      'sent',
+      'responded',
+    ]);
+    expect(filterGuests(guests, 'all', '   ').map((guest) => guest.id)).toEqual([
+      'draft',
+      'sent',
+      'responded',
+    ]);
+  });
+
+  it('combines a status filter with a guest search', () => {
+    expect(filterGuests(guests, 'sent', 'mOrGaN').map((guest) => guest.id)).toEqual(['responded']);
+  });
+
+  it('matches a guest by name directly', () => {
+    expect(filterGuests(guests, 'all', 'Jamie Sent').map((guest) => guest.id)).toEqual(['sent']);
+  });
+
+  it('returns no guests when the search does not match a name or email', () => {
+    expect(filterGuests(guests, 'all', 'Taylor Missing')).toEqual([]);
+  });
+
+  it('normalizes repeated query values to the first guest search value', () => {
+    expect(normalizeGuestSearch(['  Jamie Sent  ', 'Morgan Responded'])).toBe('  Jamie Sent  ');
+    expect(normalizeGuestSearch(undefined)).toBe('');
+  });
+
   it('builds stable guest filter links for the dashboard', () => {
     const links = buildGuestFilterLinks('evt_123');
 
@@ -40,6 +73,18 @@ describe('event dashboard filters', () => {
       { key: 'responded', label: 'Responded', href: '/admin/events/evt_123?guestFilter=responded', isActive: false },
       { key: 'no-response', label: 'No response', href: '/admin/events/evt_123?guestFilter=no-response', isActive: false },
     ] satisfies Array<{ key: GuestFilterKey; label: string; href: string; isActive: boolean }>);
+  });
+
+  it('preserves an encoded guest search query on every dashboard filter link', () => {
+    const links = buildGuestFilterLinks('evt 123', 'sent', ' Morgan & Co ');
+
+    expect(links.map((link) => link.href)).toEqual([
+      '/admin/events/evt%20123?guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=draft&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=sent&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=responded&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=no-response&guestSearch=Morgan+%26+Co',
+    ]);
   });
 
   it('marks the active dashboard filter link', () => {

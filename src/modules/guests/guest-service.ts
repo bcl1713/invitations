@@ -50,3 +50,9 @@ export async function updateGuest(eventId: string, guestId: string, input: Updat
     },
   });
 }
+
+export async function deleteGuest(eventId: string, guestId: string) {
+  return prisma.guest.deleteMany({
+    where: { id: guestId, eventId },
+  });
+}

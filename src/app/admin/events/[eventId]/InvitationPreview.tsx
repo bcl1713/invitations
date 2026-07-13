@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { ScaledPostcardCanvas } from '@/app/ScaledPostcardCanvas';
 import { parseEventDateTimeLocal } from '@/modules/events/event-time';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { fontCssFamily } from '@/modules/invitations/invitation-design';
+import { getInvitationTemplateTheme } from '@/modules/templates/invitation-template-theme';
 
 type PreviewState = {
   title: string;
@@ -32,11 +33,13 @@ function textStyle(design: ReturnType<typeof buildInvitationPresentation>['desig
   };
 }
 
-function parseDesignConfig(value: string | undefined) {
+function parseDesignConfig(value: string | undefined): { content?: Record<string, string>; [key: string]: unknown } | undefined {
   if (!value) return undefined;
   try {
     const parsed = JSON.parse(value) as unknown;
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as { content?: Record<string, string>; [key: string]: unknown })
+      : undefined;
   } catch {
     return undefined;
   }
@@ -73,7 +76,7 @@ export function InvitationPreview({
     watermarkUrl: null,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const form = document.getElementById('event-details-form') as HTMLFormElement | null;
     const heroInput = document.getElementById('hero-image-input') as HTMLInputElement | null;
     const emblemInput = document.getElementById('emblem-image-input') as HTMLInputElement | null;
@@ -114,16 +117,38 @@ export function InvitationPreview({
     };
 
     const syncPreview = () => {
+      const title = readTextValue('title');
+      const hostName = readTextValue('hostName');
+      const location = readTextValue('location');
+      const description = readTextValue('description');
+      const templateKey = readTextValue('templateKey') || 'classic';
+      const theme = getInvitationTemplateTheme(templateKey);
+      const designConfig = parseDesignConfig(readTextValue('designConfig') || initialEvent.designConfig);
+
       setPreview((current) => ({
         ...current,
-        title: readTextValue('title'),
-        hostName: readTextValue('hostName'),
-        location: readTextValue('location'),
-        description: readTextValue('description'),
+        title,
+        hostName,
+        location,
+        description,
         startsAt: readTextValue('startsAt') || null,
         timeZone: readTextValue('timeZone') || initialEvent.timeZone,
-        templateKey: readTextValue('templateKey') || 'classic',
-        designConfig: readTextValue('designConfig') || initialEvent.designConfig,
+        templateKey,
+        designConfig: designConfig
+          ? JSON.stringify({
+              ...designConfig,
+              content: {
+                ...designConfig.content,
+                eyebrow: theme.eyebrow,
+                introTitle: theme.introTitle,
+                title,
+                hostLine: `Hosted by ${hostName}`,
+                whereValue: location || 'Location details will be shared soon.',
+                description,
+                rsvpHeading: theme.rsvpTitle,
+              },
+            })
+          : undefined,
         heroUrl: updateAssetPreview(heroInput, 'heroUrl', initialEvent.heroUrl),
         emblemUrl: updateAssetPreview(emblemInput, 'emblemUrl', initialEvent.emblemUrl),
         watermarkUrl: updateAssetPreview(watermarkInput, 'watermarkUrl', initialEvent.watermarkUrl),
@@ -138,18 +163,22 @@ export function InvitationPreview({
       setPreview((current) => ({ ...current, designConfig: event.detail }));
     };
 
-    syncPreview();
     window.addEventListener('invitation-design-change', handleDesignChange);
     form.addEventListener('input', syncPreview);
     form.addEventListener('change', syncPreview);
+    document.addEventListener('input', syncPreview, true);
+    document.addEventListener('change', syncPreview, true);
     heroInput?.addEventListener('change', syncPreview);
     emblemInput?.addEventListener('change', syncPreview);
     watermarkInput?.addEventListener('change', syncPreview);
+    syncPreview();
 
     return () => {
       window.removeEventListener('invitation-design-change', handleDesignChange);
       form.removeEventListener('input', syncPreview);
       form.removeEventListener('change', syncPreview);
+      document.removeEventListener('input', syncPreview, true);
+      document.removeEventListener('change', syncPreview, true);
       heroInput?.removeEventListener('change', syncPreview);
       emblemInput?.removeEventListener('change', syncPreview);
       watermarkInput?.removeEventListener('change', syncPreview);
@@ -217,7 +246,7 @@ export function InvitationPreview({
                 {presentation.assetUrls.emblem ? <img className="invitation-emblem" src={presentation.assetUrls.emblem} alt="Event emblem" /> : null}
                 <p className="eyebrow" style={textStyle(presentation.design, 'eyebrow')}>{presentation.design.content.eyebrow}</p>
                 <p className="invitation-kicker" style={textStyle(presentation.design, 'introTitle')}>{presentation.design.content.introTitle}</p>
-                <h1 style={textStyle(presentation.design, 'title')}>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
+                <h1 aria-label={presentation.title} style={textStyle(presentation.design, 'title')}>{presentation.titleLines.map((line, index) => <span key={line + index} className="invitation-title-line">{line}</span>)}</h1>
                 <p className="invitation-host-line" style={textStyle(presentation.design, 'hostLine')}>{presentation.design.content.hostLine}</p>
                 <p className="invitation-guest-line" style={textStyle(presentation.design, 'guestLine')}>{presentation.design.content.guestLine}</p>
               </div>

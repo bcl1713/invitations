@@ -30,6 +30,8 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   const draftGuestEmail = `draft-${suffix}@example.com`;
   const sentGuestName = `Sent Guest ${suffix}`;
   const sentGuestEmail = `sent-${suffix}@example.com`;
+  const deletionGuestName = `Deletion Guest ${suffix}`;
+  const deletionGuestEmail = `deletion-${suffix}@example.com`;
 
   await page.goto('http://127.0.0.1:3300/login');
   await page.getByLabel('Email').fill('host@example.com');
@@ -120,6 +122,83 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   const sentRow = page.getByRole('row', { name: new RegExp(`${sentGuestName}.*${sentGuestEmail}`) });
   await expect(sentRow).toBeVisible();
   await expect(sentRow.locator('td').nth(2)).toHaveText('Sent');
+  await expect(draftRow.getByRole('button', { name: 'Send invite' })).toBeVisible();
+  await expect(sentRow.getByRole('button', { name: 'Resend invite' })).toBeVisible();
+  await expect(page.getByText('You can still send any draft manually from the guest row. Resending creates a fresh invitation link and invalidates the previous URL.')).toBeVisible();
+
+  await addGuestForm.getByLabel('Name', { exact: true }).fill(deletionGuestName);
+  await addGuestForm.getByLabel('Email').fill(deletionGuestEmail);
+  await addGuestForm.getByLabel('Note').fill('local smoke deletion');
+  await addGuestForm.getByRole('button', { name: 'Add guest' }).click();
+
+  const deletionRow = page.getByRole('row', { name: new RegExp(`${deletionGuestName}.*${deletionGuestEmail}`) });
+  await expect(deletionRow).toBeVisible();
+  const dismissDeletionDialog = page.waitForEvent('dialog').then(async (dialog) => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain(deletionGuestName);
+    await dialog.dismiss();
+  });
+  await deletionRow.getByRole('button', { name: 'Delete guest' }).click();
+  await dismissDeletionDialog;
+  await expect(deletionRow).toBeVisible();
+  const guestsStatValue = page.locator('.stats-grid > div').filter({
+    has: page.locator('span', { hasText: /^Guests$/ }),
+  }).locator('strong');
+  await expect(guestsStatValue).toHaveText(/^\d+$/);
+  const guestCountBeforeDeletion = Number(await guestsStatValue.textContent());
+  const acceptDeletionDialog = page.waitForEvent('dialog').then(async (dialog) => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain(deletionGuestName);
+    await dialog.accept();
+  });
+  await deletionRow.getByRole('button', { name: 'Delete guest' }).click();
+  await acceptDeletionDialog;
+  await expect(deletionRow).toHaveCount(0);
+  await expect(guestsStatValue).toHaveText(String(guestCountBeforeDeletion - 1));
+
+  const guestSearch = page.getByRole('search');
+  const guestSearchInput = guestSearch.getByLabel('Search guests');
+  await guestSearchInput.fill(draftGuestName);
+  await guestSearch.getByRole('button', { name: 'Search' }).click();
+  await expect(page).toHaveURL(/guestSearch=/);
+  expect(new URL(page.url()).searchParams.get('guestSearch')).toBe(draftGuestName);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toHaveCount(0);
+
+  await guestSearch.getByLabel('Search guests').fill(`SENT-${suffix}`);
+  await guestSearch.getByRole('button', { name: 'Search' }).click();
+  await expect(page).toHaveURL(/guestSearch=/);
+  expect(new URL(page.url()).searchParams.get('guestSearch')).toBe(`SENT-${suffix}`);
+  await expect(sentRow).toBeVisible();
+  await expect(draftRow).toHaveCount(0);
+
+  await guestSearch.getByRole('link', { name: 'Clear search' }).click();
+  await expect(page).not.toHaveURL(/guestSearch=/);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toBeVisible();
+
+  await page.getByRole('link', { name: 'Sent' }).click();
+  await expect(page).toHaveURL(/guestFilter=sent/);
+  await guestSearch.getByLabel('Search guests').fill(`SENT-${suffix}`);
+  await guestSearch.getByRole('button', { name: 'Search' }).click();
+  await expect(page).toHaveURL(/guestFilter=sent/);
+  await expect(page).toHaveURL(/guestSearch=/);
+  expect(new URL(page.url()).searchParams.get('guestFilter')).toBe('sent');
+  expect(new URL(page.url()).searchParams.get('guestSearch')).toBe(`SENT-${suffix}`);
+  await expect(sentRow).toBeVisible();
+  await expect(draftRow).toHaveCount(0);
+
+  await guestSearch.getByRole('link', { name: 'Clear search' }).click();
+  await expect(page).toHaveURL(/guestFilter=sent/);
+  await expect(page).not.toHaveURL(/guestSearch=/);
+  await expect(sentRow).toBeVisible();
+  await expect(draftRow).toHaveCount(0);
+
+  await page.getByRole('link', { name: 'All', exact: true }).click();
+  await expect(page).not.toHaveURL(/guestFilter=/);
+  await expect(page).not.toHaveURL(/guestSearch=/);
+  await expect(draftRow).toBeVisible();
+  await expect(sentRow).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('link', { name: 'Export guest CSV' }).click();
