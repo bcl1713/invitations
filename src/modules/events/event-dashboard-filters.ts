@@ -9,23 +9,40 @@ export const GUEST_FILTER_OPTIONS = [
 export type GuestFilterKey = (typeof GUEST_FILTER_OPTIONS)[number]['key'];
 
 type FilterableGuest = {
+  name?: string;
+  email?: string;
   invitation?: { sentAt?: string | Date | null } | null;
   rsvp?: unknown | null;
 };
 
-export function filterGuests<T extends FilterableGuest>(guests: T[], guestFilter: string): T[] {
-  switch (guestFilter) {
-    case 'draft':
-      return guests.filter((guest) => !guest.invitation?.sentAt);
-    case 'sent':
-      return guests.filter((guest) => Boolean(guest.invitation?.sentAt));
-    case 'responded':
-      return guests.filter((guest) => Boolean(guest.rsvp));
-    case 'no-response':
-      return guests.filter((guest) => !guest.rsvp);
-    default:
-      return guests;
+export function filterGuests<T extends FilterableGuest>(
+  guests: T[],
+  guestFilter: string,
+  searchQuery: string = '',
+): T[] {
+  const filteredGuests = (() => {
+    switch (guestFilter) {
+      case 'draft':
+        return guests.filter((guest) => !guest.invitation?.sentAt);
+      case 'sent':
+        return guests.filter((guest) => Boolean(guest.invitation?.sentAt));
+      case 'responded':
+        return guests.filter((guest) => Boolean(guest.rsvp));
+      case 'no-response':
+        return guests.filter((guest) => !guest.rsvp);
+      default:
+        return guests;
+    }
+  })();
+
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  if (!normalizedSearchQuery) {
+    return filteredGuests;
   }
+
+  return filteredGuests.filter((guest) =>
+    [guest.name, guest.email].some((value) => value?.toLowerCase().includes(normalizedSearchQuery)),
+  );
 }
 
 export function buildGuestFilterLinks(eventId: string, activeFilter: string = 'all') {

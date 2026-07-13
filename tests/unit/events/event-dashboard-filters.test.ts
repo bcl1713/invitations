@@ -8,14 +8,16 @@ import {
 
 type TestGuest = {
   id: string;
+  name: string;
+  email: string;
   invitation: { sentAt: string | null } | null;
   rsvp: { status: string } | null;
 };
 
 const guests: TestGuest[] = [
-  { id: 'draft', invitation: null, rsvp: null },
-  { id: 'sent', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: null },
-  { id: 'responded', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: { status: 'GOING' } },
+  { id: 'draft', name: 'Alex Draft', email: 'alex@example.com', invitation: null, rsvp: null },
+  { id: 'sent', name: 'Jamie Sent', email: 'jamie@example.com', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: null },
+  { id: 'responded', name: 'Morgan Responded', email: 'morgan@example.com', invitation: { sentAt: '2026-07-11T01:00:00.000Z' }, rsvp: { status: 'GOING' } },
 ];
 
 describe('event dashboard filters', () => {
@@ -28,6 +30,20 @@ describe('event dashboard filters', () => {
     ['unexpected', ['draft', 'sent', 'responded']],
   ] as const)('filters %s guests correctly', (filterKey, expectedIds) => {
     expect(filterGuests(guests, filterKey).map((guest) => guest.id)).toEqual(expectedIds);
+  });
+
+  it('filters by a normalized case-insensitive name or email search while preserving status filters and order', () => {
+    expect(filterGuests(guests, 'all', '  EXAMPLE.COM  ').map((guest) => guest.id)).toEqual([
+      'draft',
+      'sent',
+      'responded',
+    ]);
+    expect(filterGuests(guests, 'sent', 'mOrGaN').map((guest) => guest.id)).toEqual(['responded']);
+    expect(filterGuests(guests, 'all', '   ').map((guest) => guest.id)).toEqual([
+      'draft',
+      'sent',
+      'responded',
+    ]);
   });
 
   it('builds stable guest filter links for the dashboard', () => {
