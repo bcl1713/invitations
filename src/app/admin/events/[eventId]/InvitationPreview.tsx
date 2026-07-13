@@ -138,13 +138,13 @@ export function InvitationPreview({
       setPreview((current) => ({ ...current, designConfig: event.detail }));
     };
 
-    syncPreview();
     window.addEventListener('invitation-design-change', handleDesignChange);
     form.addEventListener('input', syncPreview);
     form.addEventListener('change', syncPreview);
     heroInput?.addEventListener('change', syncPreview);
     emblemInput?.addEventListener('change', syncPreview);
     watermarkInput?.addEventListener('change', syncPreview);
+    syncPreview();
 
     return () => {
       window.removeEventListener('invitation-design-change', handleDesignChange);
