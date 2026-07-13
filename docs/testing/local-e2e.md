@@ -39,15 +39,18 @@ INVITATIONS_IMAGE=unused docker compose -p invitations-smoke --env-file .env.loc
 service; the command starts neither that service nor a registry image.
 
 In a shell at this repository root, load that managed local environment without
-printing it, resolve the smoke database container address, and apply all committed
-Prisma migrations. The `APP_URL` in the smoke environment must be
+printing it, resolve the smoke database container address, construct a host-side
+database URL, and apply all committed Prisma migrations. This leaves secrets in
+the shell environment only; it does not put them in the runbook or terminal
+output. The `APP_URL` in the smoke environment must be
 `http://127.0.0.1:3300`.
 
 ```sh
 set -a
 . /path/to/invitations/.env.local-smoke
 set +a
-export DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$(docker inspect invitations-smoke-db-1 --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'):5432/${POSTGRES_DB}"
+export SMOKE_DB_HOST="$(docker inspect invitations-smoke-db-1 --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')"
+export DATABASE_URL="$(node -e 'const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, SMOKE_DB_HOST } = process.env; process.stdout.write(`postgresql://${encodeURIComponent(POSTGRES_USER)}:${encodeURIComponent(POSTGRES_PASSWORD)}@${SMOKE_DB_HOST}:5432/${encodeURIComponent(POSTGRES_DB)}`)')"
 test "$APP_URL" = 'http://127.0.0.1:3300'
 npm run prisma:migrate
 ```
@@ -80,4 +83,8 @@ npm run test:e2e -- --timeout=60000 tests/e2e/local-smoke.spec.ts
 The suite creates and changes smoke data, sends mail only to the local mail
 service, and writes test uploads to the smoke environment's configured upload
 path. Stop the local app when it finishes; the disposable stack can remain for
-subsequent smoke runs.
+subsequent smoke runs. The Compose configuration uses a host-backed
+`POSTGRES_DATA_PATH`, so `docker compose down` stops the stack but does not erase
+the smoke database or uploads. Delete those paths only after confirming that they
+are the isolated smoke paths from `.env.local-smoke`; never apply cleanup commands
+to a shared or production stack.
