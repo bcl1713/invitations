@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireHostSession } from '@/lib/host-session';
 import { listEvents } from '@/modules/events/event-service';
 
+import { EventTimeZoneInput } from './EventTimeZoneInput';
 import { createEventAction, logoutAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,7 @@ export default async function AdminPage() {
               Start time
               <input name="startsAt" type="datetime-local" />
             </label>
+            <EventTimeZoneInput />
             <label>
               Description
               <textarea name="description" rows={5} />

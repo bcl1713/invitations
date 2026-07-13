@@ -23,6 +23,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts/production-entrypoint.sh ./scripts/production-entrypoint.sh
 RUN mkdir -p /app/uploads
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["./scripts/production-entrypoint.sh"]

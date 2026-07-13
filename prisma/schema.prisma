@@ -21,6 +21,7 @@ model Event {
   location           String       @default("")
   hostName           String       @default("")
   startsAt           DateTime?
+  timeZone           String       @default("UTC")
   heroImagePath      String?
   emblemImagePath    String?
   watermarkImagePath String?
@@ -75,5 +76,39 @@ model Rsvp {
   event      Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
   guest      Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
 
+  @@index([eventId])
+}
+
+model HostSession {
+  id        String   @id
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model LoginAttemptThrottle {
+  identifierHash String   @id
+  failures       Int
+  windowStartedAt DateTime
+  blockedUntil   DateTime?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([blockedUntil])
+  @@index([expiresAt])
+}
+
+model AssetCleanup {
+  id        String   @id @default(cuid())
+  eventId   String
+  fileName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, fileName])
   @@index([eventId])
 }

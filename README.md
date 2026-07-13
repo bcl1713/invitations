@@ -23,6 +23,45 @@ Self-hosted invitation and RSVP platform for private events.
 
 Copy `.env.example` to `.env` and adjust values.
 
+## Local E2E smoke verification
+
+The Playwright smoke test requires a disposable local Docker database/mail stack
+and a local app process on port 3300; it is intentionally not part of GitHub CI.
+See [the local E2E smoke runbook](docs/testing/local-e2e.md) for safe setup,
+Prisma migration preparation, browser installation, and the exact test command.
+
+## Deployment database migrations
+
+The production image runs `prisma migrate deploy` against `DATABASE_URL` before
+starting Next.js. A failed migration prevents the application process from
+starting, so redeploy the Portainer stack whenever an image includes a Prisma
+schema change. The Next.js start command itself remains schema-mutation-free.
+
+See [the production database migration runbook](docs/operations/database-migrations.md)
+for deployment, recovery, and existing-database guidance.
+
+## Login throttling
+
+Host login failures are throttled across both account and client-source identifiers
+(five failures in fifteen minutes blocks further attempts for fifteen minutes).
+Throttle state is stored in PostgreSQL, so it is shared across application
+instances and survives restarts. Apply the included Prisma migration before
+deploying this change.
+
+The application ignores forwarded headers unless `LOGIN_TRUSTED_PROXY_SECRET` is
+configured and a reverse proxy injects that value in `X-Login-Proxy-Secret` after
+removing any client-supplied copy. The proxy must also remove client-supplied
+`X-Forwarded-For` and set it from the actual peer address. With no trusted proxy
+secret, all requests use the conservative shared `unknown` source key rather than
+accepting attacker-controlled headers. Throttle telemetry contains only truncated
+SHA-256 fingerprints, never credentials.
+
+## RSVP validation
+
+Public RSVP submissions are validated on the server: status must be `GOING`,
+`MAYBE`, or `DECLINED`; headcount must be 1 (or 2 for a guest whose stored
+record permits a plus-one); and notes are limited to 1,000 characters.
+
 ## Current MVP target
 
 - host authentication

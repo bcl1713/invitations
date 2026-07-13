@@ -5,13 +5,15 @@ const {
   saveUploadedImageMock,
   deleteUploadedImageIfUnusedMock,
   replaceEventAssetImageMock,
-  clearEventAssetImageMock,
+  clearEventAssetImageAndScheduleCleanupMock,
+  retryEventAssetCleanupMock,
 } = vi.hoisted(() => ({
   getHostSessionMock: vi.fn(),
   saveUploadedImageMock: vi.fn(),
   deleteUploadedImageIfUnusedMock: vi.fn(),
   replaceEventAssetImageMock: vi.fn(),
-  clearEventAssetImageMock: vi.fn(),
+  clearEventAssetImageAndScheduleCleanupMock: vi.fn(),
+  retryEventAssetCleanupMock: vi.fn(),
 }));
 
 vi.mock('@/lib/host-session', () => ({
@@ -25,7 +27,11 @@ vi.mock('@/modules/assets/local-asset-storage', () => ({
 
 vi.mock('@/modules/events/event-service', () => ({
   replaceEventAssetImage: replaceEventAssetImageMock,
-  clearEventAssetImage: clearEventAssetImageMock,
+  clearEventAssetImageAndScheduleCleanup: clearEventAssetImageAndScheduleCleanupMock,
+}));
+
+vi.mock('@/modules/assets/event-asset-cleanup', () => ({
+  retryEventAssetCleanup: retryEventAssetCleanupMock,
 }));
 
 import { POST as postHero } from '@/app/api/admin/events/[eventId]/hero/route';
@@ -34,6 +40,7 @@ import { POST as postEmblem } from '@/app/api/admin/events/[eventId]/emblem/rout
 import { POST as postEmblemRemove } from '@/app/api/admin/events/[eventId]/emblem/remove/route';
 import { POST as postWatermark } from '@/app/api/admin/events/[eventId]/watermark/route';
 import { POST as postWatermarkRemove } from '@/app/api/admin/events/[eventId]/watermark/remove/route';
+import { POST as postAssetCleanupRetry } from '@/app/api/admin/events/[eventId]/assets/cleanup/route';
 
 function makeUploadForm(fieldName: string, file: File) {
   const formData = new FormData();
@@ -47,7 +54,8 @@ describe('event asset routes', () => {
     saveUploadedImageMock.mockReset();
     deleteUploadedImageIfUnusedMock.mockReset();
     replaceEventAssetImageMock.mockReset();
-    clearEventAssetImageMock.mockReset();
+    clearEventAssetImageAndScheduleCleanupMock.mockReset();
+    retryEventAssetCleanupMock.mockReset();
   });
 
   it('stores an uploaded hero image, replaces the old asset, and redirects back to the dashboard', async () => {
@@ -117,19 +125,69 @@ describe('event asset routes', () => {
   });
 
   it.each([
+    ['hero', postHero, 'heroImage', 'heroImagePath', 'stored-hero.png'],
+    ['emblem', postEmblem, 'emblemImage', 'emblemImagePath', 'stored-emblem.png'],
+    ['watermark', postWatermark, 'watermarkImage', 'watermarkImagePath', 'stored-watermark.png'],
+  ])('removes the newly stored %s asset when its event update fails', async (_label, handler, fieldName, field, storedFileName) => {
+    getHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+    saveUploadedImageMock.mockResolvedValue(storedFileName);
+    replaceEventAssetImageMock.mockRejectedValue(new Error('Event not found'));
+
+    const file = new File([new Uint8Array(128)], `${fieldName}.png`, { type: 'image/png' });
+    const request = {
+      url: `http://localhost/api/admin/events/missing-event/${_label}`,
+      formData: vi.fn().mockResolvedValue(makeUploadForm(fieldName, file)),
+    } as unknown as Request;
+
+    await expect(handler(request, {
+      params: Promise.resolve({ eventId: 'missing-event' }),
+    })).rejects.toThrow('Event not found');
+
+    expect(replaceEventAssetImageMock).toHaveBeenCalledWith('missing-event', field, storedFileName);
+    expect(deleteUploadedImageIfUnusedMock).toHaveBeenCalledWith(storedFileName);
+  });
+
+  it.each([
     ['hero', postHeroRemove, 'heroImagePath', 'old-hero.png'],
     ['emblem', postEmblemRemove, 'emblemImagePath', 'old-emblem.png'],
     ['watermark', postWatermarkRemove, 'watermarkImagePath', 'old-watermark.png'],
   ])('clears the %s asset and deletes the orphaned file', async (_label, handler, field, oldFileName) => {
     getHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
-    clearEventAssetImageMock.mockResolvedValue({ previousAssetPath: oldFileName });
+    clearEventAssetImageAndScheduleCleanupMock.mockResolvedValue({ previousAssetPath: oldFileName });
+    retryEventAssetCleanupMock.mockResolvedValue({ cleanupPending: false });
 
     const response = await handler(new Request('http://localhost'), {
       params: Promise.resolve({ eventId: 'event-123' }),
     });
 
-    expect(clearEventAssetImageMock).toHaveBeenCalledWith('event-123', field);
-    expect(deleteUploadedImageIfUnusedMock).toHaveBeenCalledWith(oldFileName);
+    expect(clearEventAssetImageAndScheduleCleanupMock).toHaveBeenCalledWith('event-123', field);
+    expect(retryEventAssetCleanupMock).toHaveBeenCalledWith('event-123');
+    expect(response.status).toBe(303);
+    expect(response.headers.get('location')).toBe('/admin/events/event-123');
+  });
+
+  it('redirects with a pending cleanup state instead of failing after the database update', async () => {
+    getHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+    clearEventAssetImageAndScheduleCleanupMock.mockResolvedValue({ previousAssetPath: 'orphaned.png' });
+    retryEventAssetCleanupMock.mockResolvedValue({ cleanupPending: true });
+
+    const response = await postHeroRemove(new Request('http://localhost'), {
+      params: Promise.resolve({ eventId: 'event-123' }),
+    });
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get('location')).toBe('/admin/events/event-123?assetCleanup=pending');
+  });
+
+  it('allows an operator to retry pending cleanup work', async () => {
+    getHostSessionMock.mockResolvedValue({ email: 'host@example.com' });
+    retryEventAssetCleanupMock.mockResolvedValue({ cleanupPending: false });
+
+    const response = await postAssetCleanupRetry(new Request('http://localhost'), {
+      params: Promise.resolve({ eventId: 'event-123' }),
+    });
+
+    expect(retryEventAssetCleanupMock).toHaveBeenCalledWith('event-123');
     expect(response.status).toBe(303);
     expect(response.headers.get('location')).toBe('/admin/events/event-123');
   });

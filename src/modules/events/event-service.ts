@@ -3,6 +3,7 @@ import { summarizeGuestStatuses } from '@/modules/events/event-dashboard-service
 import { slugifyEventTitle } from '@/modules/events/slugify';
 import { DEFAULT_TEMPLATE_KEY, normalizeTemplateKey } from '@/modules/templates/template-catalog';
 import type { InvitationDesign } from '@/modules/invitations/invitation-design';
+import { normalizeEventTimeZone } from '@/modules/events/event-time';
 
 export type EventAssetField = 'heroImagePath' | 'emblemImagePath' | 'watermarkImagePath';
 
@@ -12,6 +13,7 @@ export interface CreateEventInput {
   location: string;
   hostName: string;
   startsAt?: Date | null;
+  timeZone?: string | null;
 }
 
 export interface UpdateEventInput {
@@ -20,6 +22,7 @@ export interface UpdateEventInput {
   location: string;
   hostName: string;
   startsAt?: Date | string | null;
+  timeZone?: string | null;
   templateKey?: string | null;
   designConfig?: InvitationDesign;
 }
@@ -57,6 +60,7 @@ export async function createEvent(input: CreateEventInput) {
       location: normalizeEventString(input.location),
       hostName: normalizeEventString(input.hostName),
       startsAt: normalizeStartsAt(input.startsAt),
+      timeZone: normalizeEventTimeZone(input.timeZone),
       templateKey: DEFAULT_TEMPLATE_KEY,
     },
   });
@@ -71,6 +75,7 @@ export async function updateEvent(eventId: string, input: UpdateEventInput) {
       location: normalizeEventString(input.location),
       hostName: normalizeEventString(input.hostName),
       startsAt: normalizeStartsAt(input.startsAt),
+      timeZone: normalizeEventTimeZone(input.timeZone),
       templateKey: normalizeTemplateKey(input.templateKey),
       ...(input.designConfig === undefined ? {} : { designConfig: input.designConfig }),
     },
@@ -166,6 +171,42 @@ export async function clearEventAssetImage(eventId: string, field: EventAssetFie
   return {
     previousAssetPath,
   };
+}
+
+export async function clearEventAssetImageAndScheduleCleanup(eventId: string, field: EventAssetField) {
+  return prisma.$transaction(async (tx) => {
+    const previousAssetPath = await tx.event.findUnique({
+      where: { id: eventId },
+      select: {
+        heroImagePath: true,
+        emblemImagePath: true,
+        watermarkImagePath: true,
+      },
+    }).then((event) => event?.[field] ?? null);
+
+    await tx.event.update({
+      where: { id: eventId },
+      data: { [field]: null },
+    });
+
+    if (previousAssetPath) {
+      await tx.assetCleanup.upsert({
+        where: {
+          eventId_fileName: {
+            eventId,
+            fileName: previousAssetPath,
+          },
+        },
+        create: {
+          eventId,
+          fileName: previousAssetPath,
+        },
+        update: {},
+      });
+    }
+
+    return { previousAssetPath };
+  });
 }
 
 export async function setEventHeroImage(eventId: string, heroImagePath: string) {

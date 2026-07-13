@@ -39,9 +39,9 @@ export async function addGuest(input: AddGuestInput) {
   });
 }
 
-export async function updateGuest(guestId: string, input: UpdateGuestInput) {
-  return prisma.guest.update({
-    where: { id: guestId },
+export async function updateGuest(eventId: string, guestId: string, input: UpdateGuestInput) {
+  return prisma.guest.updateMany({
+    where: { id: guestId, eventId },
     data: {
       name: normalizeGuestName(input.name),
       email: normalizeGuestEmail(input.email),
