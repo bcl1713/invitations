@@ -14,10 +14,13 @@ export function normalizeGuestSearch(searchQuery: GuestSearchParam): string {
 }
 
 type FilterableGuest = {
+  id: string;
   name?: string;
   email?: string;
+  note?: string | null;
+  canBringPlusOne?: boolean;
   invitation?: { sentAt?: string | Date | null } | null;
-  rsvp?: unknown | null;
+  rsvp?: { status?: string | null; headcount?: number | null } | null;
 };
 
 export function filterGuests<T extends FilterableGuest>(

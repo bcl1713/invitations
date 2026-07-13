@@ -319,7 +319,7 @@ export default async function EventDashboardPage({
                             </label>
                             <label>
                               Note
-                              <textarea name="note" rows={2} defaultValue={guest.note} />
+                              <textarea name="note" rows={2} defaultValue={guest.note ?? ''} />
                             </label>
                             <label className="checkbox-row">
                               <input name="canBringPlusOne" type="checkbox" defaultChecked={guest.canBringPlusOne} />

@@ -133,24 +133,26 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
 
   const deletionRow = page.getByRole('row', { name: new RegExp(`${deletionGuestName}.*${deletionGuestEmail}`) });
   await expect(deletionRow).toBeVisible();
-  const dismissDeletionDialog = page.waitForEvent('dialog');
+  const dismissDeletionDialog = page.waitForEvent('dialog').then(async (dialog) => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain(deletionGuestName);
+    await dialog.dismiss();
+  });
   await deletionRow.getByRole('button', { name: 'Delete guest' }).click();
-  const dismissedDialog = await dismissDeletionDialog;
-  expect(dismissedDialog.type()).toBe('confirm');
-  expect(dismissedDialog.message()).toContain(deletionGuestName);
-  await dismissedDialog.dismiss();
+  await dismissDeletionDialog;
   await expect(deletionRow).toBeVisible();
   const guestsStatValue = page.locator('.stats-grid > div').filter({
     has: page.locator('span', { hasText: /^Guests$/ }),
   }).locator('strong');
   await expect(guestsStatValue).toHaveText(/^\d+$/);
   const guestCountBeforeDeletion = Number(await guestsStatValue.textContent());
-  const acceptDeletionDialog = page.waitForEvent('dialog');
+  const acceptDeletionDialog = page.waitForEvent('dialog').then(async (dialog) => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain(deletionGuestName);
+    await dialog.accept();
+  });
   await deletionRow.getByRole('button', { name: 'Delete guest' }).click();
-  const acceptedDialog = await acceptDeletionDialog;
-  expect(acceptedDialog.type()).toBe('confirm');
-  expect(acceptedDialog.message()).toContain(deletionGuestName);
-  await acceptedDialog.accept();
+  await acceptDeletionDialog;
   await expect(deletionRow).toHaveCount(0);
   await expect(guestsStatValue).toHaveText(String(guestCountBeforeDeletion - 1));
 
