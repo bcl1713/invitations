@@ -7,6 +7,11 @@ export const GUEST_FILTER_OPTIONS = [
 ] as const;
 
 export type GuestFilterKey = (typeof GUEST_FILTER_OPTIONS)[number]['key'];
+export type GuestSearchParam = string | string[] | undefined;
+
+export function normalizeGuestSearch(searchQuery: GuestSearchParam): string {
+  return Array.isArray(searchQuery) ? searchQuery[0] ?? '' : searchQuery ?? '';
+}
 
 type FilterableGuest = {
   name?: string;

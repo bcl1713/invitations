@@ -5,6 +5,7 @@ import { requireHostSession } from '@/lib/host-session';
 import {
   buildGuestFilterLinks,
   filterGuests,
+  normalizeGuestSearch,
 } from '@/modules/events/event-dashboard-filters';
 import { getEventDashboard } from '@/modules/events/event-service';
 import { formatEventDateTime, formatEventDateTimeLocal } from '@/modules/events/event-time';
@@ -23,11 +24,12 @@ export default async function EventDashboardPage({
   searchParams,
 }: {
   params: Promise<{ eventId: string }>;
-  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string; guestSearch?: string }>;
+  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string; guestSearch?: string | string[] }>;
 }) {
   await requireHostSession();
   const { eventId } = await params;
-  const { assetCleanup, guestFilter = 'all', guestSearch = '' } = await searchParams;
+  const { assetCleanup, guestFilter = 'all', guestSearch: rawGuestSearch } = await searchParams;
+  const guestSearch = normalizeGuestSearch(rawGuestSearch);
   const data = await getEventDashboard(eventId);
 
   if (!data) {

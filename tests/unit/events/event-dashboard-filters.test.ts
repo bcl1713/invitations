@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildGuestFilterLinks,
   filterGuests,
+  normalizeGuestSearch,
   type GuestFilterKey,
 } from '@/modules/events/event-dashboard-filters';
 
@@ -47,6 +48,19 @@ describe('event dashboard filters', () => {
 
   it('combines a status filter with a guest search', () => {
     expect(filterGuests(guests, 'sent', 'mOrGaN').map((guest) => guest.id)).toEqual(['responded']);
+  });
+
+  it('matches a guest by name directly', () => {
+    expect(filterGuests(guests, 'all', 'Jamie Sent').map((guest) => guest.id)).toEqual(['sent']);
+  });
+
+  it('returns no guests when the search does not match a name or email', () => {
+    expect(filterGuests(guests, 'all', 'Taylor Missing')).toEqual([]);
+  });
+
+  it('normalizes repeated query values to the first guest search value', () => {
+    expect(normalizeGuestSearch(['  Jamie Sent  ', 'Morgan Responded'])).toBe('  Jamie Sent  ');
+    expect(normalizeGuestSearch(undefined)).toBe('');
   });
 
   it('builds stable guest filter links for the dashboard', () => {
