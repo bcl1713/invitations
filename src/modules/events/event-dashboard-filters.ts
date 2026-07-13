@@ -45,13 +45,27 @@ export function filterGuests<T extends FilterableGuest>(
   );
 }
 
-export function buildGuestFilterLinks(eventId: string, activeFilter: string = 'all') {
-  return GUEST_FILTER_OPTIONS.map((filter) => ({
-    ...filter,
-    href:
-      filter.key === 'all'
-        ? `/admin/events/${eventId}`
-        : `/admin/events/${eventId}?guestFilter=${filter.key}`,
-    isActive: filter.key === activeFilter,
-  }));
+export function buildGuestFilterLinks(
+  eventId: string,
+  activeFilter: string = 'all',
+  searchQuery: string = '',
+) {
+  const normalizedSearchQuery = searchQuery.trim();
+
+  return GUEST_FILTER_OPTIONS.map((filter) => {
+    const filterParams = new URLSearchParams();
+    if (filter.key !== 'all') {
+      filterParams.set('guestFilter', filter.key);
+    }
+    if (normalizedSearchQuery) {
+      filterParams.set('guestSearch', normalizedSearchQuery);
+    }
+
+    const query = filterParams.toString();
+    return {
+      ...filter,
+      href: `/admin/events/${encodeURIComponent(eventId)}${query ? `?${query}` : ''}`,
+      isActive: filter.key === activeFilter,
+    };
+  });
 }

@@ -23,11 +23,11 @@ export default async function EventDashboardPage({
   searchParams,
 }: {
   params: Promise<{ eventId: string }>;
-  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string }>;
+  searchParams: Promise<{ assetCleanup?: string; guestFilter?: string; guestSearch?: string }>;
 }) {
   await requireHostSession();
   const { eventId } = await params;
-  const { assetCleanup, guestFilter = 'all' } = await searchParams;
+  const { assetCleanup, guestFilter = 'all', guestSearch = '' } = await searchParams;
   const data = await getEventDashboard(eventId);
 
   if (!data) {
@@ -61,8 +61,11 @@ export default async function EventDashboardPage({
     },
     guest: { name: 'Your guest', canBringPlusOne: true },
   });
-  const filteredGuests = filterGuests(event.guests, guestFilter);
-  const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter);
+  const filteredGuests = filterGuests(event.guests, guestFilter, guestSearch);
+  const guestFilterLinks = buildGuestFilterLinks(event.id, guestFilter, guestSearch);
+  const clearGuestSearchHref = buildGuestFilterLinks(event.id, guestFilter).find(
+    (filter) => filter.key === guestFilter,
+  )?.href ?? `/admin/events/${encodeURIComponent(event.id)}`;
 
   return (
     <main className="page wide-page">
@@ -258,8 +261,21 @@ export default async function EventDashboardPage({
                 </Link>
               ))}
             </div>
+            <form action={`/admin/events/${encodeURIComponent(event.id)}`} method="get" className="row wrap" role="search">
+              {guestFilter !== 'all' ? <input type="hidden" name="guestFilter" value={guestFilter} /> : null}
+              <label>
+                Search guests
+                <input name="guestSearch" type="search" defaultValue={guestSearch} placeholder="Name or email" />
+              </label>
+              <button type="submit">Search</button>
+              {guestSearch.trim() ? <Link href={clearGuestSearchHref}>Clear search</Link> : null}
+            </form>
           </div>
-          <div className="table-scroll">
+          {event.guests.length === 0 ? <p className="muted">No guests have been added yet.</p> : null}
+          {event.guests.length > 0 && filteredGuests.length === 0 ? (
+            <p className="muted">No guests match the current search and status filter.</p>
+          ) : null}
+          {filteredGuests.length > 0 ? <div className="table-scroll">
             <table>
               <thead>
                 <tr>
@@ -315,7 +331,7 @@ export default async function EventDashboardPage({
                 ))}
               </tbody>
             </table>
-          </div>
+          </div> : null}
         </section>
       </section>
     </main>

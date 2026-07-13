@@ -38,12 +38,15 @@ describe('event dashboard filters', () => {
       'sent',
       'responded',
     ]);
-    expect(filterGuests(guests, 'sent', 'mOrGaN').map((guest) => guest.id)).toEqual(['responded']);
     expect(filterGuests(guests, 'all', '   ').map((guest) => guest.id)).toEqual([
       'draft',
       'sent',
       'responded',
     ]);
+  });
+
+  it('combines a status filter with a guest search', () => {
+    expect(filterGuests(guests, 'sent', 'mOrGaN').map((guest) => guest.id)).toEqual(['responded']);
   });
 
   it('builds stable guest filter links for the dashboard', () => {
@@ -56,6 +59,18 @@ describe('event dashboard filters', () => {
       { key: 'responded', label: 'Responded', href: '/admin/events/evt_123?guestFilter=responded', isActive: false },
       { key: 'no-response', label: 'No response', href: '/admin/events/evt_123?guestFilter=no-response', isActive: false },
     ] satisfies Array<{ key: GuestFilterKey; label: string; href: string; isActive: boolean }>);
+  });
+
+  it('preserves an encoded guest search query on every dashboard filter link', () => {
+    const links = buildGuestFilterLinks('evt 123', 'sent', ' Morgan & Co ');
+
+    expect(links.map((link) => link.href)).toEqual([
+      '/admin/events/evt%20123?guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=draft&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=sent&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=responded&guestSearch=Morgan+%26+Co',
+      '/admin/events/evt%20123?guestFilter=no-response&guestSearch=Morgan+%26+Co',
+    ]);
   });
 
   it('marks the active dashboard filter link', () => {
