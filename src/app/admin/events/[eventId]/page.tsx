@@ -251,7 +251,7 @@ export default async function EventDashboardPage({
           <div className="row between wrap">
             <div>
               <h2>Guests</h2>
-              <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row.</p>
+              <p className="muted">Adding a guest does not send the invite unless you check Send invite now. You can still send any draft manually from the guest row. Resending creates a fresh invitation link and invalidates the previous URL.</p>
             </div>
             <div className="row wrap" style={{ gap: '0.5rem' }}>
               {guestFilterLinks.map((filter) => (
@@ -304,7 +304,7 @@ export default async function EventDashboardPage({
                     <td>
                       <div className="stack">
                         <form action={sendInviteAction.bind(null, event.id, guest.id)}>
-                          <button type="submit">Send invite</button>
+                          <button type="submit">{guest.invitation?.sentAt ? 'Resend invite' : 'Send invite'}</button>
                         </form>
                         <details>
                           <summary>Edit guest</summary>
