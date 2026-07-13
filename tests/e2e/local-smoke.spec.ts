@@ -140,6 +140,11 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   expect(dismissedDialog.message()).toContain(deletionGuestName);
   await dismissedDialog.dismiss();
   await expect(deletionRow).toBeVisible();
+  const guestsStatValue = page.locator('.stats-grid > div').filter({
+    has: page.locator('span', { hasText: /^Guests$/ }),
+  }).locator('strong');
+  await expect(guestsStatValue).toHaveText(/^\d+$/);
+  const guestCountBeforeDeletion = Number(await guestsStatValue.textContent());
   const acceptDeletionDialog = page.waitForEvent('dialog');
   await deletionRow.getByRole('button', { name: 'Delete guest' }).click();
   const acceptedDialog = await acceptDeletionDialog;
@@ -147,6 +152,7 @@ test('host can edit an event, upload a hero image, and manage draft vs sent gues
   expect(acceptedDialog.message()).toContain(deletionGuestName);
   await acceptedDialog.accept();
   await expect(deletionRow).toHaveCount(0);
+  await expect(guestsStatValue).toHaveText(String(guestCountBeforeDeletion - 1));
 
   const guestSearch = page.getByRole('search');
   const guestSearchInput = guestSearch.getByLabel('Search guests');
