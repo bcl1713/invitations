@@ -7,35 +7,16 @@ import {
   filterGuests,
 } from '@/modules/events/event-dashboard-filters';
 import { getEventDashboard } from '@/modules/events/event-service';
+import { formatEventDateTime, formatEventDateTimeLocal } from '@/modules/events/event-time';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { TEMPLATE_OPTIONS } from '@/modules/templates/template-catalog';
 
+import { EventTimeZoneInput } from '../../EventTimeZoneInput';
 import { InvitationPreview } from './InvitationPreview';
 import { InvitationDesignEditor } from './InvitationDesignEditor';
 import { addGuestAction, sendInviteAction, updateEventAction, updateGuestAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-
-function formatDateTimeLocalValue(value: Date | string | null) {
-  if (!value) {
-    return '';
-  }
-
-  const date = value instanceof Date ? value : new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
 
 export default async function EventDashboardPage({
   params,
@@ -71,6 +52,7 @@ export default async function EventDashboardPage({
       location: event.location,
       description: event.description,
       startsAt: event.startsAt,
+      timeZone: event.timeZone,
       templateKey: event.templateKey,
       designConfig: event.designConfig,
       heroImagePath: event.heroImagePath,
@@ -99,7 +81,7 @@ export default async function EventDashboardPage({
             <p className="eyebrow">Event dashboard</p>
             <h1>{event.title}</h1>
             <p>{event.location || 'Location TBD'}</p>
-            <p>{event.startsAt ? new Date(event.startsAt).toLocaleString() : 'Time TBD'}</p>
+            <p>{event.startsAt ? formatEventDateTime(event.startsAt, event.timeZone) : 'Time TBD'}</p>
           </div>
           <div className="stack" style={{ alignItems: 'flex-end' }}>
             <a className="button-link" href={`/api/admin/events/${event.id}/export`}>
@@ -139,9 +121,10 @@ export default async function EventDashboardPage({
                 <input
                   name="startsAt"
                   type="datetime-local"
-                  defaultValue={formatDateTimeLocalValue(event.startsAt)}
+                  defaultValue={formatEventDateTimeLocal(event.startsAt, event.timeZone)}
                 />
               </label>
+              <EventTimeZoneInput initialTimeZone={event.timeZone} />
               <label>
                 Description
                 <textarea name="description" rows={5} defaultValue={event.description} />
@@ -222,6 +205,7 @@ export default async function EventDashboardPage({
               location: event.location,
               description: event.description,
               startsAt: event.startsAt ? new Date(event.startsAt).toISOString() : null,
+              timeZone: event.timeZone,
               templateKey: event.templateKey,
               designConfig: event.designConfig ? JSON.stringify(event.designConfig) : undefined,
               heroUrl: event.heroImagePath ? `${env.APP_URL.replace(/\/$/, '')}/media/${event.heroImagePath}` : null,

@@ -84,6 +84,7 @@ describe('updateEvent', () => {
         location: 'Garden Patio',
         description: 'Bring snacks.',
         startsAt: new Date('2026-08-20T18:30:00.000Z'),
+        timeZone: 'UTC',
         templateKey: 'classic',
       },
     });
@@ -154,6 +155,21 @@ describe('updateEvent', () => {
         templateKey: 'modern',
       }),
     });
+  });
+
+  it('persists an explicitly selected event time zone', async () => {
+    await updateEvent('event-1', {
+      title: 'Updated title',
+      hostName: 'Host name',
+      location: 'Event hall',
+      description: 'Description',
+      startsAt: new Date('2026-08-20T22:30:00.000Z'),
+      timeZone: 'America/New_York',
+    });
+
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ timeZone: 'America/New_York' }),
+    }));
   });
 
   it('falls back to the default template when given an unsupported key', async () => {

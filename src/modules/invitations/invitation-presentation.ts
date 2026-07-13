@@ -1,10 +1,6 @@
 import { normalizeInvitationDesign } from '@/modules/invitations/invitation-design';
+import { formatEventDateTime, normalizeEventTimeZone } from '@/modules/events/event-time';
 import { getInvitationTemplateTheme } from '@/modules/templates/invitation-template-theme';
-
-const eventDateFormatter = new Intl.DateTimeFormat('en-US', {
-  dateStyle: 'full',
-  timeStyle: 'short',
-});
 
 export interface InvitationPresentationInput {
   appUrl: string;
@@ -15,6 +11,7 @@ export interface InvitationPresentationInput {
     location: string;
     description: string;
     startsAt: string | Date | null;
+    timeZone?: string | null;
     templateKey: string;
     designConfig?: unknown;
     heroImagePath: string | null;
@@ -49,18 +46,6 @@ function joinUrl(baseUrl: string, relativePath: string | null) {
   return `${baseUrl.replace(/\/$/, '')}/media/${relativePath}`;
 }
 
-function formatEventDate(startsAt: string | Date | null) {
-  if (!startsAt) {
-    return 'A start time will be shared soon.';
-  }
-
-  const date = startsAt instanceof Date ? startsAt : new Date(startsAt);
-  if (Number.isNaN(date.getTime())) {
-    return 'A start time will be shared soon.';
-  }
-
-  return eventDateFormatter.format(date);
-}
 
 function buildTitleLines(title: string, templateKey: string) {
   const trimmed = title.trim();
@@ -95,8 +80,8 @@ function resolveDesignVariables(design: ReturnType<typeof normalizeInvitationDes
     hostname: input.event.hostName.trim(),
     eventtitle: input.event.title.trim(),
     location: input.event.location.trim(),
-    date: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(startsAt) : '',
-    time: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(startsAt) : '',
+    date: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { timeZone: normalizeEventTimeZone(input.event.timeZone), dateStyle: 'long' }).format(startsAt) : '',
+    time: startsAt && !Number.isNaN(startsAt.getTime()) ? new Intl.DateTimeFormat('en-US', { timeZone: normalizeEventTimeZone(input.event.timeZone), timeStyle: 'short' }).format(startsAt) : '',
   };
   return {
     ...design,
@@ -113,7 +98,7 @@ export function buildInvitationPresentation(input: InvitationPresentationInput) 
   const whereText = input.event.location.trim() || 'Location details will be shared soon.';
   const description =
     input.event.description.trim() || 'We would be delighted to celebrate with you. More event details are on the way.';
-  const whenText = formatEventDate(input.event.startsAt);
+  const whenText = formatEventDateTime(input.event.startsAt, input.event.timeZone);
   const design = normalizeInvitationDesign(input.event.designConfig, {
     eyebrow: theme.eyebrow,
     introTitle: theme.introTitle,

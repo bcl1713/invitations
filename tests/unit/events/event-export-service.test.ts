@@ -23,6 +23,8 @@ describe('exportEventCsv', () => {
       id: 'event-1',
       slug: 'summer-party',
       title: 'Summer Party',
+      startsAt: new Date('2026-08-20T22:30:00.000Z'),
+      timeZone: 'America/New_York',
       guests: [
         {
           id: 'guest-1',
@@ -61,6 +63,8 @@ describe('exportEventCsv', () => {
       select: {
         slug: true,
         title: true,
+        startsAt: true,
+        timeZone: true,
         guests: {
           orderBy: [
             { createdAt: 'asc' },
@@ -93,9 +97,9 @@ describe('exportEventCsv', () => {
     expect(result).toEqual({
       fileName: 'summer-party-guests.csv',
       csv: [
-        'guest_name,guest_email,guest_note,plus_one_allowed,invite_status,invite_sent_at,rsvp_status,rsvp_headcount,rsvp_note,rsvp_updated_at',
-        'Alex Example,alex@example.com,Vegetarian,yes,sent,2026-08-20T18:30:00.000Z,GOING,2,See you there,2026-08-22T15:00:00.000Z',
-        'Jamie Draft,jamie@example.com,,no,draft,,,,,',
+        'event_start_time,event_time_zone,guest_name,guest_email,guest_note,plus_one_allowed,invite_status,invite_sent_at,rsvp_status,rsvp_headcount,rsvp_note,rsvp_updated_at',
+        '"Thursday, August 20, 2026 at 6:30 PM",America/New_York,Alex Example,alex@example.com,Vegetarian,yes,sent,2026-08-20T18:30:00.000Z,GOING,2,See you there,2026-08-22T15:00:00.000Z',
+        '"Thursday, August 20, 2026 at 6:30 PM",America/New_York,Jamie Draft,jamie@example.com,,no,draft,,,,,',
       ].join('\n'),
     });
   });

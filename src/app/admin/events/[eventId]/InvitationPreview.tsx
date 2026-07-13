@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ScaledPostcardCanvas } from '@/app/ScaledPostcardCanvas';
+import { parseEventDateTimeLocal } from '@/modules/events/event-time';
 import { buildInvitationPresentation } from '@/modules/invitations/invitation-presentation';
 import { fontCssFamily } from '@/modules/invitations/invitation-design';
 
@@ -12,6 +13,7 @@ type PreviewState = {
   location: string;
   description: string;
   startsAt: string | null;
+  timeZone: string;
   templateKey: string;
   designConfig?: string;
   heroUrl: string | null;
@@ -37,6 +39,22 @@ function parseDesignConfig(value: string | undefined) {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
   } catch {
     return undefined;
+  }
+}
+
+function parsePreviewStartsAt(value: string | null, timeZone: string) {
+  if (!value) {
+    return null;
+  }
+
+  if (/Z$|[+-]\d{2}:\d{2}$/.test(value)) {
+    return value;
+  }
+
+  try {
+    return parseEventDateTimeLocal(value, timeZone);
+  } catch {
+    return null;
   }
 }
 
@@ -103,6 +121,7 @@ export function InvitationPreview({
         location: readTextValue('location'),
         description: readTextValue('description'),
         startsAt: readTextValue('startsAt') || null,
+        timeZone: readTextValue('timeZone') || initialEvent.timeZone,
         templateKey: readTextValue('templateKey') || 'classic',
         designConfig: readTextValue('designConfig') || initialEvent.designConfig,
         heroUrl: updateAssetPreview(heroInput, 'heroUrl', initialEvent.heroUrl),
@@ -143,6 +162,7 @@ export function InvitationPreview({
   }, [initialEvent]);
 
   const presentation = useMemo(() => {
+    const startsAt = parsePreviewStartsAt(preview.startsAt, preview.timeZone);
     const base = buildInvitationPresentation({
       appUrl,
       inviteUrl: '#preview',
@@ -151,7 +171,8 @@ export function InvitationPreview({
         hostName: preview.hostName,
         location: preview.location,
         description: preview.description,
-        startsAt: preview.startsAt,
+        startsAt,
+        timeZone: preview.timeZone,
         templateKey: preview.templateKey,
         designConfig: parseDesignConfig(preview.designConfig),
         heroImagePath: null,

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { clearHostSession, requireHostSession } from '@/lib/host-session';
 import { createEvent } from '@/modules/events/event-service';
+import { parseEventDateTimeLocal } from '@/modules/events/event-time';
 
 export async function createEventAction(formData: FormData) {
   await requireHostSession();
@@ -14,7 +15,8 @@ export async function createEventAction(formData: FormData) {
     description: String(formData.get('description') ?? ''),
     location: String(formData.get('location') ?? ''),
     hostName: String(formData.get('hostName') ?? ''),
-    startsAt: formData.get('startsAt') ? new Date(String(formData.get('startsAt'))) : null,
+    timeZone: String(formData.get('timeZone') ?? ''),
+    startsAt: parseEventDateTimeLocal(String(formData.get('startsAt') ?? ''), String(formData.get('timeZone') ?? '')),
   });
 
   revalidatePath('/admin');
